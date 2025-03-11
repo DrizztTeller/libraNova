@@ -127,7 +127,7 @@ Les administrateurs auront un tableau de bord pour :
 | Utilisateur | me connecter | d'accéder à toutes les fonctionnalités du site |
 | Utilisateur | accéder à mon profil | de modifier/supprimer celui-ci et voir mon historique de login et d'emprunts |
 | Utilisateur | voir ma liste de favoris | de les gérer (visiter la page d'un favoris ou le retirer de la liste) |
-| Utilisateur | mettre en favoris un livre | le sauvegarder et le retrouver plus facilement |
+| Utilisateur | mettre en favoris un livre | le sauvegarder et le retrouver plus facilement, être notifié quand celui-ci est disponible |
 | Utilisateur | emprunter un livre (max 5) | le lire |
 | Administrateur | me connecter | gérer la BDD |
 | Administrateur | gérer la BDD | d'ajouter/modifier/supprimer des tables, users, livres, des tags, des emprunts |
@@ -136,8 +136,23 @@ Les administrateurs auront un tableau de bord pour :
 
 
 
-
-
+## URLS
+- / : page d'acceuil
+- /livres : page affichant tous les livres et un formulaire de tri
+- /livres/ref : page affichant les détails d'un livre
+- /livres/ref/lecture : page affichant le pdf du livre
+- /inscription : page affichant le formulaire d'inscription
+- /connexion : page affichant le formulaire de connexion
+- /profil : page de profil de l'utilisateur connecté : 
+  - permettant de modifier les informations de son compte
+  - permettant de supprimer le compte
+  - de se rediriger vers les fonctionnalités liées à l'utilisateur (favoris)
+- /profil/favoris : pour voir tous les favoris
+- /profil/suivis : pour voir tous les livres favoris en attente de disponibilité
+- /contact : page avec formulaire de contact
+- /rgpd 
+- /cgu 
+- /mentions-legales 
 
 ## Création du projet : 
 ```bash
