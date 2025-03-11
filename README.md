@@ -210,10 +210,11 @@ Les administrateurs auront un tableau de bord pour :
 | id_novel  | int (FK -> Novel)     |
 
 #### Relations
-- **User** peut emprunter plusieurs **Novels** (relation avec `Renting_History`).
-- **User** peut aimer plusieurs **Novels** (relation `User_Likes_Novel`).
-- **Novels** peuvent avoir plusieurs **Tags** (relation `Novel_Tag`).
+- **User** peut emprunter plusieurs **Novel** (relation avec `Renting_History`).
+- **User** peut aimer plusieurs **Novel** (relation `User_Likes_Novel`).
 - **User** a un historique de connexion (**Login_History**).
+- **Novel** peut avoir plusieurs **Tags** (relation `Novel_Tag`).
+- **Novel** peut être emprunté par plusieurs **User** (relation avec `Renting_History`).
 
 
 ## Controllers
