@@ -103,7 +103,7 @@ Les administrateurs auront un tableau de bord pour :
 
 ---
 
-# Début du projet
+# Conception du projet
 
 - Choix du nom : LibraNova
 
@@ -212,6 +212,13 @@ Les administrateurs auront un tableau de bord pour :
 - **User** a un historique de connexion (**Login_History**).
 
 
+## Controllers
+- RegistrationController
+- SecurityController
+- UserController
+- NovelController
+
+
 ## URLS
 - / : page d'acceuil
 - /livres : page affichant tous les livres et un formulaire de tri
@@ -230,16 +237,68 @@ Les administrateurs auront un tableau de bord pour :
 - /mentions-legales 
 
 
-## Création du projet : 
+# Réalisation du projet : 
 
-### Créer l'architecture
+## Créer l'architecture
 ```bash
 symfony new libraNova --webapp
 ```
 
 ---
 
-### Créer une BDD
+## Ajout des dépendances
+
+- Faker
+```bash
+composer require fakerphp/faker --dev 
+```
+
+- Fixtures
+```bash
+composer require orm-fixtures --dev 
+```
+
+- Verificateur d'email
+```bash
+composer require symfonycasts/verify-email-bundle
+```
+
+- Icônes
+```bash
+composer require symfony/ux-icons  
+```
+
+- Paginateur
+```bash
+composer require knplabs/knp-paginator-bundle
+```
+
+- Detecteur d'appareil
+```bash
+composer require matomo/device-detector 
+```
+
+- Symfony UX Autocomplete
+```bash
+composer require symfony/ux-autocomplete
+```
+
+- Tailwind css
+```bash
+composer require symfonycasts/tailwindcss-bundle
+```
+ou 
+```bash
+composer require symfonycasts/tailwind-bundle
+```
+puis
+```bash
+symfony console tailwindcss:init
+symfony console tailwindcss:build --watch
+```
+---
+
+## Créer une BDD
 
 Metre à jour le ficher `.env` avec les informations de connexion à la BDD.
 
@@ -268,7 +327,7 @@ symfony console doctrine:migrations:migrate
 
 ---
 
-### Lancer l'application
+## Lancer l'application
 
 ```bash
 # Lancer l'application
@@ -286,7 +345,7 @@ symfony server:stop
 
 ---
 
-### Accéder à l'application
+## Accéder à l'application
 
 http://localhost:8000 ou http://127.0.0.1:8000
 
@@ -298,8 +357,11 @@ symfony server:ca:install
 
 ---
 
+## Création des controllers, formulaires et des templates
 
-### 🧰 Technologies Utilisées
+---
+
+## 🧰 Technologies Utilisées
 
 - Symfony
 - PHP
