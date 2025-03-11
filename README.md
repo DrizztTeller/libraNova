@@ -142,7 +142,7 @@ Les administrateurs auront un tableau de bord pour :
 | username           | varchar(100)        |
 | email              | varchar(255)        |
 | password           | varchar(255)        |
-| role               | array               |
+| roles              | array               |
 | rented_novels_count| int (0-5)           |
 | is_adult           | boolean             |
 | ref                | varchar(255)        |
