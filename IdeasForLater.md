@@ -1,3 +1,4 @@
+- Panier pour les demandes
 - Messagerie
 - Commentaires
 - Abonnements
