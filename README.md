@@ -27,7 +27,7 @@ Les administrateurs auront un tableau de bord pour :
 - **Emprunt** :  
   - L’utilisateur pourra demander l’emprunt de jusqu’à 5 livres.  
   - L’administrateur déterminera s’il donne l’accès au livre ou non.  
-  - Une fois accepté, l’utilisateur pourra visionner le livre de manière non copiable (lecture en PDF en ligne par exemple).  
+  - Lorsqu’un emprunt à été accepté, l’utilisateur pourra visionner le livre de manière non copiable (lecture en PDF en ligne par exemple).  
   - L’historique des emprunts sera visible par les utilisateurs.  
 
 #### 3.2 Rôles et Permissions  
