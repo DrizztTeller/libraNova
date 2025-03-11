@@ -133,6 +133,81 @@ Les administrateurs auront un tableau de bord pour :
 | Administrateur | gérer la BDD | d'ajouter/modifier/supprimer des tables, users, livres, des tags, des emprunts |
 
 ## BDD
+# Modèle de Base de Données
+
+## User
+| Champ              | Type                |
+|--------------------|--------------------|
+| id                | int (PK)            |
+| username          | varchar(100)        |
+| email            | varchar(255)        |
+| password         | varchar(255)        |
+| role            | array               |
+| rented_novels_count | int (0-5)       |
+| is_adult        | boolean              |
+
+## Novel
+| Champ             | Type                |
+|-------------------|--------------------|
+| id               | int (PK)            |
+| name            | varchar(255)        |
+| author         | varchar(255)        |
+| abstract      | text                 |
+| is_published | boolean              |
+| released_at  | date                 |
+| likes       | int                  |
+| pic        | varchar(255)         |
+| slug      | varchar(255)         |
+| is_for_adult | boolean              |
+
+## Tag
+| Champ           | Type               |
+|----------------|--------------------|
+| id             | int (PK)           |
+| name          | varchar(100)       |
+| description   | text               |
+| is_for_adult | boolean            |
+
+## Renting_History
+| Champ        | Type                  |
+|-------------|----------------------|
+| id          | int (PK)              |
+| user_id     | int (FK -> User)      |
+| novel_id    | int (FK -> Novel)     |
+| start       | datetime immutable    |
+| end         | datetime immutable    |
+| last_page   | int                   |
+| updated_at  | datetime immutable    |
+
+## Login_History
+| Champ        | Type                  |
+|-------------|----------------------|
+| id          | int (PK)              |
+| user_id     | int (FK -> User)      |
+| login_date  | datetime immutable    |
+| ip_address  | varchar(255)          |
+| device      | varchar(255)          |
+| os          | varchar(255)          |
+| browser     | varchar(255)          |
+
+## Novel_Tag (Table de Jointure)
+| Champ       | Type                  |
+|------------|----------------------|
+| id_novel   | int (FK -> Novel)     |
+| id_tag     | int (FK -> Tag)       |
+
+## User_Likes_Novel (Table de Jointure)
+| Champ     | Type                  |
+|----------|----------------------|
+| id_user  | int (FK -> User)     |
+| id_novel | int (FK -> Novel)    |
+
+### Relations
+- **User** peut louer plusieurs **Novels** (relation avec `Renting_History`).
+- **User** peut aimer plusieurs **Novels** (relation `User_Likes_Novel`).
+- **Novels** peuvent avoir plusieurs **Tags** (relation `Novel_Tag`).
+- **User** a un historique de connexion (**Login_History**).
+
 
 
 
