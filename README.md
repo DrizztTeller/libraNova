@@ -145,7 +145,8 @@ Les administrateurs auront un tableau de bord pour :
 | role               | array               |
 | rented_novels_count| int (0-5)           |
 | is_adult           | boolean             |
-| ref                |  varchar(255)       |
+| ref                | varchar(255)        |
+| is_verified        | boolean (à ne pas créer)         |
 
 ### Novel
 | Champ             | Type                |
