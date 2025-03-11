@@ -55,9 +55,16 @@ class Novel
     #[ORM\ManyToMany(targetEntity: Tag::class, mappedBy: 'novels')]
     private Collection $tags;
 
+    /**
+     * @var Collection<int, User>
+     */
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'novels')]
+    private Collection $likes;
+
     public function __construct()
     {
         $this->tags = new ArrayCollection();
+        $this->likes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -219,6 +226,33 @@ class Novel
     {
         if ($this->tags->removeElement($tag)) {
             $tag->removeNovel($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getLikes(): Collection
+    {
+        return $this->likes;
+    }
+
+    public function addLike(User $like): static
+    {
+        if (!$this->likes->contains($like)) {
+            $this->likes->add($like);
+            $like->addNovel($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLike(User $like): static
+    {
+        if ($this->likes->removeElement($like)) {
+            $like->removeNovel($this);
         }
 
         return $this;

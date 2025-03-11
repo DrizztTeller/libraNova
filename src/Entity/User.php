@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -43,6 +45,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255)]
     private ?string $ref = null;
+
+    /**
+     * @var Collection<int, Novel>
+     */
+    #[ORM\ManyToMany(targetEntity: Novel::class, inversedBy: 'likes')]
+    private Collection $novels;
+
+    public function __construct()
+    {
+        $this->novels = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -163,6 +176,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setRef(string $ref): static
     {
         $this->ref = $ref;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Novel>
+     */
+    public function getNovels(): Collection
+    {
+        return $this->novels;
+    }
+
+    public function addNovel(Novel $novel): static
+    {
+        if (!$this->novels->contains($novel)) {
+            $this->novels->add($novel);
+        }
+
+        return $this;
+    }
+
+    public function removeNovel(Novel $novel): static
+    {
+        $this->novels->removeElement($novel);
 
         return $this;
     }
