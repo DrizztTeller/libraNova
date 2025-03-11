@@ -282,7 +282,7 @@ composer require matomo/device-detector
 
 - Symfony UX Autocomplete
 ```bash
-composer require symfony/ux-autocomplete
+composer require symfony/ux-autocomplete  
 ```
 
 - Affichage du mot de passe
@@ -302,16 +302,12 @@ composer require symfony/ux-dropzone
 
 - Tailwind css
 ```bash
-composer require symfonycasts/tailwindcss-bundle
-```
-ou 
-```bash
 composer require symfonycasts/tailwind-bundle
 ```
 puis
 ```bash
-symfony console tailwindcss:init
-symfony console tailwindcss:build --watch
+symfony console tailwind:init
+symfony console tailwind:build --watch
 ```
 ---
 
