@@ -140,14 +140,14 @@ Les administrateurs auront un tableau de bord pour :
 |--------------------|---------------------|
 | id                 | int (PK)            |
 | username           | varchar(100)        |
-| email              | varchar(255)        |
-| password           | varchar(255)        |
-| roles              | array               |
+| email              | varchar(255) (à ne pas créer)         |
+| password           | varchar(255) (à ne pas créer)         |
+| roles              | array (ROLE_USER, ROLE_ADMIN) (à ne pas créer)             |
 | rented_novels_count| int (0-5)           |
 | is_adult           | boolean             |
 | ref                | varchar(255)        |
 | is_verified        | boolean (à ne pas créer)         |
-| novels             | array              |
+| novels             | collection (ManyToMany avec Novel)              |
 
 
 ### Novel
@@ -158,9 +158,9 @@ Les administrateurs auront un tableau de bord pour :
 | author            | varchar(255)        |
 | abstract          | text                |
 | is_published      | boolean             |
-| released_at       | date , nullable               |
+| released_at       | date, nullable               |
 | updated_at        | datetime immutable, nullable |
-| likes             | array                 |
+| likes             | collection (ManyToMany avec User)                 |
 | pic               | varchar(255)        |
 | file              | varchar(255)        |
 | slug              | varchar(255)        |
@@ -179,18 +179,18 @@ Les administrateurs auront un tableau de bord pour :
 | Champ           | Type               |
 |-----------------|--------------------|
 | id              | int (PK)           |
-| user_id         | int (FK -> User)   |
-| novel_id        | int (FK -> Novel)  |
+| user_id         | int (FK -> User, ManyToOne)   |
+| novel_id        | int (FK -> Novel, ManyToOne)  |
 | start           | datetime immutable |
 | end             | datetime immutable |
-| last_page       | int , nullable        |
+| last_page       | int, nullable        |
 | updated_at      | datetime immutable, nullable |
 
 ### Login_History
 | Champ        | Type                  |
 |--------------|-----------------------|
 | id           | int (PK)              |
-| user_id      | int (FK -> User)      |
+| user_id      | int (FK -> User, ManyToOne)      |
 | login_date   | datetime immutable    |
 | ip_address   | varchar(255)          |
 | device       | varchar(255)          |
