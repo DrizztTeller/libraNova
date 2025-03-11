@@ -96,7 +96,12 @@ Les administrateurs auront un tableau de bord pour :
   - Sécurité.  
   - Performance.  
 - Un guide pour l’installation et la configuration sur l’hôte choisi devra être fourni en supplément.  
+&nbsp;  
+&nbsp;  
+&nbsp;
 
+
+---
 
 # Début du projet
 
@@ -109,16 +114,8 @@ Les administrateurs auront un tableau de bord pour :
 - SGBDR (MySQL, MariaDB, PostgreSQL ou SQLite)
 - symfony-cli
 
-## JOUR 1
-- diagrammes de classe (UML) et cas d'utilisations : fait
-- idée de design : fait
-- Se mettre d'accord sur api ou non : non
-- faire le résumé pour Raphaël : fait
-- création du projet sur github : fait
-- ajouter collaborateurs : fait
-- voir comment réaliser les fonctionnalités essentielles : moitier fait
 
-### Diagramme des cas d'utilisations : 
+## Diagramme des cas d'utilisations : 
 | En tant que | Je veux | Afin de |
 | --- | --- | --- |
 | Visiteur | contacter les responsables du site | demander de l'aide |
@@ -127,17 +124,29 @@ Les administrateurs auront un tableau de bord pour :
 | Visiteur | voir les détails d'un livre | d'en apprendre plus sur le livre |
 | Visiteur | rechercher un livre | savoir s'il est disponible |
 | Visiteur | créer un compte | pour emprunter et consulter les livres |
-| Utilisateur | me connecter | d'accéder  |
-| Utilisateur | Renseigner des informations | de créer un CV |
-| Utilisateur | Télécharger mes CV | de les conserver |
+| Utilisateur | me connecter | d'accéder à toutes les fonctionnalités du site |
+| Utilisateur | accéder à mon profil | de modifier/supprimer celui-ci et voir mon historique de login et d'emprunts |
+| Utilisateur | voir ma liste de favoris | de les gérer (visiter la page d'un favoris ou le retirer de la liste) |
+| Utilisateur | mettre en favoris un livre | le sauvegarder et le retrouver plus facilement |
+| Utilisateur | emprunter un livre (max 5) | le lire |
+| Administrateur | me connecter | gérer la BDD |
+| Administrateur | gérer la BDD | d'ajouter/modifier/supprimer des tables, users, livres, des tags, des emprunts |
+
+## BDD
 
 
-### Création du projet : 
-commande : symfony new libraNova --webapp
+
+
+
+
+## Création du projet : 
+```bash
+symfony new libraNova --webapp
+```
 
 ---
 
-### Créer un BDD
+## Créer une BDD
 
 Metre à jour le ficher `.env` avec les informations de connexion à la BDD.
 
@@ -166,7 +175,7 @@ symfony console doctrine:migrations:migrate
 
 ---
 
-### Lancer l'application
+## Lancer l'application
 
 ```bash
 # Lancer l'application
@@ -184,7 +193,7 @@ symfony server:stop
 
 ---
 
-### Accéder à l'application
+## Accéder à l'application
 
 http://localhost:8000 ou http://127.0.0.1:8000
 
@@ -196,9 +205,35 @@ symfony server:ca:install
 
 ---
 
-# Installation du projet 
-- Cloner le projet sur github
+
+
+
+## 🧰 Technologies Utilisées
+
+- Symfony
+- PHP
+- TailwindCSS
+- UX Turbo
+- Doctrine
+- FakerPHP
+&nbsp;  
+&nbsp;  
+&nbsp;
+
+
+
+---
+
+# 🚀 Installation
+
+- Cloner le projet sur github : 
+```bash
+git clone https://github.com/Jensone/todoz-sf.git
+```
 - ouvrir le dossier dans un vscode
 - Supprimer le dépôt distant
-- taper dans le terminal : composer install
-- 
+- taper dans le terminal :
+```bash
+composer install
+symfony serve -d
+```
