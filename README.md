@@ -102,6 +102,13 @@ Les administrateurs auront un tableau de bord pour :
 
 - Choix du nom : LibraNova
 
+## Pre-requis
+
+- PHP 8.3 ou supérieur
+- Composer
+- SGBDR (MySQL, MariaDB, PostgreSQL ou SQLite)
+- symfony-cli
+
 ## JOUR 1
 - diagrammes de classe (UML) et cas d'utilisations : fait
 - idée de design : fait
@@ -111,8 +118,87 @@ Les administrateurs auront un tableau de bord pour :
 - ajouter collaborateurs : fait
 - voir comment réaliser les fonctionnalités essentielles : moitier fait
 
-### Création du projet : 
+### Diagramme des cas d'utilisations : 
+| En tant que | Je veux | Afin de |
+| --- | --- | --- |
+| Visiteur | contacter les responsables du site | demander de l'aide |
+| Visiteur | visiter le site | découvrir celui-ci |
+| Visiteur | voir la liste des livres | découvir le choix existant |
+| Visiteur | voir les détails d'un livre | d'en apprendre plus sur le livre |
+| Visiteur | rechercher un livre | savoir s'il est disponible |
+| Visiteur | créer un compte | pour emprunter et consulter les livres |
+| Utilisateur | me connecter | d'accéder  |
+| Utilisateur | Renseigner des informations | de créer un CV |
+| Utilisateur | Télécharger mes CV | de les conserver |
 
+
+### Création du projet : 
 commande : symfony new libraNova --webapp
 
+---
 
+### Créer un BDD
+
+Metre à jour le ficher `.env` avec les informations de connexion à la BDD.
+
+Exemple : 
+
+```
+DATABASE_URL="mysql://root:@localhost:3306/libraNova?serverVersion=10.11.2-MariaDB&charset=utf8mb4"
+```
+
+Puis dans le terminal, grâce à symfony-cli, créer la BDD :
+
+```bash
+# Créer la BDD
+symfony console doctrine:database:create
+```
+
+```bash
+# Créer le ficher de migration
+symfony console make:migration
+```
+
+```bash
+# Exécuter les migrations
+symfony console doctrine:migrations:migrate
+```
+
+---
+
+### Lancer l'application
+
+```bash
+# Lancer l'application
+symfony server:start
+
+# ou
+symfony serve
+
+# ou sans les logs (non recommandé pour Windows)
+symfony server:start -d
+
+# stopper un serveur en cours d'exécution
+symfony server:stop
+```
+
+---
+
+### Accéder à l'application
+
+http://localhost:8000 ou http://127.0.0.1:8000
+
+Pour travailler en local avec une configuration qui se rapporche au mieux de la production, nous pouvons installer un certificat SSL en local.
+
+```bash
+symfony server:ca:install
+```
+
+---
+
+# Installation du projet 
+- Cloner le projet sur github
+- ouvrir le dossier dans un vscode
+- Supprimer le dépôt distant
+- taper dans le terminal : composer install
+- 
