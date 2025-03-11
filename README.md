@@ -159,6 +159,7 @@ Les administrateurs auront un tableau de bord pour :
 | updated_at        | datetime immutable, nullable |
 | likes             | int                 |
 | pic               | varchar(255)        |
+| file              | varchar(255)        |
 | slug              | varchar(255)        |
 | ref               | varchar(255)        |
 | is_for_adult      | boolean             |
@@ -285,7 +286,17 @@ composer require symfony/ux-autocomplete
 
 - Affichage du mot de passe
 ```bash
-- composer require symfony/ux-toggle-password
+composer require symfony/ux-toggle-password
+```
+
+- Composants twig
+```bash
+composer require symfony/ux-twig-component
+```
+
+- Upload de fichier (pas sûr si besoin car utilisation de easyadmin)
+```bash
+composer require symfony/ux-dropzone
 ```
 
 - Tailwind css
