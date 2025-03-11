@@ -61,10 +61,17 @@ class Novel
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'novels')]
     private Collection $likes;
 
+    /**
+     * @var Collection<int, RentingHistory>
+     */
+    #[ORM\OneToMany(targetEntity: RentingHistory::class, mappedBy: 'novel')]
+    private Collection $rentings;
+
     public function __construct()
     {
         $this->tags = new ArrayCollection();
         $this->likes = new ArrayCollection();
+        $this->rentings = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -253,6 +260,36 @@ class Novel
     {
         if ($this->likes->removeElement($like)) {
             $like->removeNovel($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, RentingHistory>
+     */
+    public function getRentings(): Collection
+    {
+        return $this->rentings;
+    }
+
+    public function addRenting(RentingHistory $renting): static
+    {
+        if (!$this->rentings->contains($renting)) {
+            $this->rentings->add($renting);
+            $renting->setNovel($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRenting(RentingHistory $renting): static
+    {
+        if ($this->rentings->removeElement($renting)) {
+            // set the owning side to null (unless already changed)
+            if ($renting->getNovel() === $this) {
+                $renting->setNovel(null);
+            }
         }
 
         return $this;

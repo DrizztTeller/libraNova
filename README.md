@@ -147,6 +147,8 @@ Les administrateurs auront un tableau de bord pour :
 | is_adult           | boolean             |
 | ref                | varchar(255)        |
 | is_verified        | boolean (à ne pas créer)         |
+| novels             | array              |
+
 
 ### Novel
 | Champ             | Type                |
@@ -156,9 +158,9 @@ Les administrateurs auront un tableau de bord pour :
 | author            | varchar(255)        |
 | abstract          | text                |
 | is_published      | boolean             |
-| released_at       | date                |
+| released_at       | date , nullable               |
 | updated_at        | datetime immutable, nullable |
-| likes             | int                 |
+| likes             | array                 |
 | pic               | varchar(255)        |
 | file              | varchar(255)        |
 | slug              | varchar(255)        |
@@ -181,8 +183,8 @@ Les administrateurs auront un tableau de bord pour :
 | novel_id        | int (FK -> Novel)  |
 | start           | datetime immutable |
 | end             | datetime immutable |
-| last_page       | int                |
-| updated_at      | datetime immutable |
+| last_page       | int , nullable        |
+| updated_at      | datetime immutable, nullable |
 
 ### Login_History
 | Champ        | Type                  |

@@ -52,9 +52,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: Novel::class, inversedBy: 'likes')]
     private Collection $novels;
 
+    /**
+     * @var Collection<int, RentingHistory>
+     */
+    #[ORM\OneToMany(targetEntity: RentingHistory::class, mappedBy: 'user')]
+    private Collection $rentings;
+
     public function __construct()
     {
         $this->novels = new ArrayCollection();
+        $this->rentings = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -200,6 +207,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeNovel(Novel $novel): static
     {
         $this->novels->removeElement($novel);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, RentingHistory>
+     */
+    public function getRentings(): Collection
+    {
+        return $this->rentings;
+    }
+
+    public function addRenting(RentingHistory $renting): static
+    {
+        if (!$this->rentings->contains($renting)) {
+            $this->rentings->add($renting);
+            $renting->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRenting(RentingHistory $renting): static
+    {
+        if ($this->rentings->removeElement($renting)) {
+            // set the owning side to null (unless already changed)
+            if ($renting->getUser() === $this) {
+                $renting->setUser(null);
+            }
+        }
 
         return $this;
     }
