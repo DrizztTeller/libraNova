@@ -103,10 +103,10 @@ Les administrateurs auront un tableau de bord pour :
 - Choix du nom : LibraNova
 
 ## JOUR 1
-- diagrammes de classe (UML) et cas d'utilisations
-- idée de design
-- Se mettre d'accord sur api ou non
+- diagrammes de classe (UML) et cas d'utilisations 
+- idée de design : fait
+- Se mettre d'accord sur api ou non : non
 - faire le résumé pour Raphaël
-- création du projet sur github
+- création du projet sur github : fait
 - voir comment réaliser les fonctionnalités essentielles
 
