@@ -103,10 +103,16 @@ Les administrateurs auront un tableau de bord pour :
 - Choix du nom : LibraNova
 
 ## JOUR 1
-- diagrammes de classe (UML) et cas d'utilisations 
+- diagrammes de classe (UML) et cas d'utilisations : fait
 - idée de design : fait
 - Se mettre d'accord sur api ou non : non
-- faire le résumé pour Raphaël
+- faire le résumé pour Raphaël : fait
 - création du projet sur github : fait
-- voir comment réaliser les fonctionnalités essentielles
+- ajouter collaborateurs : fait
+- voir comment réaliser les fonctionnalités essentielles : moitier fait
+
+### Création du projet : 
+
+commande : symfony new libraNova --webapp
+
 
