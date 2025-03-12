@@ -39,7 +39,7 @@ final class PageController extends AbstractController
             ]);
 
             $novelsTop = $nr->searchNovels([
-                'orderBy' => 'likes',
+                'likes' => true,
                 'orderDirection' => 'DESC',
                 'limit' => 10
             ]);
@@ -61,7 +61,7 @@ final class PageController extends AbstractController
 
             $novelsTop = $nr->searchNovels([
                 'is_for_adult' => false,
-                'orderBy' => 'likes',
+                'likes' => true,
                 'orderDirection' => 'DESC',
                 'limit' => 10
             ]);

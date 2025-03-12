@@ -113,9 +113,9 @@ class SearchService
   private function applyLikesFilter(QueryBuilder $queryBuilder, array $criteria): void
   {
     if (!empty($criteria['likes']) && is_numeric($criteria['likes'])) {
-      $queryBuilder->leftJoin('e.likes', 'l')
+      $queryBuilder->leftJoin('e.likes', 'u')
         ->groupBy('e.id')
-        ->having('COUNT(l.id) >= :likes')
+        ->having('COUNT(u.id) >= :likes')
         ->setParameter('likes', $criteria['likes']);
     }
   }
