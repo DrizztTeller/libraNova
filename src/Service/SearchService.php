@@ -119,20 +119,20 @@ class SearchService
         ->setParameter('likes', $criteria['likes']);
     }
   }
-
+  
+  private function applyPublicationStatusFilter(QueryBuilder $queryBuilder, array $criteria): void
+  {
+    if (isset($criteria['is_published'])) {
+      $queryBuilder->andWhere('e.is_published = :isPublished')
+      ->setParameter('isPublished', $criteria['is_published']);
+    }
+  }
+  
   private function applyAdultFilter(QueryBuilder $queryBuilder, array $criteria): void
   {
     if (isset($criteria['is_for_adult'])) {
       $queryBuilder->andWhere('e.is_for_adult = :isAdult')
         ->setParameter('isAdult', $criteria['is_for_adult']);
-    }
-  }
-
-  private function applyPublicationStatusFilter(QueryBuilder $queryBuilder, array $criteria): void
-  {
-    if (isset($criteria['is_published'])) {
-      $queryBuilder->andWhere('e.is_published = :isPublished')
-        ->setParameter('isPublished', $criteria['is_published']);
     }
   }
 
