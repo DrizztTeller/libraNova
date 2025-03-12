@@ -7,32 +7,17 @@ use App\Entity\RentingHistory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Security;
 
 #[Route('/api/novels', name: 'novel_')]
 class NovelController extends AbstractController
 {
     #[Route('/', methods: ['GET'])]
-    public function index(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    public function index(EntityManagerInterface $entityManager): JsonResponse
     {
         $repository = $entityManager->getRepository(Novel::class);
-        $queryBuilder = $repository->createQueryBuilder('n');
-
-        // 🔎 Recherche et filtres
-        if ($request->query->get('author')) {
-            $queryBuilder->andWhere('n.author LIKE :author')
-                         ->setParameter('author', '%'.$request->query->get('author').'%');
-        }
-        if ($request->query->get('genre')) {
-            $queryBuilder->andWhere('n.genre = :genre')
-                         ->setParameter('genre', $request->query->get('genre'));
-        }
-        if ($request->query->get('popular')) {
-            $queryBuilder->orderBy('n.likes', 'DESC');
-        }
-
-        $novels = $queryBuilder->getQuery()->getResult();
+        $novels = $repository->findAll();
 
         return $this->json($novels);
     }
@@ -41,68 +26,6 @@ class NovelController extends AbstractController
     public function getNovel(Novel $novel): JsonResponse
     {
         return $this->json($novel);
-    }
-
-    #[Route('/create', methods: ['POST'])]
-    public function create(Request $request, EntityManagerInterface $entityManager): JsonResponse
-    {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
-        $data = json_decode($request->getContent(), true);
-
-        $novel = new Novel();
-        $novel->setName($data['name']);
-        $novel->setAuthor($data['author']);
-        $novel->setAbstract($data['abstract']);
-        $novel->setIsPublished($data['is_published'] ?? false);
-        $novel->setReleasedAt(new \DateTime($data['released_at'] ?? 'now'));
-        $novel->setSlug($data['slug'] ?? strtolower(str_replace(' ', '-', $data['name'])));
-        $novel->setIsForAdult($data['is_for_adult'] ?? false);
-
-        $entityManager->persist($novel);
-        $entityManager->flush();
-
-        return $this->json(['message' => 'Livre ajouté avec succès !'], 201);
-    }
-
-    #[Route('/update/{id}', methods: ['PUT'])]
-    public function update(Novel $novel, Request $request, EntityManagerInterface $entityManager): JsonResponse
-    {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
-        $data = json_decode($request->getContent(), true);
-
-        $novel->setName($data['name'] ?? $novel->getName());
-        $novel->setAuthor($data['author'] ?? $novel->getAuthor());
-        $novel->setAbstract($data['abstract'] ?? $novel->getAbstract());
-        $novel->setIsPublished($data['is_published'] ?? $novel->getIsPublished());
-        $novel->setReleasedAt(new \DateTime($data['released_at'] ?? $novel->getReleasedAt()->format('Y-m-d')));
-        $novel->setSlug($data['slug'] ?? $novel->getSlug());
-        $novel->setIsForAdult($data['is_for_adult'] ?? $novel->getIsForAdult());
-
-        $entityManager->flush();
-
-        return $this->json(['message' => 'Livre mis à jour avec succès !']);
-    }
-
-    #[Route('/delete/{id}', methods: ['DELETE'])]
-    public function delete(Novel $novel, EntityManagerInterface $entityManager): JsonResponse
-    {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
-        $entityManager->remove($novel);
-        $entityManager->flush();
-
-        return $this->json(['message' => 'Livre supprimé avec succès !']);
-    }
-
-    #[Route('/check-availability/{id}', methods: ['GET'])]
-    public function checkAvailability(Novel $novel, EntityManagerInterface $entityManager): JsonResponse
-    {
-        $isAvailable = !$entityManager->getRepository(RentingHistory::class)
-                                      ->findOneBy(['novel' => $novel, 'end' => null]);
-
-        return $this->json(['available' => $isAvailable]);
     }
 
     #[Route('/borrow/{id}', methods: ['POST'])]
@@ -125,7 +48,7 @@ class NovelController extends AbstractController
             return $this->json(['error' => 'Ce livre est déjà emprunté.'], 400);
         }
 
-        // Créer l'emprunt
+        // Enregistrer l'emprunt
         $rental = new RentingHistory();
         $rental->setUser($user);
         $rental->setNovel($novel);
@@ -156,5 +79,33 @@ class NovelController extends AbstractController
         $entityManager->flush();
 
         return $this->json(['message' => 'Livre retourné avec succès !']);
+    }
+
+    #[Route('/like/{id}', methods: ['POST'])]
+    public function like(Novel $novel, Security $security, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $user = $security->getUser();
+        if (!$user) {
+            return $this->json(['error' => 'Vous devez être connecté pour liker un livre.'], 403);
+        }
+
+        $novel->setLikes($novel->getLikes() + 1);
+        $entityManager->flush();
+
+        return $this->json(['message' => 'Livre liké avec succès !', 'likes' => $novel->getLikes()]);
+    }
+
+    #[Route('/dislike/{id}', methods: ['POST'])]
+    public function dislike(Novel $novel, Security $security, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $user = $security->getUser();
+        if (!$user) {
+            return $this->json(['error' => 'Vous devez être connecté pour disliker un livre.'], 403);
+        }
+
+        $novel->setDislikes($novel->getDislikes() + 1);
+        $entityManager->flush();
+
+        return $this->json(['message' => 'Livre disliké avec succès !', 'dislikes' => $novel->getDislikes()]);
     }
 }
