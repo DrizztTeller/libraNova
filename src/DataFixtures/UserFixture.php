@@ -33,13 +33,15 @@ class UserFixture extends Fixture
          $admin->setIsGpdr(true);
          $admin->setIsVerified(true);
          $admin->setIsAdult(true);
+         $admin->setRentedNovelsCount(0);
+         $admin->setRef('ADMIN-' . $faker->unique()->numerify('######'));
          
          
          $manager->persist($admin);
         //création de 10 users
         for ($i = 0; $i < 10; $i++) {
             $user = new User();
-            $user->setEmail('admin@admin.com');
+            $user->setEmail($faker->email());
             $user->setPassword($this->passwordHasher->hashPassword($user, 'admin123'));
             $user->setUsername($faker->username);
             $user->setRoles(['ROLE_USER']);
