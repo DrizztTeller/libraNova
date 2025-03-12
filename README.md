@@ -397,6 +397,42 @@ symfony server:ca:install
 
 Puis dans le dossier templates/page, créer les fichiers twig pour la page contact, rgpd, cgu et mentions légales. Fichier twig pour la vue de la page d'acceuil est créée avec la commande. 
 
+### Création Controller et template pour les livres
+```bash
+ symfony console make:crud 
+```
+- Supprimer les éléments inutiles (templates, form, et routes create, delete, update). 
+- Modifier les routes index et show (pour afficher tous les livres avec fonctionnalité de recherche).
+- Créer les routes pour :
+  - emprunter un livre,
+  - rendre un livre,
+  - mettre en favoris un livre,
+  - retirer le favoris d'un livre, 
+  - afficher le pdf d'un livre
+
+### Création Controller et template pour les users
+```bash
+ symfony console make:crud 
+```
+- Supprimer les éléments inutiles (templates, form, et routes index, create et update). 
+- Modifier la route show pour afficher les infos et permettre la modification des informations de l'utilisateur.
+- Créer une route pour voir les favoris avec filtres pour ne voir que ceux qui sont disponibles, ceux en attentes, ceux qui viennent d'être disponibles.
+
+---
+
+## Sécuriser les entités et les formulaires
+Ajouter les contraintes pour chaques propriétés des entités et pour les champs des formulaires
+---
+
+## Créer et lancer les fixtures
+```bash
+ symfony console d:f:l -n  
+```
+
+---
+
+## Installation de easyAdmin
+
 ---
 
 ## 🧰 Technologies Utilisées
