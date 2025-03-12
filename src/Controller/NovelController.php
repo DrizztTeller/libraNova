@@ -16,29 +16,33 @@ class NovelController extends AbstractController
     #[Route('/', name: 'index', methods: ['GET'])]
     public function index(EntityManagerInterface $entityManager): JsonResponse
     {
-        $repository = $entityManager->getRepository(Novel::class);
-        $novels = $repository->findAll();
-
+        $novels = $entityManager->getRepository(Novel::class)->findAll();
         return $this->json($novels);
     }
 
-    #[Route('/{ref}', name: ' Novel', methods: ['GET'])]
-    public function getNovel(Novel $novel): JsonResponse
+    #[Route('/{ref}', name: 'show', methods: ['GET'])]
+    public function getNovel(string $ref, EntityManagerInterface $entityManager): JsonResponse
     {
+        $novel = $entityManager->getRepository(Novel::class)->findOneBy(['ref' => $ref]);
+
+        if (!$novel) {
+            return $this->json(['error' => 'Roman non trouvé'], 404);
+        }
+
         return $this->json($novel);
     }
 
     #[Route('/borrow/{ref}', name: 'borrow', methods: ['POST'])]
-    public function borrow(Novel $novel, EntityManagerInterface $entityManager): JsonResponse
+    public function borrow(string $ref, EntityManagerInterface $entityManager): JsonResponse
     {
         $user = $this->getUser();
         if (!$user) {
             return $this->json(['error' => 'Vous devez être connecté pour emprunter un livre.'], 403);
         }
 
-        $borrowedBooks = $entityManager->getRepository(RentingHistory::class)->count(['user' => $user, 'end' => null]);
-        if ($borrowedBooks >= 5) {
-            return $this->json(['error' => 'Vous ne pouvez pas emprunter plus de 5 livres.'], 400);
+        $novel = $entityManager->getRepository(Novel::class)->findOneBy(['ref' => $ref]);
+        if (!$novel) {
+            return $this->json(['error' => 'Roman non trouvé'], 404);
         }
 
         $existingRental = $entityManager->getRepository(RentingHistory::class)->findOneBy(['novel' => $novel, 'end' => null]);
@@ -59,15 +63,19 @@ class NovelController extends AbstractController
     }
 
     #[Route('/return/{ref}', name: 'return', methods: ['POST'])]
-    public function returnBook(Novel $novel, EntityManagerInterface $entityManager): JsonResponse
+    public function returnBook(string $ref, EntityManagerInterface $entityManager): JsonResponse
     {
         $user = $this->getUser();
         if (!$user) {
             return $this->json(['error' => 'Vous devez être connecté.'], 403);
         }
 
-        $rental = $entityManager->getRepository(RentingHistory::class)->findOneBy(['novel' => $novel, 'user' => $user, 'end' => null]);
+        $novel = $entityManager->getRepository(Novel::class)->findOneBy(['ref' => $ref]);
+        if (!$novel) {
+            return $this->json(['error' => 'Roman non trouvé'], 404);
+        }
 
+        $rental = $entityManager->getRepository(RentingHistory::class)->findOneBy(['novel' => $novel, 'user' => $user, 'end' => null]);
         if (!$rental) {
             return $this->json(['error' => 'Ce livre n’est pas en votre possession.'], 400);
         }
@@ -79,19 +87,22 @@ class NovelController extends AbstractController
     }
 
     #[Route('/like/{ref}', name: 'like', methods: ['POST'])]
-    public function like(Novel $novel, Security $security, EntityManagerInterface $entityManager): JsonResponse
+    public function like(string $ref, EntityManagerInterface $entityManager): JsonResponse
     {
-        $user = $security->getUser();
+        $user = $this->getUser();
         if (!$user) {
             return $this->json(['error' => 'Vous devez être connecté pour liker un livre.'], 403);
         }
 
-        // Vérifier si l'utilisateur a déjà liké
+        $novel = $entityManager->getRepository(Novel::class)->findOneBy(['ref' => $ref]);
+        if (!$novel) {
+            return $this->json(['error' => 'Roman non trouvé'], 404);
+        }
+
         if ($novel->getUsersLiked()->contains($user)) {
             return $this->json(['error' => 'Vous avez déjà liké ce livre.'], 400);
         }
 
-        // Ajouter le like
         $novel->addLike($user);
         $entityManager->flush();
 
@@ -99,62 +110,25 @@ class NovelController extends AbstractController
     }
 
     #[Route('/unlike/{ref}', name: 'unlike', methods: ['POST'])]
-    public function unlike(Novel $novel, EntityManagerInterface $entityManager): JsonResponse
+    public function unlike(string $ref, EntityManagerInterface $entityManager): JsonResponse
     {
         $user = $this->getUser();
         if (!$user) {
             return $this->json(['error' => 'Vous devez être connecté pour annuler un like.'], 403);
         }
 
-        // Vérifier si l'utilisateur a déjà liké
+        $novel = $entityManager->getRepository(Novel::class)->findOneBy(['ref' => $ref]);
+        if (!$novel) {
+            return $this->json(['error' => 'Roman non trouvé'], 404);
+        }
+
         if (!$novel->getUsersLiked()->contains($user)) {
             return $this->json(['error' => 'Vous n’avez pas liké ce livre.'], 400);
         }
 
-        // Supprimer le like
         $novel->removeLike($user);
         $entityManager->flush();
 
         return $this->json(['message' => 'Like annulé avec succès !', 'likes' => $novel->getUsersLiked()->count()]);
-    }
-
-    #[Route('/dislike/{ref}', name: 'dislike', methods: ['POST'])]
-    public function dislike(Novel $novel, EntityManagerInterface $entityManager): JsonResponse
-    {
-        $user = $this->getUser();
-        if (!$user) {
-            return $this->json(['error' => 'Vous devez être connecté pour disliker un livre.'], 403);
-        }
-
-        // Vérifier si l'utilisateur a déjà disliké
-        if ($novel->getUsersDisliked()->contains($user)) {
-            return $this->json(['error' => 'Vous avez déjà disliké ce livre.'], 400);
-        }
-
-        // Ajouter le dislike
-        $novel->addUserDisliked($user);
-        $entityManager->flush();
-
-        return $this->json(['message' => 'Livre disliké avec succès !', 'dislikes' => $novel->getUsersDisliked()->count()]);
-    }
-
-    #[Route('/undislike/{ref}', name: 'undislike', methods: ['POST'])]
-    public function undislike(Novel $novel, Security $security, EntityManagerInterface $entityManager): JsonResponse
-    {
-        $user = $security->getUser();
-        if (!$user) {
-            return $this->json(['error' => 'Vous devez être connecté pour annuler un dislike.'], 403);
-        }
-
-        // Vérifier si l'utilisateur a déjà disliké
-        if (!$novel->getUsersDisliked()->contains($user)) {
-            return $this->json(['error' => 'Vous n’avez pas disliké ce livre.'], 400);
-        }
-
-        // Supprimer le dislike
-        $novel->removeUserDisliked($user);
-        $entityManager->flush();
-
-        return $this->json(['message' => 'Dislike annulé avec succès !', 'dislikes' => $novel->getUsersDisliked()->count()]);
     }
 }
