@@ -12,6 +12,14 @@
         {% endblock %}
     </head>
     <body>
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                {{ include('components/_partials/toast.html.twig', {
+                    'label': label,
+                    'message': message
+                }) }}
+            {% endfor %}
+        {% endfor %}
         {% block body %}{% endblock %}
     </body>
 </html>
