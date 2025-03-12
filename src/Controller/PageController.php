@@ -45,6 +45,7 @@ final class PageController extends AbstractController
     
             $novelsLatest = $nr->searchNovels([
                 'created_within_week' => true,
+                'is_for_adult' => false,
                 'orderBy' => 'created_at',
                 'orderDirection' => 'DESC',
             ]);
