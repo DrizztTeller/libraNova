@@ -9,7 +9,7 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Faker\Factory;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class UserFixtures extends Fixture
+class UserFixture extends Fixture
 {
     
     private UserPasswordHasherInterface $passwordHasher;
@@ -23,16 +23,29 @@ class UserFixtures extends Fixture
     {
         $faker = Factory::create('fr_FR'); // Chargement de Faker
 
+         // Créer un admin
+         $admin = new User();
+         $admin->setEmail('admin@admin.com');
+         $admin->setRoles(['ROLE_ADMIN','ROLE_VERIFIED', 'ROLE_ADULT' ]);
+         $admin->setPassword($this->passwordHasher->hashPassword($admin, 'admin123'));
+         $admin->setUsername('MFT');
+         $admin->setIsTerms(true);
+         $admin->setIsGpdr(true);
+         $admin->setIsVerified(true);
+         $admin->setIsAdult(true);
+         
+         
+         $manager->persist($admin);
         //création de 10 users
         for ($i = 0; $i < 10; $i++) {
             $user = new User();
-            $user->setEmail($faker->email);
-            $user->setPassword($faker->password);
+            $user->setEmail('admin@admin.com');
+            $user->setPassword($this->passwordHasher->hashPassword($user, 'admin123'));
             $user->setUsername($faker->username);
             $user->setRoles(['ROLE_USER']);
             $user->setIsAdult($faker->boolean(70)); // 70% sont adultes
             $user->setRentedNovelsCount($faker->numberBetween(1, 5));// Nombre aléatoire entre 1 et 5 de livre loué
-            $user->setLikedNovelsCount($faker->numberBetween(1, 10));// Nombre aléatoire entre 1 et 10 livre loué
+         //   $user->setLikedNovelsCount($faker->numberBetween(1, 10));// Nombre aléatoire entre 1 et 10 livre loué
             $user->setRef('USER-' . $faker->unique()->numerify('######')); //création d'un numéro pour chaque user
             $user->setIsVerified(true);
             $user->setIsTerms(true);
