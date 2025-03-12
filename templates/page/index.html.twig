@@ -47,8 +47,8 @@
                         <div class="carousel-item flex-none w-64">
                             <div class="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col">
                                 <div class="h-40 bg-gray-300 relative">
-                                    {% if novel.coverImage %}
-                                        <img src="{{ asset('uploads/covers/' ~ novel.coverImage) }}" alt="{{ novel.title }}" class="w-full h-full object-cover">
+                                    {% if novel.pic %}
+                                        <img src="{{ asset('uploads/covers/' ~ novel.pic) }}" alt="{{ novel.title }}" class="w-full h-full object-cover">
                                     {% else %}
                                         <div class="w-full h-full flex items-center justify-center bg-gray-200">
                                             <span class="text-gray-500">Pas d'image</span>
@@ -60,15 +60,14 @@
                                 </div>
                                 <div class="p-4 flex-grow flex flex-col">
                                     <h3 class="font-semibold text-lg mb-1 line-clamp-1">{{ novel.title }}</h3>
-                                    <p class="text-sm text-gray-500 mb-2">Par {{ novel.author.username }}</p>
-                                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ novel.summary|default('Aucun résumé disponible.') }}</p>
+                                    <p class="text-sm text-gray-500 mb-2">Par {{ novel.author }}</p>
+                                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ novel.abstract|default('Aucun résumé disponible.') }}</p>
                                     <div class="mt-auto flex items-center justify-between">
-                                        <span class="text-sm text-gray-500">{{ novel.publishedAt|date('d/m/Y') }}</span>
+                                        <span class="text-sm text-gray-500">{{ novel.releasedAt|date('d/m/Y') }}</span>
                                         <span class="flex items-center text-sm">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500 mr-1" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
                                             </svg>
-                                            {{ novel.likes }}
                                         </span>
                                     </div>
                                 </div>
@@ -110,8 +109,8 @@
                         <div class="carousel-item flex-none w-64">
                             <div class="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col">
                                 <div class="h-40 bg-gray-300 relative">
-                                    {% if novel.coverImage %}
-                                        <img src="{{ asset('uploads/covers/' ~ novel.coverImage) }}" alt="{{ novel.title }}" class="w-full h-full object-cover">
+                                    {% if novel.pic %}
+                                        <img src="{{ asset('uploads/covers/' ~ novel.pic) }}" alt="{{ novel.title }}" class="w-full h-full object-cover">
                                     {% else %}
                                         <div class="w-full h-full flex items-center justify-center bg-gray-200">
                                             <span class="text-gray-500">Pas d'image</span>
@@ -123,15 +122,14 @@
                                 </div>
                                 <div class="p-4 flex-grow flex flex-col">
                                     <h3 class="font-semibold text-lg mb-1 line-clamp-1">{{ novel.title }}</h3>
-                                    <p class="text-sm text-gray-500 mb-2">Par {{ novel.author.username }}</p>
-                                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ novel.summary|default('Aucun résumé disponible.') }}</p>
+                                    <p class="text-sm text-gray-500 mb-2">Par {{ novel.author }}</p>
+                                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ novel.abstract|default('Aucun résumé disponible.') }}</p>
                                     <div class="mt-auto flex items-center justify-between">
                                         <span class="text-sm text-gray-500">{{ novel.createdAt|date('d/m/Y') }}</span>
                                         <span class="flex items-center text-sm">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500 mr-1" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
                                             </svg>
-                                            {{ novel.likes }}
                                         </span>
                                     </div>
                                 </div>
@@ -173,8 +171,8 @@
                         <div class="carousel-item flex-none w-64">
                             <div class="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col">
                                 <div class="h-40 bg-gray-300 relative">
-                                    {% if novel.coverImage %}
-                                        <img src="{{ asset('uploads/covers/' ~ novel.coverImage) }}" alt="{{ novel.title }}" class="w-full h-full object-cover">
+                                    {% if novel.pic %}
+                                        <img src="{{ asset('uploads/covers/' ~ novel.pic) }}" alt="{{ novel.title }}" class="w-full h-full object-cover">
                                     {% else %}
                                         <div class="w-full h-full flex items-center justify-center bg-gray-200">
                                             <span class="text-gray-500">Pas d'image</span>
@@ -186,11 +184,9 @@
                                 </div>
                                 <div class="p-4 flex-grow flex flex-col">
                                     <h3 class="font-semibold text-lg mb-1 line-clamp-1">{{ novel.title }}</h3>
-                                    <p class="text-sm text-gray-500 mb-2">Par {{ novel.author.username }}</p>
-                                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ novel.summary|default('Aucun résumé disponible.') }}</p>
+                                    <p class="text-sm text-gray-500 mb-2">Par {{ novel.author }}</p>
+                                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ novel.abstract|default('Aucun résumé disponible.') }}</p>
                                     <div class="mt-auto flex items-center justify-between">
-                                        <span class="text-sm text-gray-500">{{ novel.likes }} likes</span>
-                                        <span class="text-sm text-gray-500">{{ novel.views|default(0) }} vues</span>
                                     </div>
                                 </div>
                                 <a href="{{ path('novel_show', {'id': novel.id}) }}" class="block bg-blue-500 hover:bg-blue-600 text-white text-center py-2">Lire</a>

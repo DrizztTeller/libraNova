@@ -9,7 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 class SearchService
 {
   private EntityManagerInterface $entityManager;
-  private const ALLOWED_PROPERTIES = ['title', 'author', 'created_at', 'published_at', 'likes', 'tags'];
+  private const ALLOWED_PROPERTIES = ['title', 'author', 'created_at', 'released_at', 'likes', 'tags'];
 
   public function __construct(EntityManagerInterface $entityManager)
   {
@@ -74,7 +74,7 @@ class SearchService
     }
 
     if (!empty($criteria['published_within_week'])) {
-      $queryBuilder->andWhere('e.published_at >= :publishedOneWeekAgo')
+      $queryBuilder->andWhere('e.released_at >= :publishedOneWeekAgo')
         ->setParameter('publishedOneWeekAgo', $oneWeekAgo);
     }
   }
