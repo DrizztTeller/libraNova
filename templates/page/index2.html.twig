@@ -1,4 +1,3 @@
-
 {% extends 'base.html.twig' %}
 
 {% block title %}Bienvenue sur LibraNova - Votre bibliothèque numérique{% endblock %}
@@ -10,12 +9,7 @@
             <h1 class="text-5xl font-bold mb-6">Bienvenue sur LibraNova</h1>
             <p class="text-xl mb-10 max-w-3xl mx-auto">Découvrez un monde de littérature, partagez vos passions et explorez de nouveaux horizons.</p>
             <div class="flex justify-center space-x-4">
-                <a href="{{ path('novel_index') }}" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition duration-300 shadow-lg">Explorer les romans</a>
-                {% if app.user %}
-                    <a href="{{ path('novel_new') }}" class="px-6 py-3 bg-transparent border-2 border-white text-white hover:bg-white hover:text-blue-800 rounded-lg transition duration-300">Publier un roman</a>
-                {% else %}
                     <a href="{{ path('app_register') }}" class="px-6 py-3 bg-transparent border-2 border-white text-white hover:bg-white hover:text-blue-800 rounded-lg transition duration-300">Rejoindre la communauté</a>
-                {% endif %}
             </div>
         </div>
     </section>
@@ -24,27 +18,26 @@
     <section class="container mx-auto px-4 py-16">
         <h2 class="text-3xl font-bold mb-8 relative pb-3 after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-1 after:w-20 after:bg-blue-600">Romans à découvrir</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {% for novel in featuredNovels %}
+            {% for novel in novelsLatest %}
                 <div class="transform transition duration-300 hover:-translate-y-2">
                     <div class="bg-white rounded-lg overflow-hidden shadow-md h-full">
-                        <img src="{{ novel.pic }}" alt="{{ novel.title }}" class="w-full h-56 object-cover">
+                        <img src="{{ novel.pic }}" alt="{{ novel.name }}" class="w-full h-56 object-cover">
                         <div class="p-6">
-                            <h5 class="font-bold text-xl mb-2">{{ novel.title }}</h5>
-                            <p class="text-gray-600 mb-2">{{ novel.author.username }}</p>
-                            <p class="text-gray-800 mb-4">{{ novel.synopsis|striptags|slice(0, 100) }}...</p>
-                            <a href="{{ path('novel_show', {'id': novel.id}) }}" class="inline-block px-4 py-2 border border-blue-600 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition-colors duration-300">Lire plus</a>
+                            <h5 class="font-bold text-xl mb-2">{{ novel.name }}</h5>
+                            <p class="text-gray-600 mb-2">{{ novel.author }}</p>
+                            <p class="text-gray-800 mb-4">{{ novel.abstract|striptags|slice(0, 100) }}...</p>
                         </div>
                     </div>
                 </div>
             {% endfor %}
         </div>
         <div class="text-center mt-10">
-            <a href="{{ path('novel_index') }}" class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">Voir tous les romans</a>
+          
         </div>
     </section>
 
     <!-- Statistics Section -->
-    <section class="bg-gray-100 py-16">
+    {# <section class="bg-gray-100 py-16">
         <div class="container mx-auto px-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="text-center">
@@ -61,10 +54,10 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> #}
 
     <!-- Categories Section -->
-    <section class="container mx-auto px-4 py-16">
+    {# <section class="container mx-auto px-4 py-16">
         <h2 class="text-3xl font-bold mb-8 relative pb-3 after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-1 after:w-20 after:bg-blue-600">Explorez les catégories</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
             {% for category in categories %}
@@ -75,10 +68,10 @@
                 </div>
             {% endfor %}
         </div>
-    </section>
+    </section> #}
 
     <!-- Latest Reviews Section -->
-    <section class="container mx-auto px-4 py-16">
+    {# <section class="container mx-auto px-4 py-16">
         <h2 class="text-3xl font-bold mb-8 relative pb-3 after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-1 after:w-20 after:bg-blue-600">Derniers avis</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             {% for review in latestReviews %}
@@ -107,7 +100,7 @@
                 </div>
             {% endfor %}
         </div>
-    </section>
+    </section> #}
 
     <!-- CTA Section -->
     <section class="bg-blue-600 text-white py-16">
@@ -115,7 +108,6 @@
             <h2 class="text-3xl font-bold mb-4">Prêt à commencer votre voyage littéraire?</h2>
             <p class="text-xl mb-8 max-w-3xl mx-auto">Rejoignez notre communauté de passionnés de littérature dès aujourd'hui.</p>
             {% if app.user %}
-                <a href="{{ path('novel_new') }}" class="inline-block px-6 py-3 bg-white text-blue-600 rounded-lg hover:bg-gray-100 transition duration-300">Partagez votre roman</a>
             {% else %}
                 <div class="flex justify-center space-x-4">
                     <a href="{{ path('app_register') }}" class="px-6 py-3 bg-white text-blue-600 rounded-lg hover:bg-gray-100 transition duration-300">S'inscrire</a>

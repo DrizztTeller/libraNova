@@ -48,7 +48,7 @@
                             <div class="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col">
                                 <div class="h-40 bg-gray-300 relative">
                                     {% if novel.pic %}
-                                        <img src="{{ asset('uploads/covers/' ~ novel.pic) }}" alt="{{ novel.title }}" class="w-full h-full object-cover">
+                                        <img src="{{ novel.pic }}" alt="{{ novel.title }}" class="w-full h-full object-cover">
                                     {% else %}
                                         <div class="w-full h-full flex items-center justify-center bg-gray-200">
                                             <span class="text-gray-500">Pas d'image</span>
@@ -71,7 +71,6 @@
                                         </span>
                                     </div>
                                 </div>
-                                <a href="{{ path('novel_show', {'id': novel.id}) }}" class="block bg-blue-500 hover:bg-blue-600 text-white text-center py-2">Lire</a>
                             </div>
                         </div>
                     {% endfor %}
@@ -110,7 +109,7 @@
                             <div class="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col">
                                 <div class="h-40 bg-gray-300 relative">
                                     {% if novel.pic %}
-                                        <img src="{{ asset('uploads/covers/' ~ novel.pic) }}" alt="{{ novel.title }}" class="w-full h-full object-cover">
+                                        <img src="{{ novel.pic }}" alt="{{ novel.title }}" class="w-full h-full object-cover">
                                     {% else %}
                                         <div class="w-full h-full flex items-center justify-center bg-gray-200">
                                             <span class="text-gray-500">Pas d'image</span>
@@ -133,7 +132,6 @@
                                         </span>
                                     </div>
                                 </div>
-                                <a href="{{ path('novel_show', {'id': novel.id}) }}" class="block bg-blue-500 hover:bg-blue-600 text-white text-center py-2">Lire</a>
                             </div>
                         </div>
                     {% endfor %}
@@ -172,7 +170,7 @@
                             <div class="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col">
                                 <div class="h-40 bg-gray-300 relative">
                                     {% if novel.pic %}
-                                        <img src="{{ asset('uploads/covers/' ~ novel.pic) }}" alt="{{ novel.title }}" class="w-full h-full object-cover">
+                                        <img src="{{ novel.pic }}" alt="{{ novel.title }}" class="w-full h-full object-cover">
                                     {% else %}
                                         <div class="w-full h-full flex items-center justify-center bg-gray-200">
                                             <span class="text-gray-500">Pas d'image</span>
@@ -189,7 +187,6 @@
                                     <div class="mt-auto flex items-center justify-between">
                                     </div>
                                 </div>
-                                <a href="{{ path('novel_show', {'id': novel.id}) }}" class="block bg-blue-500 hover:bg-blue-600 text-white text-center py-2">Lire</a>
                             </div>
                         </div>
                     {% endfor %}
