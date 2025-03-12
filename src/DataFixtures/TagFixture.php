@@ -29,9 +29,9 @@ class TagFixture extends Fixture
                 $tag->setName($name);
                 $tag->setDescription($faker->paragraph());
                 $manager->persist($tag);
+
                 // Définir une référence pour pouvoir l'utiliser dans d'autres fixtures
                 $this->addReference('tag_' . $index, $tag);
-                $this->addReference('tag_' . $name, $tag); // Référence par nom pour faciliter l'accès
 
             }
             // for ($i = 0; $i < count($categories); $i++) {
