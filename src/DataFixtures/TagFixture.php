@@ -2,32 +2,36 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Tag;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
 
-class Tag extends Fixture
+class TagFixture extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
             $faker = Factory::create('fr_FR'); // Chargement de Faker
-            $tags = [];
+            
             $tagNames = [
-                'Roman', 
-                'Science-Fiction', 
-                'Biographie', 
-                'Histoire', 
-                'Jeunesse', 
+                'Roman',
+                'Science-Fiction',
+                'Biographie',
+                'Histoire',
+                'Jeunesse',
                 'Technique',
                 'Manga',
                 'Adulte',
             ];
 
-            foreach ($tagNames as $name) {
+            foreach ($tagNames as $index => $name) {
                 $tag = new Tag();
                 $tag->setName($name);
+                $tag->setDescription($faker->paragraph());
                 $manager->persist($tag);
-                $tags[] = $tag;
+                // Définir une référence pour pouvoir l'utiliser dans d'autres fixtures
+                $this->addReference('tag_' . $index, $tag);
+                $this->addReference('tag_' . $name, $tag); // Référence par nom pour faciliter l'accès
 
             }
             // for ($i = 0; $i < count($categories); $i++) {
