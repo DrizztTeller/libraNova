@@ -138,12 +138,19 @@ class SearchService
 
   private function applySorting(QueryBuilder $queryBuilder, array $criteria): void
   {
-    if (!empty($criteria['orderBy']) && !empty($criteria['orderDirection'])) {
-      $queryBuilder->orderBy('e.' . $criteria['orderBy'], $criteria['orderDirection']);
-    } else {
-      $queryBuilder->orderBy('e.created_at', 'DESC');
-    }
+      if (!empty($criteria['orderBy'])) {
+          if ($criteria['orderBy'] === 'likes') {
+              $queryBuilder->leftJoin('e.likes', 'l')
+                  ->groupBy('e.id')
+                  ->orderBy('COUNT(l.id)', $criteria['orderDirection'] ?? 'DESC');
+          } else {
+              $queryBuilder->orderBy('e.' . $criteria['orderBy'], $criteria['orderDirection'] ?? 'DESC');
+          }
+      } else {
+          $queryBuilder->orderBy('e.created_at', 'DESC');
+      }
   }
+  
 
   private function applyLimit(QueryBuilder $queryBuilder, array $criteria): void
   {
