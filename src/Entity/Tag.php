@@ -22,9 +22,6 @@ class Tag
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
-    #[ORM\Column]
-    private ?bool $is_for_adult = null;
-
     /**
      * @var Collection<int, Novel>
      */
@@ -61,18 +58,6 @@ class Tag
     public function setDescription(string $description): static
     {
         $this->description = $description;
-
-        return $this;
-    }
-
-    public function isForAdult(): ?bool
-    {
-        return $this->is_for_adult;
-    }
-
-    public function setIsForAdult(bool $is_for_adult): static
-    {
-        $this->is_for_adult = $is_for_adult;
 
         return $this;
     }
