@@ -222,6 +222,7 @@ Les administrateurs auront un tableau de bord pour :
 - SecurityController
 - UserController
 - NovelController
+- PageController
 
 
 ## URLS
