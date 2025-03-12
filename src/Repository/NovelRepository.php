@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Novel;
 // use Doctrine\DBAL\Types\Types;
+use App\Service\SearchService;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
@@ -12,9 +13,18 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
  */
 class NovelRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private $searchService;
+
+    public function __construct(ManagerRegistry $registry, SearchService $searchService)
     {
         parent::__construct($registry, Novel::class);
+        $this->searchService = $searchService;
+    }
+
+    public function search(array $criteria)
+    {
+        $queryBuilder = $this->createQueryBuilder('e');
+        return $this->searchService->search($queryBuilder, $criteria);
     }
 
     //    /**
