@@ -177,7 +177,6 @@ Les administrateurs auront un tableau de bord pour :
 | id              | int (PK)           |
 | name            | varchar(100)       |
 | description     | text               |
-| is_for_adult    | boolean            |
 
 ### Renting_History
 | Champ           | Type               |
