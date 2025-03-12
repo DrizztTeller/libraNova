@@ -22,8 +22,6 @@ class Tag
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
-
-
     /**
      * @var Collection<int, Novel>
      */
@@ -63,8 +61,6 @@ class Tag
 
         return $this;
     }
-
-
 
     /**
      * @return Collection<int, Novel>

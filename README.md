@@ -177,7 +177,6 @@ Les administrateurs auront un tableau de bord pour :
 | id              | int (PK)           |
 | name            | varchar(100)       |
 | description     | text               |
-| is_for_adult    | boolean            |
 
 ### Renting_History
 | Champ           | Type               |
@@ -220,6 +219,11 @@ Les administrateurs auront un tableau de bord pour :
 - **Novel** peut avoir plusieurs **Tags** (relation `Novel_Tag`).
 - **Novel** peut être emprunté par plusieurs **User** (relation avec `Renting_History`).
 
+### Roles des utilisateurs 
+- ROLE_USER : rôle de base d'un utilisateur connecté
+- ROLE_VERIFIED : rôle obtenu si email vérifié
+- ROLE_ADULT : rôle si utilisateur a déclaré être majeur
+- ROLE_ADMIN : rôle de l'administrateur
 
 ## Controllers
 - RegistrationController
@@ -394,8 +398,54 @@ symfony server:ca:install
 ```bash
  symfony console make:controller PageController 
 ```
-
 Puis dans le dossier templates/page, créer les fichiers twig pour la page contact, rgpd, cgu et mentions légales. Fichier twig pour la vue de la page d'acceuil est créée avec la commande. 
+
+### Création service de recherche
+- Créer un dossier Service dans le dossier src, puis un fichier SearchService.php
+- Activer le service dans le fichier services.yaml
+- Importer le service dans le NovelRepository
+
+### Création Controller et template pour les livres
+```bash
+ symfony console make:crud 
+```
+- Supprimer les éléments inutiles (templates, form, et routes create, delete, update). 
+- Modifier les routes index et show (pour afficher tous les livres avec fonctionnalité de recherche).
+- Créer les routes pour :
+  - emprunter un livre,
+  - rendre un livre,
+  - mettre en favoris un livre,
+  - retirer le favoris d'un livre, 
+  - afficher le pdf d'un livre
+
+### Création Controller et template pour les users
+```bash
+ symfony console make:crud 
+```
+- Supprimer les éléments inutiles (templates, form, et routes index, create et update). 
+- Modifier la route show pour afficher les infos et permettre la modification des informations de l'utilisateur.
+- Créer une route pour voir les favoris avec filtres pour ne voir que ceux qui sont disponibles, ceux en attentes, ceux qui viennent d'être disponibles.
+- Dans le UserRepository créer 2 fonctions pour : 
+  - récupérer les favoris avec possibilité de filtrage
+  - récupérer que les livres qui sont devenus disponibles
+  
+---
+
+## Sécuriser les entités et les formulaires
+Ajouter les contraintes pour chaques propriétés des entités et pour les champs des formulaires
+
+---
+
+## Créer et lancer les fixtures
+- Modifier le fichier AppFixtures et créer si besoin d'autres fichiers fixtures selon les entités voulues.
+- Lancer les fixtures avec la commande : 
+```bash
+ symfony console d:f:l -n  
+```
+
+---
+
+## Installation de easyAdmin
 
 ---
 
