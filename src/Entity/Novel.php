@@ -67,6 +67,9 @@ class Novel
     #[ORM\OneToMany(targetEntity: RentingHistory::class, mappedBy: 'novel')]
     private Collection $rentings;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $isbn = null;
+
     public function __construct()
     {
         $this->tags = new ArrayCollection();
@@ -291,6 +294,18 @@ class Novel
                 $renting->setNovel(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getIsbn(): ?string
+    {
+        return $this->isbn;
+    }
+
+    public function setIsbn(?string $isbn): static
+    {
+        $this->isbn = $isbn;
 
         return $this;
     }
