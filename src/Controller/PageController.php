@@ -15,7 +15,7 @@ final class PageController extends AbstractController
     {
         $user = $this->getUser();
 
-        if ($user->isAdult() === true) {
+        if ($user && $user->isAdult() === true) {
             $novelsNewest = $nr->searchNovels([
                 'published_within_week' => true,
                 'is_published' => true,
