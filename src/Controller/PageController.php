@@ -2,14 +2,23 @@
 
 namespace App\Controller;
 
-use App\Repository\NovelRepository;
 use DateTime;
+use App\Service\SearchService;
+use App\Repository\NovelRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 final class PageController extends AbstractController
 {
+    private $searchService;
+
+
+    public function __construct(SearchService $searchService)
+    {
+      $this->searchService = $searchService;
+    }
+    
     #[Route('/', name: 'home', methods: ['GET'])]
     public function index(NovelRepository $nr): Response
     {

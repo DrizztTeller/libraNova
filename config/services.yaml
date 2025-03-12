@@ -30,6 +30,6 @@ services:
         arguments:
             $searchService: '@App\Service\SearchService'
 
-    App\Controller\MainController:
+    App\Controller\PageController:
         arguments:
             $searchService: '@App\Service\SearchService'
