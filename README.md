@@ -375,6 +375,17 @@ symfony server:ca:install
 
 ## Création des controllers, formulaires et des templates
 
+### Création Controller et template pour la connexion
+```bash
+ symfony console make:security:form-login 
+```
+
+### Création Controller et template pour l'inscription
+```bash
+ symfony console make:registration-form 
+```
+
+
 ---
 
 ## 🧰 Technologies Utilisées
