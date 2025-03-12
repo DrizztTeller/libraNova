@@ -398,8 +398,12 @@ symfony server:ca:install
 ```bash
  symfony console make:controller PageController 
 ```
-
 Puis dans le dossier templates/page, créer les fichiers twig pour la page contact, rgpd, cgu et mentions légales. Fichier twig pour la vue de la page d'acceuil est créée avec la commande. 
+
+### Création service de recherche
+- Créer un dossier Service dans le dossier src, puis un fichier SearchService.php
+- Activer le service dans le fichier services.yaml
+- Importer le service dans le NovelRepository
 
 ### Création Controller et template pour les livres
 ```bash
@@ -424,10 +428,12 @@ Puis dans le dossier templates/page, créer les fichiers twig pour la page conta
 - Dans le UserRepository créer 2 fonctions pour : 
   - récupérer les favoris avec possibilité de filtrage
   - récupérer que les livres qui sont devenus disponibles
+  
 ---
 
 ## Sécuriser les entités et les formulaires
 Ajouter les contraintes pour chaques propriétés des entités et pour les champs des formulaires
+
 ---
 
 ## Créer et lancer les fixtures
