@@ -69,6 +69,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private bool $isVerified = false;
 
+    #[ORM\Column]
+    private ?bool $is_terms = null;
+
+    #[ORM\Column]
+    private ?bool $is_gpdr = null;
+
     public function __construct()
     {
         $this->novels = new ArrayCollection();
@@ -291,6 +297,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;
+
+        return $this;
+    }
+
+    public function isTerms(): ?bool
+    {
+        return $this->is_terms;
+    }
+
+    public function setIsTerms(bool $is_terms): static
+    {
+        $this->is_terms = $is_terms;
+
+        return $this;
+    }
+
+    public function isGpdr(): ?bool
+    {
+        return $this->is_gpdr;
+    }
+
+    public function setIsGpdr(bool $is_gpdr): static
+    {
+        $this->is_gpdr = $is_gpdr;
 
         return $this;
     }
