@@ -437,6 +437,8 @@ Ajouter les contraintes pour chaques propriétés des entités et pour les champ
 ---
 
 ## Créer et lancer les fixtures
+- Modifier le fichier AppFixtures et créer si besoin d'autres fichiers fixtures selon les entités voulues.
+- Lancer les fixtures avec la commande : 
 ```bash
  symfony console d:f:l -n  
 ```
