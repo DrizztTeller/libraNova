@@ -147,6 +147,8 @@ Les administrateurs auront un tableau de bord pour :
 | is_adult           | boolean             |
 | ref                | varchar(255)        |
 | is_verified        | boolean (à ne pas créer)         |
+| is_terms           | boolean             |
+| is_gpdr            | boolean             |
 | novels             | collection (ManyToMany avec Novel)              |
 
 
@@ -158,13 +160,15 @@ Les administrateurs auront un tableau de bord pour :
 | author            | varchar(255)        |
 | abstract          | text                |
 | is_published      | boolean             |
-| released_at       | date, nullable               |
+| released_at       | date, nullable      |
+| created_at        | datetime immutable  |
 | updated_at        | datetime immutable, nullable |
 | likes             | collection (ManyToMany avec User)                 |
 | pic               | varchar(255)        |
 | file              | varchar(255)        |
 | slug              | varchar(255)        |
 | ref               | varchar(255)        |
+| isbn              | varchar(255)        |
 | is_for_adult      | boolean             |
 
 ### Tag
@@ -386,6 +390,12 @@ symfony server:ca:install
  symfony console make:registration-form 
 ```
 
+### Création Controller et template pour les pages
+```bash
+ symfony console make:controller PageController 
+```
+
+Puis dans le dossier templates/page, créer les fichiers twig pour la page contact, rgpd, cgu et mentions légales. Fichier twig pour la vue de la page d'acceuil est créée avec la commande. 
 
 ---
 
