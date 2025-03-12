@@ -219,6 +219,11 @@ Les administrateurs auront un tableau de bord pour :
 - **Novel** peut avoir plusieurs **Tags** (relation `Novel_Tag`).
 - **Novel** peut être emprunté par plusieurs **User** (relation avec `Renting_History`).
 
+### Roles des utilisateurs 
+- ROLE_USER : rôle de base d'un utilisateur connecté
+- ROLE_VERIFIED : rôle obtenu si email vérifié
+- ROLE_ADULT : rôle si utilisateur a déclaré être majeur
+- ROLE_ADMIN : rôle de l'administrateur
 
 ## Controllers
 - RegistrationController
@@ -416,7 +421,9 @@ Puis dans le dossier templates/page, créer les fichiers twig pour la page conta
 - Supprimer les éléments inutiles (templates, form, et routes index, create et update). 
 - Modifier la route show pour afficher les infos et permettre la modification des informations de l'utilisateur.
 - Créer une route pour voir les favoris avec filtres pour ne voir que ceux qui sont disponibles, ceux en attentes, ceux qui viennent d'être disponibles.
-
+- Dans le UserRepository créer 2 fonctions pour : 
+  - récupérer les favoris avec possibilité de filtrage
+  - récupérer que les livres qui sont devenus disponibles
 ---
 
 ## Sécuriser les entités et les formulaires
