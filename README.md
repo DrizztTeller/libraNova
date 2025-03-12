@@ -321,7 +321,7 @@ Metre à jour le ficher `.env` avec les informations de connexion à la BDD.
 Exemple : 
 
 ```
-DATABASE_URL="mysql://root:@localhost:3306/libraNova?serverVersion=10.11.2-MariaDB&charset=utf8mb4"
+DATABASE_URL="mysql://root:@localhost:3307/libraNova?serverVersion=8.0.32&charset=utf8mb4"
 ```
 
 Puis dans le terminal, grâce à symfony-cli, créer la BDD :
