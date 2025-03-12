@@ -11,6 +11,9 @@ final class PageController extends AbstractController{
     #[Route('/', name: 'home', methods: ['GET'])]
     public function index(EntityManagerInterface $em): Response
     {
+        $novelsNewest = [];
+        $novelsLatest = [];
+        $novelsTop = [];
         return $this->render('page/index.html.twig', [
             'controller_name' => 'PageController',
         ]);
