@@ -26,6 +26,7 @@ class SearchService
     $this->applyExcludedTagsFilter($queryBuilder, $criteria);
     $this->applyLikesFilter($queryBuilder, $criteria);
     $this->applyPublicationStatusFilter($queryBuilder, $criteria);
+    $this->applyAdultFilter($queryBuilder, $criteria);
     $this->applySorting($queryBuilder, $criteria);
     $this->applyLimit($queryBuilder, $criteria);
 
@@ -116,6 +117,14 @@ class SearchService
         ->groupBy('e.id')
         ->having('COUNT(l.id) >= :likes')
         ->setParameter('likes', $criteria['likes']);
+    }
+  }
+
+  private function applyAdultFilter(QueryBuilder $queryBuilder, array $criteria): void
+  {
+    if (isset($criteria['is_for_adult'])) {
+      $queryBuilder->andWhere('e.is_for_adult = :isAdult')
+        ->setParameter('isAdult', $criteria['is_for_adult']);
     }
   }
 
