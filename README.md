@@ -160,7 +160,8 @@ Les administrateurs auront un tableau de bord pour :
 | author            | varchar(255)        |
 | abstract          | text                |
 | is_published      | boolean             |
-| released_at       | date, nullable               |
+| released_at       | date, nullable      |
+| created_at        | datetime immutable  |
 | updated_at        | datetime immutable, nullable |
 | likes             | collection (ManyToMany avec User)                 |
 | pic               | varchar(255)        |
