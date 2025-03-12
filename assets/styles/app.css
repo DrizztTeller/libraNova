@@ -2,6 +2,248 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Variables */
+:root {
+    --bs-primary: #101010;
+    --bs-secondary: #6c757d;
+    --bs-success: #28a745;
+    --bs-info: #17a2b8;
+    --bs-warning: #ffc107;
+    --bs-danger: #dc3545;
+}
+
+/* Core */
 body {
-    background-color: skyblue;
+    font-family: "Inter Tight", sans-serif;
+    letter-spacing: 0.02rem;
+    line-height: 1.5;
+    background: #f8fafc;
+}
+
+.green-200 { color: #75c95c; }
+.grey-200 { color: #dbdada; }
+
+.bg-green-200 { background-color: #75c95c; }
+.bg-grey-200 { background-color: #dbdada; }
+
+.border-success { outline: 2px solid var(--bs-success); }
+.border-warning { outline: 2px solid var(--bs-warning); }
+.border-error { outline: 2px solid var(--bs-danger); }
+
+/* Layout */
+.container-xs { max-width: 400px; }
+.container-sm { max-width: 600px; }
+.container-md { max-width: 800px; }
+.container-lg { max-width: 1000px; }
+.container-xl { max-width: 1200px; }
+
+.center { 
+    display: grid;
+    place-items: center;
+}
+
+.mx-end { align-self: flex-end; }
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Poppins", sans-serif;
+    letter-spacing: -0.1rem;
+    line-height: 1.2;
+    font-weight: 600;
+    padding-bottom: 1.5rem;
+}
+
+.logo {
+    font-family: "Lexend Mega", sans-serif;
+}
+
+.help {
+    font-size: 0.85rem;
+    color: #555;
+}
+
+/* Components */
+.card {
+    border: 0;
+}
+
+.bubble {
+    border-radius: 1rem;
+    padding: 1rem 2rem;
+    margin-bottom: .25rem;
+    border-radius: 0.5rem;
+    max-width: 50%;
+    width: fit-content;
+}
+
+.add {
+    width: 100%;
+    display: grid;
+    place-items: center;
+    padding: 1rem 2rem;
+    /* margin: .5rem; */
+    font-size: .85rem;
+    color: #808080;
+    text-decoration: none;
+    background-color: #efefef;
+    border: 2px dashed #cccccc;
+}
+
+.top-2 {
+    top: 2rem;;
+} 
+.right-2 {
+    right: 2rem;
+    left: unset;
+}
+
+.text-xl { font-size: 3rem; }
+.text-2xl { font-size: 3.5rem; }
+.text-3xl { font-size: 4rem; }
+.text-4xl { font-size: 4.5rem; }
+.text-5xl { font-size: 5rem; }
+
+/* Sizing */
+.h-1 { height: 1rem; }
+.h-2 { height: 2rem; }
+.h-3 { height: 3rem; }
+.h-4 { height: 4rem; }
+.h-5 { height: 5rem; }
+
+.w-1 { width: 1rem; }
+.w-2 { width: 2rem; }
+.w-3 { width: 3rem; }
+.w-4 { width: 4rem; }
+.w-5 { width: 5rem; }
+.w-fit { width: fit-content; }
+
+.p-md { padding: 3rem 0; }
+.p-lg { padding: 6rem 0; }
+.p-xl { padding: 8rem 0; }
+
+/* Colors */
+
+/* Backgrounds */
+
+/* Forms */
+.form-control {
+    border-radius: 0px;
+}
+
+.form-control:focus {
+    box-shadow: inherit;
+    border-color: var(--bs-primary);
+}
+
+/* Buttons */
+.btn {
+    border-radius: 0px;
+}
+
+.btn-primary {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    border: 2px solid var(--bs-primary);
+}
+
+.btn-primary:hover {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+.btn-outline-primary {
+    color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    border: 2px solid var(--bs-primary);
+}
+
+.btn-outline-primary:hover {
+    color: #ffffff !important;
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+/* Component Boxes */
+.boxes {
+    /* max-width: 1000px; */
+    position: relative;
+    overflow-x: hidden;
+}
+
+.box-left-shadow, .box-right-shadow {
+    position: absolute;
+    top: 0;
+    z-index: 100;
+    width: 100px;
+    height: 100%;
+}
+
+.box-left-shadow {
+    left: 0;
+    background: linear-gradient(to right, rgba(255,255,255,1) 20%, rgba(255,255,255,0) 100%);
+}
+
+.box-right-shadow {
+    right: 0;
+    background: linear-gradient(to left, rgba(255,255,255,1) 20%, rgba(255,255,255,0) 100%);
+}
+
+ul { list-style: none; }
+.box-items {
+    display: flex;
+    gap: 1rem;
+}
+
+.box-items.left {
+    animation: fromRightToLeft 60s linear infinite;
+}
+
+.box-items.right {
+    animation: fromLeftToRight 60s linear infinite;
+    transform: translateX(-100%);
+}
+
+.box-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 500px;
+    max-width: 600px;
+    padding: 1rem 2rem;
+    border: 1px solid #ccc;
+}
+
+.box-item-number {
+    font-size: 5rem;
+    font-weight: bold;
+}
+
+.box-item-title {
+    font-size: 2rem;
+    line-height: 1.75rem;
+}
+
+/* Animation */
+@keyframes fromRightToLeft {
+    0% {
+        transform: translateX(0%);
+    }
+    50% {
+        transform: translateX(-50%);
+    }
+    100% {
+        transform: translateX(0%);
+    }
+}
+
+@keyframes fromLeftToRight {
+    0% {
+        transform: translateX(-50%);
+    }
+    50% {
+        transform: translateX(0%);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
 }
