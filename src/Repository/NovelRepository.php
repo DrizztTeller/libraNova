@@ -21,7 +21,7 @@ class NovelRepository extends ServiceEntityRepository
         $this->searchService = $searchService;
     }
 
-    public function search(array $criteria)
+    public function searchNovels(array $criteria)
     {
         $queryBuilder = $this->createQueryBuilder('e');
         return $this->searchService->search($queryBuilder, $criteria);
