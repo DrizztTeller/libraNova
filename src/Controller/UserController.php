@@ -6,10 +6,11 @@ use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 #[Route('/profil', name: 'app_user_')]
 final class UserController extends AbstractController{
@@ -20,7 +21,7 @@ final class UserController extends AbstractController{
     public function profile(User $user): Response
     {
         if (!$user->isVerified()) {
-            $this->addFlash('warning', 'Validez votre email !');
+            $this->addFlash('warning', 'Merci de validez votre email');
         }
 
         return $this->render('user/profile.html.twig', [
@@ -39,18 +40,19 @@ final class UserController extends AbstractController{
         return $this->redirectToRoute('app_user_profile', [], Response::HTTP_SEE_OTHER);
     }
 
+    #[IsGranted('ROLE_VERIFIED')]
     #[Route('/favoris', name: 'bookmarked', methods: ['GET', 'POST'])]
     public function bookmarked(UserRepository $userRepository, Request $request): Response
     {
         $user = $this->getUser();
 
         if (!$user instanceof User) {
-            $this->addFlash('warning', 'Vous devez être connecté pour voir vos favoris');
+            $this->addFlash('danger', 'Vous devez être connecté pour voir vos favoris');
             return $this->redirectToRoute('app_login', [], Response::HTTP_SEE_OTHER);
         }
 
         if (!$user->isVerified()) {
-            $this->addFlash('warning', 'Votre email doit être validé pour accéder à vos favoris.');
+            $this->addFlash('danger', 'Votre email doit être validé pour accéder à vos favoris.');
             return $this->redirectToRoute('app_user_profile', [], Response::HTTP_SEE_OTHER);
         }
 
