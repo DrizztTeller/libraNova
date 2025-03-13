@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\BookmarkedFilterType;
 use App\Repository\NovelRepository;
+use App\Repository\RentingHistoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -99,6 +100,52 @@ final class UserController extends AbstractController
             'user' => $user,
             'form' => $form->createView(),
             'novels' => $novels
+        ]);
+    }
+
+    #[IsGranted('ROLE_VERIFIED')]
+    #[Route('/emprunts', name: 'rented', methods: ['GET', 'POST'])]
+    public function rented(RentingHistoryRepository $rhr): Response
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            $this->addFlash('danger', 'Veuillez vous connecter pour voir vos favoris.');
+            return $this->redirectToRoute('home');
+        }
+
+        if (!$user->isVerified()) {
+            $this->addFlash('danger', 'Votre email doit être validé pour accéder à vos favoris.');
+            return $this->redirectToRoute('app_user_profile');
+        }
+
+        $currentRentals = $rhr->findCurrentRentalsForUser($user);
+
+        return $this->render('user/bookmarked.html.twig', [
+            'user' => $user,
+            'rentings' => $currentRentals
+        ]);
+    }
+
+    #[IsGranted('ROLE_VERIFIED')]
+    #[Route('/emprunts-historique', name: 'renting_history', methods: ['GET', 'POST'])]
+    public function renting_history(RentingHistoryRepository $rhr): Response
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            $this->addFlash('danger', 'Veuillez vous connecter pour voir vos favoris.');
+            return $this->redirectToRoute('home');
+        }
+
+        if (!$user->isVerified()) {
+            $this->addFlash('danger', 'Votre email doit être validé pour accéder à vos favoris.');
+            return $this->redirectToRoute('app_user_profile');
+        }
+
+        $allRenting = $rhr->findBy(['user' => $user]);
+
+        return $this->render('user/bookmarked.html.twig', [
+            'user' => $user,
+            'allRenting' => $allRenting
         ]);
     }
 }
