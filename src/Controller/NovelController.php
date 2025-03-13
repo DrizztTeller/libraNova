@@ -7,128 +7,180 @@ use App\Entity\RentingHistory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
 
 #[Route('/romans', name: 'novel_')]
 class NovelController extends AbstractController
 {
-    #[Route('/', name: 'index', methods: ['GET'])]
-    public function index(EntityManagerInterface $entityManager): JsonResponse
+    private EntityManagerInterface $em;
+
+    public function __construct(EntityManagerInterface $entityManager, NovelRepository $nr)
     {
-        $novels = $entityManager->getRepository(Novel::class)->findAll();
-        return $this->json($novels);
+        $this->em = $entityManager;
+    }
+
+    #[Route('/', name: 'index', methods: ['GET'])]
+    public function index(): Response
+    {
+        $novels = $this->nr->findAll();
+
+        return $this->render('novel/index.html.twig', [
+            'novels' => $novels,
+        ]);
     }
 
     #[Route('/{ref}', name: 'show', methods: ['GET'])]
-    public function getNovel(string $ref, EntityManagerInterface $entityManager): JsonResponse
+    public function getNovel(string $ref): Response
     {
-        $novel = $entityManager->getRepository(Novel::class)->findOneBy(['ref' => $ref]);
+        $novels = $this->nr->findAll();
 
         if (!$novel) {
-            return $this->json(['error' => 'Roman non trouvé'], 404);
+            $this->addFlash('danger', 'Roman non trouvé.');
+            return $this->redirectToRoute('novel_index');
         }
 
-        return $this->json($novel);
+        return $this->render('novel/show.html.twig', [
+            'novel' => $novel,
+        ]);
     }
 
     #[Route('/borrow/{ref}', name: 'borrow', methods: ['POST'])]
-    public function borrow(string $ref, EntityManagerInterface $entityManager): JsonResponse
+    public function borrow(string $ref): Response
     {
         $user = $this->getUser();
         if (!$user) {
-            return $this->json(['error' => 'Vous devez être connecté pour emprunter un livre.'], 403);
+            $this->addFlash('danger', 'Vous devez être connecté pour emprunter un livre.');
+            return $this->redirectToRoute('novel_index');
         }
 
-        $novel = $entityManager->getRepository(Novel::class)->findOneBy(['ref' => $ref]);
+        $novel = $this->em->getRepository(Novel::class)->findOneBy(['ref' => $ref]);
         if (!$novel) {
-            return $this->json(['error' => 'Roman non trouvé'], 404);
+            $this->addFlash('danger', 'Roman non trouvé.');
+            return $this->redirectToRoute('novel_index');
         }
 
-        $existingRental = $entityManager->getRepository(RentingHistory::class)->findOneBy(['novel' => $novel, 'end' => null]);
+        $existingRental = $this->em->getRepository(RentingHistory::class)->findOneBy([
+            'novel' => $novel,
+            'end' => null
+        ]);
+
         if ($existingRental) {
-            return $this->json(['error' => 'Ce livre est déjà emprunté.'], 400);
+            $this->addFlash('danger', 'Ce livre est déjà emprunté.');
+            return $this->redirectToRoute('novel_index');
         }
 
         $rental = new RentingHistory();
         $rental->setUser($user);
         $rental->setNovel($novel);
         $rental->setStart(new \DateTimeImmutable());
-        $rental->setEnd(new \DateTimeImmutable('+5 days'));
 
-        $entityManager->persist($rental);
-        $entityManager->flush();
+        $this->em->persist($rental);
+        $this->em->flush();
 
-        return $this->json(['message' => 'Livre emprunté avec succès !']);
+        $this->addFlash('success', 'Livre emprunté avec succès !');
+        return $this->redirectToRoute('novel_index');
     }
 
     #[Route('/return/{ref}', name: 'return', methods: ['POST'])]
-    public function returnBook(string $ref, EntityManagerInterface $entityManager): JsonResponse
+    public function returnBook(string $ref): Response
     {
         $user = $this->getUser();
         if (!$user) {
-            return $this->json(['error' => 'Vous devez être connecté.'], 403);
+            $this->addFlash('danger', 'Vous devez être connecté.');
+            return $this->redirectToRoute('novel_index');
         }
 
-        $novel = $entityManager->getRepository(Novel::class)->findOneBy(['ref' => $ref]);
+        $novel = $this->em->getRepository(Novel::class)->findOneBy(['ref' => $ref]);
         if (!$novel) {
-            return $this->json(['error' => 'Roman non trouvé'], 404);
+            $this->addFlash('danger', 'Roman non trouvé.');
+            return $this->redirectToRoute('novel_index');
         }
 
-        $rental = $entityManager->getRepository(RentingHistory::class)->findOneBy(['novel' => $novel, 'user' => $user, 'end' => null]);
+        $rental = $this->em->getRepository(RentingHistory::class)->findOneBy([
+            'novel' => $novel,
+            'user' => $user,
+            'end' => null
+        ]);
+
         if (!$rental) {
-            return $this->json(['error' => 'Ce livre n’est pas en votre possession.'], 400);
+            $this->addFlash('danger', 'Ce livre n’est pas en votre possession.');
+            return $this->redirectToRoute('novel_index');
         }
 
         $rental->setEnd(new \DateTimeImmutable());
-        $entityManager->flush();
+        $this->em->flush();
 
-        return $this->json(['message' => 'Livre retourné avec succès !']);
+        $this->addFlash('success', 'Livre retourné avec succès !');
+        return $this->redirectToRoute('novel_index');
     }
 
     #[Route('/like/{ref}', name: 'like', methods: ['POST'])]
-    public function like(string $ref, EntityManagerInterface $entityManager): JsonResponse
+    public function like(string $ref): Response
     {
         $user = $this->getUser();
         if (!$user) {
-            return $this->json(['error' => 'Vous devez être connecté pour liker un livre.'], 403);
+            $this->addFlash('danger', 'Vous devez être connecté pour liker un livre.');
+            return $this->redirectToRoute('novel_index');
         }
 
-        $novel = $entityManager->getRepository(Novel::class)->findOneBy(['ref' => $ref]);
+        $novel = $this->em->getRepository(Novel::class)->findOneBy(['ref' => $ref]);
         if (!$novel) {
-            return $this->json(['error' => 'Roman non trouvé'], 404);
+            $this->addFlash('danger', 'Roman non trouvé.');
+            return $this->redirectToRoute('novel_index');
         }
 
         if ($novel->getUsersLiked()->contains($user)) {
-            return $this->json(['error' => 'Vous avez déjà liké ce livre.'], 400);
+            $this->addFlash('danger', 'Vous avez déjà liké ce livre.');
+            return $this->redirectToRoute('novel_index');
         }
 
         $novel->addLike($user);
-        $entityManager->flush();
+        $this->em->flush();
 
-        return $this->json(['message' => 'Livre liké avec succès !', 'likes' => $novel->getUsersLiked()->count()]);
+        $this->addFlash('success', 'Livre liké avec succès !');
+        return $this->redirectToRoute('novel_index');
     }
 
     #[Route('/unlike/{ref}', name: 'unlike', methods: ['POST'])]
-    public function unlike(string $ref, EntityManagerInterface $entityManager): JsonResponse
+    public function unlike(string $ref): Response
     {
         $user = $this->getUser();
         if (!$user) {
-            return $this->json(['error' => 'Vous devez être connecté pour annuler un like.'], 403);
+            $this->addFlash('danger', 'Vous devez être connecté pour annuler un like.');
+            return $this->redirectToRoute('novel_index');
         }
 
-        $novel = $entityManager->getRepository(Novel::class)->findOneBy(['ref' => $ref]);
+        $novel = $this->em->getRepository(Novel::class)->findOneBy(['ref' => $ref]);
         if (!$novel) {
-            return $this->json(['error' => 'Roman non trouvé'], 404);
+            $this->addFlash('danger', 'Roman non trouvé.');
+            return $this->redirectToRoute('novel_index');
         }
 
         if (!$novel->getUsersLiked()->contains($user)) {
-            return $this->json(['error' => 'Vous n’avez pas liké ce livre.'], 400);
+            $this->addFlash('danger', 'Vous n’avez pas liké ce livre.');
+            return $this->redirectToRoute('novel_index');
         }
 
         $novel->removeLike($user);
-        $entityManager->flush();
+        $this->em->flush();
 
-        return $this->json(['message' => 'Like annulé avec succès !', 'likes' => $novel->getUsersLiked()->count()]);
+        $this->addFlash('success', 'Like annulé avec succès !');
+        return $this->redirectToRoute('novel_index');
+    }
+
+    #[Route('/pdf/{ref}', name: 'pdf', methods: ['GET'])]
+    public function viewPdf(string $ref): Response
+    {
+        $novel = $this->em->getRepository(Novel::class)->findOneBy(['ref' => $ref]);
+        if (!$novel || !$novel->getPdfPath()) {
+            $this->addFlash('danger', 'PDF non disponible pour ce roman.');
+            return $this->redirectToRoute('novel_index');
+        }
+
+        $pdfPath = $this->getParameter('kernel.project_dir') . '/public/uploads/pdf/' . $novel->getPdfPath();
+        return new BinaryFileResponse($pdfPath);
     }
 }
