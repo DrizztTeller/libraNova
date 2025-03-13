@@ -29,11 +29,11 @@ final class UserController extends AbstractController{
     }
 
     #[Route('/{ref}', name: 'delete', methods: ['POST'])]
-    public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, User $user): Response
     {
         if ($this->isCsrfTokenValid('delete'.$user->getRef(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($user);
-            $entityManager->flush();
+            $this->em->remove($user);
+            $this->em->flush();
         }
         $this->addFlash('success', 'Votre compte a bien été supprimé !');
         return $this->redirectToRoute('app_user_profile', [], Response::HTTP_SEE_OTHER);
