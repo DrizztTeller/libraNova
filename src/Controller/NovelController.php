@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/romans', name: 'app_novel_')]
 class NovelController extends AbstractController
@@ -77,6 +78,7 @@ class NovelController extends AbstractController
         ]);
     }
 
+    #[IsGranted('ROLE_VERIFIED')]
     #[Route('/{ref}', name: 'borrow', methods: ['POST'])]
     public function borrow(Novel $novel): Response
     {
@@ -87,6 +89,7 @@ class NovelController extends AbstractController
             return $this->redirectToRoute('app_novel_index');
         }
 
+        //inutile car contrainte sur la route
         if (!$user) {
             $this->addFlash('danger', 'Vous devez être connecté pour emprunter un livre.');
             return $this->redirectToRoute('app_novel_show', ['ref' => $novel->getRef()], Response::HTTP_SEE_OTHER);
@@ -148,11 +151,13 @@ class NovelController extends AbstractController
         return $this->redirectToRoute('app_novel_show', ['ref' => $novel->getRef()], Response::HTTP_SEE_OTHER);
     }
 
+    #[IsGranted('ROLE_VERIFIED')]
     #[Route('/{ref}', name: 'like', methods: ['POST'])]
     public function like(Novel $novel): Response
     {
         $user = $this->getUser();
 
+        // Inutile car contrainte
         if (!$user) {
             $this->addFlash('danger', 'Vous devez être connecté pour mettre en favoris un livre.');
             return $this->redirectToRoute('app_novel_show', ['ref' => $novel->getRef()], Response::HTTP_SEE_OTHER);
@@ -190,6 +195,7 @@ class NovelController extends AbstractController
         return $this->redirectToRoute('app_novel_show', ['ref' => $novel->getRef()], Response::HTTP_SEE_OTHER);
     }
 
+    #[IsGranted('ROLE_VERIFIED')]
     #[Route('/{ref}/pdf', name: 'pdf', methods: ['GET'])]
     public function viewPdf(Novel $novel): Response
     {
