@@ -13,11 +13,18 @@ class SecurityController extends AbstractController
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
 
+        $user = $this->getUser();
         // Si déjà connecté, on redirige
-        if ($this->getUser()) {
-            $this->addFlash('warning', 'Vous êtes déjà connecté.');
-            return $this->redirectToRoute('app_user_profile');
+        if ($user) {
+            if (in_array('ROLE_ADMIN', $user->getRoles())) {
+                return $this->redirectToRoute('admin');
+            } else {
+                $this->addFlash('warning', 'Vous êtes déjà connecté.');
+                return $this->redirectToRoute('app_user_profile');
+            }
         }
+
+
 
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
