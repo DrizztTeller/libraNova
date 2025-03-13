@@ -54,6 +54,11 @@ class Novel
         min: 10,
         minMessage: 'Le résumé doit contenir au moins {{ limit }} caractères.'
     )]
+    #[Assert\Regex(
+        pattern: '/^[A-Z].*\.$/',
+        message: 'Le résumé doit commencer par une majuscule et se terminer par un point.'
+    )]
+    
     private ?string $abstract = null;
 
     #[ORM\Column]
