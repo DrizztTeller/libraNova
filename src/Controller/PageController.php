@@ -16,9 +16,9 @@ final class PageController extends AbstractController
 
     public function __construct(SearchService $searchService)
     {
-      $this->searchService = $searchService;
+        $this->searchService = $searchService;
     }
-    
+
     #[Route('/', name: 'home', methods: ['GET'])]
     public function index(NovelRepository $nr): Response
     {
@@ -28,17 +28,18 @@ final class PageController extends AbstractController
             $novelsNewest = $nr->searchNovels([
                 'published_within_week' => true,
                 'is_published' => true,
-                'orderBy' => 'published_at',
+                'orderBy' => 'released_at',
                 'orderDirection' => 'DESC',
             ]);
-    
+
             $novelsLatest = $nr->searchNovels([
                 'created_within_week' => true,
                 'orderBy' => 'created_at',
                 'orderDirection' => 'DESC',
             ]);
-    
+
             $novelsTop = $nr->searchNovels([
+                'likes' => true,
                 'orderBy' => 'likes',
                 'orderDirection' => 'DESC',
                 'limit' => 10
@@ -48,27 +49,28 @@ final class PageController extends AbstractController
                 'published_within_week' => true,
                 'is_published' => true,
                 'is_for_adult' => false,
-                'orderBy' => 'published_at',
+                'orderBy' => 'released_at',
                 'orderDirection' => 'DESC',
             ]);
-    
+
             $novelsLatest = $nr->searchNovels([
                 'created_within_week' => true,
                 'is_for_adult' => false,
                 'orderBy' => 'created_at',
                 'orderDirection' => 'DESC',
             ]);
-    
+
             $novelsTop = $nr->searchNovels([
                 'is_for_adult' => false,
+                'likes' => true,
                 'orderBy' => 'likes',
                 'orderDirection' => 'DESC',
                 'limit' => 10
             ]);
         }
-       
 
-        return $this->render('page/index.html.twig', [
+
+        return $this->render('page/index2.html.twig', [
             'novelsNewest' => $novelsNewest,
             'novelsLatest' => $novelsLatest,
             'novelsTop' => $novelsTop,

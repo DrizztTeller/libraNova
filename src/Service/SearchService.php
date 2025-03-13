@@ -9,7 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 class SearchService
 {
   private EntityManagerInterface $entityManager;
-  private const ALLOWED_PROPERTIES = ['title', 'author', 'created_at', 'published_at', 'likes', 'tags'];
+  private const ALLOWED_PROPERTIES = ['title', 'author', 'created_at', 'released_at', 'likes', 'tags'];
 
   public function __construct(EntityManagerInterface $entityManager)
   {
@@ -74,7 +74,7 @@ class SearchService
     }
 
     if (!empty($criteria['published_within_week'])) {
-      $queryBuilder->andWhere('e.published_at >= :publishedOneWeekAgo')
+      $queryBuilder->andWhere('e.released_at >= :publishedOneWeekAgo')
         ->setParameter('publishedOneWeekAgo', $oneWeekAgo);
     }
   }
@@ -113,9 +113,9 @@ class SearchService
   private function applyLikesFilter(QueryBuilder $queryBuilder, array $criteria): void
   {
     if (!empty($criteria['likes']) && is_numeric($criteria['likes'])) {
-      $queryBuilder->leftJoin('e.likes', 'l')
+      $queryBuilder->leftJoin('e.likes', 'u')
         ->groupBy('e.id')
-        ->having('COUNT(l.id) >= :likes')
+        ->having('COUNT(u.id) >= :likes')
         ->setParameter('likes', $criteria['likes']);
     }
   }
@@ -138,12 +138,19 @@ class SearchService
 
   private function applySorting(QueryBuilder $queryBuilder, array $criteria): void
   {
-    if (!empty($criteria['orderBy']) && !empty($criteria['orderDirection'])) {
-      $queryBuilder->orderBy('e.' . $criteria['orderBy'], $criteria['orderDirection']);
-    } else {
-      $queryBuilder->orderBy('e.created_at', 'DESC');
-    }
+      if (!empty($criteria['orderBy'])) {
+          if ($criteria['orderBy'] === 'likes') {
+              $queryBuilder->leftJoin('e.likes', 'l')
+                  ->groupBy('e.id')
+                  ->orderBy('COUNT(l.id)', $criteria['orderDirection'] ?? 'DESC');
+          } else {
+              $queryBuilder->orderBy('e.' . $criteria['orderBy'], $criteria['orderDirection'] ?? 'DESC');
+          }
+      } else {
+          $queryBuilder->orderBy('e.created_at', 'DESC');
+      }
   }
+  
 
   private function applyLimit(QueryBuilder $queryBuilder, array $criteria): void
   {

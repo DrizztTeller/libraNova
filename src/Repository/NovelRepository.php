@@ -44,18 +44,18 @@ class NovelRepository extends ServiceEntityRepository
 
     // public function findByProperty(string $property, string $operator, mixed $filter): array
     // {
-    //     $allowedProperties = ['title', 'author', 'created_at', 'published_at', 'likes'];
+    //     $allowedProperties = ['title', 'author', 'created_at', 'released_at', 'likes'];
     //     if (!in_array($property, $allowedProperties)) {
     //         throw new \InvalidArgumentException("Propriété non autorisée.");
     //     }
-    
+
     //     $allowedOperators = ['=', '!=', '<', '>', '<=', '>='];
     //     if (!in_array($operator, $allowedOperators)) {
     //         throw new \InvalidArgumentException("Opérateur non autorisé.");
     //     }
-    
+
     //     $qb = $this->createQueryBuilder('n');
-    
+
     //     if ($property === 'likes') {
     //         // Gestion du COUNT(likes)
     //         $qb->leftJoin('n.likes', 'u')
@@ -64,11 +64,11 @@ class NovelRepository extends ServiceEntityRepository
     //             ->setParameter('filter', $filter);
     //     } else {
     //         // Gestion des autres propriétés
-    //         $type = in_array($property, ['created_at', 'published_at']) ? Types::DATETIME_IMMUTABLE : Types::STRING;
+    //         $type = in_array($property, ['created_at', 'released_at']) ? Types::DATETIME_IMMUTABLE : Types::STRING;
     //         $qb->where("n.$property $operator :filter")
     //             ->setParameter('filter', $filter, $type);
     //     }
-    
+
     //     return $qb->orderBy("n.$property", 'DESC')
     //         ->getQuery()
     //         ->getResult();

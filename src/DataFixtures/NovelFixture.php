@@ -65,8 +65,7 @@ class NovelFixture extends Fixture implements DependentFixtureInterface
             $prefix = $titlePrefixes[$tagName] ?? '';
             $title = $prefix . $faker->words(3, true);
 
-
-            $novel->setName($title);
+            $novel->setTitle($title);
             $novel->setAuthor($faker->randomElement($authors));  // Attribuer un auteur aléatoire
             $novel->setAbstract($faker->paragraphs(3, true));
             $novel->setIsPublished(true);
