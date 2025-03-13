@@ -36,11 +36,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         min: 8,
         minMessage: "Le mot de passe doit contenir au moins 8 caractères."
     )]
+    #[Assert\Regex(
+        pattern: '/[!@#$%^&*(),.?":{}|<>]/',
+        message: "Le mot de passe doit contenir au moins un caractère spécial."
+    )]
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "Le nom d'utilisateur est obligatoire.")]
     #[Assert\Length(min: 3, max: 50, minMessage: "Le nom d'utilisateur doit contenir au moins 3 caractères.")]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z0-9\-]+$/',
+        message: "Le nom d'utilisateur ne peut contenir que des lettres, des chiffres et des traits d'union."
+    )]  
     private ?string $username = null;
 
     #[ORM\Column(type: Types::SMALLINT)]
