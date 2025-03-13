@@ -103,7 +103,7 @@ Les administrateurs auront un tableau de bord pour :
 
 ---
 
-# Début du projet
+# Conception du projet
 
 - Choix du nom : LibraNova
 
@@ -132,83 +132,105 @@ Les administrateurs auront un tableau de bord pour :
 | Administrateur | me connecter | gérer la BDD |
 | Administrateur | gérer la BDD | d'ajouter/modifier/supprimer des tables, users, livres, des tags, des emprunts |
 
-## BDD
-# Modèle de Base de Données
 
-## User
+## Modèle de Base de Données
+
+### User
 | Champ              | Type                |
-|--------------------|--------------------|
-| id                | int (PK)            |
-| username          | varchar(100)        |
-| email            | varchar(255)        |
-| password         | varchar(255)        |
-| role            | array               |
-| rented_novels_count | int (0-5)       |
-| is_adult        | boolean              |
+|--------------------|---------------------|
+| id                 | int (PK)            |
+| username           | varchar(100)        |
+| email              | varchar(255) (à ne pas créer)         |
+| password           | varchar(255) (à ne pas créer)         |
+| roles              | array (ROLE_USER, ROLE_ADMIN) (à ne pas créer)             |
+| rented_novels_count| int (0-5)           |
+| is_adult           | boolean             |
+| ref                | varchar(255)        |
+| is_verified        | boolean (à ne pas créer)         |
+| is_terms           | boolean             |
+| is_gpdr            | boolean             |
+| novels             | collection (ManyToMany avec Novel)              |
 
-## Novel
+
+### Novel
 | Champ             | Type                |
-|-------------------|--------------------|
-| id               | int (PK)            |
-| name            | varchar(255)        |
-| author         | varchar(255)        |
-| abstract      | text                 |
-| is_published | boolean              |
-| released_at  | date                 |
-| likes       | int                  |
-| pic        | varchar(255)         |
-| slug      | varchar(255)         |
-| is_for_adult | boolean              |
+|-------------------|---------------------|
+| id                | int (PK)            |
+| name              | varchar(255)        |
+| author            | varchar(255)        |
+| abstract          | text                |
+| is_published      | boolean             |
+| released_at       | date, nullable      |
+| created_at        | datetime immutable  |
+| updated_at        | datetime immutable, nullable |
+| likes             | collection (ManyToMany avec User)                 |
+| pic               | varchar(255)        |
+| file              | varchar(255)        |
+| slug              | varchar(255)        |
+| ref               | varchar(255)        |
+| isbn              | varchar(255)        |
+| is_for_adult      | boolean             |
 
-## Tag
+### Tag
 | Champ           | Type               |
-|----------------|--------------------|
-| id             | int (PK)           |
-| name          | varchar(100)       |
-| description   | text               |
-| is_for_adult | boolean            |
+|-----------------|--------------------|
+| id              | int (PK)           |
+| name            | varchar(100)       |
+| description     | text               |
 
-## Renting_History
+### Renting_History
+| Champ           | Type               |
+|-----------------|--------------------|
+| id              | int (PK)           |
+| user_id         | int (FK -> User, ManyToOne)   |
+| novel_id        | int (FK -> Novel, ManyToOne)  |
+| start           | datetime immutable |
+| end             | datetime immutable |
+| last_page       | int, nullable        |
+| updated_at      | datetime immutable, nullable |
+
+### Login_History
 | Champ        | Type                  |
-|-------------|----------------------|
-| id          | int (PK)              |
-| user_id     | int (FK -> User)      |
-| novel_id    | int (FK -> Novel)     |
-| start       | datetime immutable    |
-| end         | datetime immutable    |
-| last_page   | int                   |
-| updated_at  | datetime immutable    |
+|--------------|-----------------------|
+| id           | int (PK)              |
+| user_id      | int (FK -> User, ManyToOne)      |
+| login_date   | datetime immutable    |
+| ip_address   | varchar(255)          |
+| device       | varchar(255)          |
+| os           | varchar(255)          |
+| browser      | varchar(255)          |
 
-## Login_History
-| Champ        | Type                  |
-|-------------|----------------------|
-| id          | int (PK)              |
-| user_id     | int (FK -> User)      |
-| login_date  | datetime immutable    |
-| ip_address  | varchar(255)          |
-| device      | varchar(255)          |
-| os          | varchar(255)          |
-| browser     | varchar(255)          |
-
-## Novel_Tag (Table de Jointure)
+### Novel_Tag (Table de Jointure)
 | Champ       | Type                  |
-|------------|----------------------|
-| id_novel   | int (FK -> Novel)     |
-| id_tag     | int (FK -> Tag)       |
+|-------------|-----------------------|
+| id_novel    | int (FK -> Novel)     |
+| id_tag      | int (FK -> Tag)       |
 
-## User_Likes_Novel (Table de Jointure)
+### User_Likes_Novel (Table de Jointure)
 | Champ     | Type                  |
-|----------|----------------------|
-| id_user  | int (FK -> User)     |
-| id_novel | int (FK -> Novel)    |
+|-----------|-----------------------|
+| id_user   | int (FK -> User)      |
+| id_novel  | int (FK -> Novel)     |
 
-### Relations
-- **User** peut louer plusieurs **Novels** (relation avec `Renting_History`).
-- **User** peut aimer plusieurs **Novels** (relation `User_Likes_Novel`).
-- **Novels** peuvent avoir plusieurs **Tags** (relation `Novel_Tag`).
+#### Relations
+- **User** peut emprunter plusieurs **Novel** (relation avec `Renting_History`).
+- **User** peut aimer plusieurs **Novel** (relation `User_Likes_Novel`).
 - **User** a un historique de connexion (**Login_History**).
+- **Novel** peut avoir plusieurs **Tags** (relation `Novel_Tag`).
+- **Novel** peut être emprunté par plusieurs **User** (relation avec `Renting_History`).
 
+### Roles des utilisateurs 
+- ROLE_USER : rôle de base d'un utilisateur connecté
+- ROLE_VERIFIED : rôle obtenu si email vérifié
+- ROLE_ADULT : rôle si utilisateur a déclaré être majeur
+- ROLE_ADMIN : rôle de l'administrateur
 
+## Controllers
+- RegistrationController
+- SecurityController
+- UserController
+- NovelController
+- PageController
 
 
 ## URLS
@@ -222,18 +244,83 @@ Les administrateurs auront un tableau de bord pour :
   - permettant de modifier les informations de son compte
   - permettant de supprimer le compte
   - de se rediriger vers les fonctionnalités liées à l'utilisateur (favoris)
-- /profil/favoris : pour voir tous les favoris
-- /profil/suivis : pour voir tous les livres favoris en attente de disponibilité
+- /profil/favoris : pour voir tous les favoris avec un filtre pour n'afficher que ceux qui sont dispo ou inversement
 - /contact : page avec formulaire de contact
 - /rgpd 
 - /cgu 
 - /mentions-legales 
 
-## Création du projet : 
+
+# Réalisation du projet : 
+
+## Créer l'architecture
 ```bash
 symfony new libraNova --webapp
 ```
 
+---
+
+## Ajout des dépendances
+
+- Faker
+```bash
+composer require fakerphp/faker --dev 
+```
+
+- Fixtures
+```bash
+composer require orm-fixtures --dev 
+```
+
+- Verificateur d'email
+```bash
+composer require symfonycasts/verify-email-bundle
+```
+
+- Icônes
+```bash
+composer require symfony/ux-icons  
+```
+
+- Paginateur
+```bash
+composer require knplabs/knp-paginator-bundle
+```
+
+- Detecteur d'appareil
+```bash
+composer require matomo/device-detector 
+```
+
+- Symfony UX Autocomplete
+```bash
+composer require symfony/ux-autocomplete  
+```
+
+- Affichage du mot de passe
+```bash
+composer require symfony/ux-toggle-password
+```
+
+- Composants twig
+```bash
+composer require symfony/ux-twig-component
+```
+
+- Upload de fichier (pas sûr si besoin car utilisation de easyadmin)
+```bash
+composer require symfony/ux-dropzone
+```
+
+- Tailwind css
+```bash
+composer require symfonycasts/tailwind-bundle
+```
+puis
+```bash
+symfony console tailwind:init
+symfony console tailwind:build --watch
+```
 ---
 
 ## Créer une BDD
@@ -243,7 +330,7 @@ Metre à jour le ficher `.env` avec les informations de connexion à la BDD.
 Exemple : 
 
 ```
-DATABASE_URL="mysql://root:@localhost:3306/libraNova?serverVersion=10.11.2-MariaDB&charset=utf8mb4"
+DATABASE_URL="mysql://root:@localhost:3307/libraNova?serverVersion=8.0.32&charset=utf8mb4"
 ```
 
 Puis dans le terminal, grâce à symfony-cli, créer la BDD :
@@ -295,8 +382,72 @@ symfony server:ca:install
 
 ---
 
+## Création des controllers, formulaires et des templates
 
+### Création Controller et template pour la connexion
+```bash
+ symfony console make:security:form-login 
+```
 
+### Création Controller et template pour l'inscription
+```bash
+ symfony console make:registration-form 
+```
+
+### Création Controller et template pour les pages
+```bash
+ symfony console make:controller PageController 
+```
+Puis dans le dossier templates/page, créer les fichiers twig pour la page contact, rgpd, cgu et mentions légales. Fichier twig pour la vue de la page d'acceuil est créée avec la commande. 
+
+### Création service de recherche
+- Créer un dossier Service dans le dossier src, puis un fichier SearchService.php
+- Activer le service dans le fichier services.yaml
+- Importer le service dans le NovelRepository
+
+### Création Controller et template pour les livres
+```bash
+ symfony console make:crud 
+```
+- Supprimer les éléments inutiles (templates, form, et routes create, delete, update). 
+- Modifier les routes index et show (pour afficher tous les livres avec fonctionnalité de recherche).
+- Créer les routes pour :
+  - emprunter un livre,
+  - rendre un livre,
+  - mettre en favoris un livre,
+  - retirer le favoris d'un livre, 
+  - afficher le pdf d'un livre
+
+### Création Controller et template pour les users
+```bash
+ symfony console make:crud 
+```
+- Supprimer les éléments inutiles (templates, form, et routes index, create et update). 
+- Modifier la route show pour afficher les infos et permettre la modification des informations de l'utilisateur.
+- Créer une route pour voir les favoris avec filtres pour ne voir que ceux qui sont disponibles, ceux en attentes, ceux qui viennent d'être disponibles.
+- Dans le UserRepository créer 2 fonctions pour : 
+  - récupérer les favoris avec possibilité de filtrage
+  - récupérer que les livres qui sont devenus disponibles
+  
+---
+
+## Sécuriser les entités et les formulaires
+Ajouter les contraintes pour chaques propriétés des entités et pour les champs des formulaires
+
+---
+
+## Créer et lancer les fixtures
+- Modifier le fichier AppFixtures et créer si besoin d'autres fichiers fixtures selon les entités voulues.
+- Lancer les fixtures avec la commande : 
+```bash
+ symfony console d:f:l -n  
+```
+
+---
+
+## Installation de easyAdmin
+
+---
 
 ## 🧰 Technologies Utilisées
 
@@ -309,8 +460,6 @@ symfony server:ca:install
 &nbsp;  
 &nbsp;  
 &nbsp;
-
-
 
 ---
 

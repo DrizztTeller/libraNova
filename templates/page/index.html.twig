@@ -1,0 +1,249 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}LibraNova - La plus grande e-bibliothèque de France{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .carousel-container {
+            scroll-behavior: smooth;
+        }
+        .carousel-item {
+            transition: all 0.3s ease;
+        }
+        .carousel-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-center mb-12">Bibliothèque de Romans</h1>
+
+    <!-- Section Romans Récemment Publiés -->
+    <section class="mb-16">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-semibold">Romans Récemment Publiés</h2>
+            <div class="flex gap-2">
+                <button id="newest-prev" class="bg-gray-200 hover:bg-gray-300 rounded-full p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <button id="newest-next" class="bg-gray-200 hover:bg-gray-300 rounded-full p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="relative">
+            <div id="newest-carousel" class="carousel-container flex overflow-x-scroll overflow-y-hidden hide-scrollbar gap-4 pb-4">
+                {% if novelsNewest|length > 0 %}
+                    {% for novel in novelsNewest %}
+                        <div class="carousel-item flex-none w-64">
+                            <div class="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col">
+                                <div class="h-40 bg-gray-300 relative">
+                                    {% if novel.pic %}
+                                        <img src="{{ novel.pic }}" alt="{{ novel.title }}" class="w-full h-full object-cover">
+                                    {% else %}
+                                        <div class="w-full h-full flex items-center justify-center bg-gray-200">
+                                            <span class="text-gray-500">Pas d'image</span>
+                                        </div>
+                                    {% endif %}
+                                    {% if novel.isForAdult %}
+                                        <div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">18+</div>
+                                    {% endif %}
+                                </div>
+                                <div class="p-4 flex-grow flex flex-col">
+                                    <h3 class="font-semibold text-lg mb-1 line-clamp-1">{{ novel.title }}</h3>
+                                    <p class="text-sm text-gray-500 mb-2">Par {{ novel.author }}</p>
+                                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ novel.abstract|default('Aucun résumé disponible.') }}</p>
+                                    <div class="mt-auto flex items-center justify-between">
+                                        <span class="text-sm text-gray-500">{{ novel.releasedAt|date('d/m/Y') }}</span>
+                                        <span class="flex items-center text-sm">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                                            </svg>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="w-full py-8 text-center text-gray-500">
+                        Aucun roman récemment publié.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Derniers Romans Ajoutés -->
+    <section class="mb-16">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-semibold">Derniers Romans Ajoutés</h2>
+            <div class="flex gap-2">
+                <button id="latest-prev" class="bg-gray-200 hover:bg-gray-300 rounded-full p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <button id="latest-next" class="bg-gray-200 hover:bg-gray-300 rounded-full p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="relative">
+            <div id="latest-carousel" class="carousel-container flex overflow-x-scroll overflow-y-hidden hide-scrollbar gap-4 pb-4">
+                {% if novelsLatest|length > 0 %}
+                    {% for novel in novelsLatest %}
+                        <div class="carousel-item flex-none w-64">
+                            <div class="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col">
+                                <div class="h-40 bg-gray-300 relative">
+                                    {% if novel.pic %}
+                                        <img src="{{ novel.pic }}" alt="{{ novel.title }}" class="w-full h-full object-cover">
+                                    {% else %}
+                                        <div class="w-full h-full flex items-center justify-center bg-gray-200">
+                                            <span class="text-gray-500">Pas d'image</span>
+                                        </div>
+                                    {% endif %}
+                                    {% if novel.isForAdult %}
+                                        <div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">18+</div>
+                                    {% endif %}
+                                </div>
+                                <div class="p-4 flex-grow flex flex-col">
+                                    <h3 class="font-semibold text-lg mb-1 line-clamp-1">{{ novel.title }}</h3>
+                                    <p class="text-sm text-gray-500 mb-2">Par {{ novel.author }}</p>
+                                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ novel.abstract|default('Aucun résumé disponible.') }}</p>
+                                    <div class="mt-auto flex items-center justify-between">
+                                        <span class="text-sm text-gray-500">{{ novel.createdAt|date('d/m/Y') }}</span>
+                                        <span class="flex items-center text-sm">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                                            </svg>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="w-full py-8 text-center text-gray-500">
+                        Aucun roman récemment ajouté.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Romans les Plus Populaires -->
+    <section class="mb-16">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-semibold">Romans les Plus Populaires</h2>
+            <div class="flex gap-2">
+                <button id="top-prev" class="bg-gray-200 hover:bg-gray-300 rounded-full p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <button id="top-next" class="bg-gray-200 hover:bg-gray-300 rounded-full p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="relative">
+            <div id="top-carousel" class="carousel-container flex overflow-x-scroll overflow-y-hidden hide-scrollbar gap-4 pb-4">
+                {% if novelsTop|length > 0 %}
+                    {% for novel in novelsTop %}
+                        <div class="carousel-item flex-none w-64">
+                            <div class="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col">
+                                <div class="h-40 bg-gray-300 relative">
+                                    {% if novel.pic %}
+                                        <img src="{{ novel.pic }}" alt="{{ novel.title }}" class="w-full h-full object-cover">
+                                    {% else %}
+                                        <div class="w-full h-full flex items-center justify-center bg-gray-200">
+                                            <span class="text-gray-500">Pas d'image</span>
+                                        </div>
+                                    {% endif %}
+                                    {% if novel.isForAdult %}
+                                        <div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">18+</div>
+                                    {% endif %}
+                                </div>
+                                <div class="p-4 flex-grow flex flex-col">
+                                    <h3 class="font-semibold text-lg mb-1 line-clamp-1">{{ novel.title }}</h3>
+                                    <p class="text-sm text-gray-500 mb-2">Par {{ novel.author }}</p>
+                                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ novel.abstract|default('Aucun résumé disponible.') }}</p>
+                                    <div class="mt-auto flex items-center justify-between">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="w-full py-8 text-center text-gray-500">
+                        Aucun roman populaire trouvé.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+</div>
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to handle carousel scrolling
+            function setupCarousel(carouselId, prevId, nextId) {
+                const carousel = document.getElementById(carouselId);
+                const prevBtn = document.getElementById(prevId);
+                const nextBtn = document.getElementById(nextId);
+                
+                if (!carousel || !prevBtn || !nextBtn) return;
+                
+                const scrollAmount = 320; // Approximate width of a card + gap
+                
+                prevBtn.addEventListener('click', function() {
+                    carousel.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                });
+                
+                nextBtn.addEventListener('click', function() {
+                    carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                });
+                
+                // Hide scrollbar but keep functionality
+                carousel.classList.add('hide-scrollbar');
+            }
+            
+            // Setup all three carousels
+            setupCarousel('newest-carousel', 'newest-prev', 'newest-next');
+            setupCarousel('latest-carousel', 'latest-prev', 'latest-next');
+            setupCarousel('top-carousel', 'top-prev', 'top-next');
+            
+            // Add CSS to hide scrollbar
+            const style = document.createElement('style');
+            style.textContent = `
+                .hide-scrollbar {
+                    -ms-overflow-style: none;  /* IE and Edge */
+                    scrollbar-width: none;     /* Firefox */
+                }
+                .hide-scrollbar::-webkit-scrollbar {
+                    display: none;             /* Chrome, Safari, Opera */
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+{% endblock %}
+{% endblock %}
