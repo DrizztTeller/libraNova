@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\BookmarkedFilterType;
+use App\Repository\LoginHistoryRepository;
 use App\Repository\NovelRepository;
 use App\Repository\RentingHistoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -109,18 +110,19 @@ final class UserController extends AbstractController
     {
         $user = $this->getUser();
         if (!$user) {
-            $this->addFlash('danger', 'Veuillez vous connecter pour voir vos favoris.');
+            $this->addFlash('danger', 'Veuillez vous connecter pour voir vos emprunts.');
             return $this->redirectToRoute('home');
         }
 
+        //Inutile car pas possible d'emprunter si email non vérifié
         if (!$user->isVerified()) {
-            $this->addFlash('danger', 'Votre email doit être validé pour accéder à vos favoris.');
+            $this->addFlash('danger', 'Votre email doit être validé pour voir vos emprunts');
             return $this->redirectToRoute('app_user_profile');
         }
 
         $currentRentals = $rhr->findCurrentRentalsForUser($user);
 
-        return $this->render('user/bookmarked.html.twig', [
+        return $this->render('user/renting_list.html.twig', [
             'user' => $user,
             'rentings' => $currentRentals
         ]);
@@ -132,20 +134,43 @@ final class UserController extends AbstractController
     {
         $user = $this->getUser();
         if (!$user) {
-            $this->addFlash('danger', 'Veuillez vous connecter pour voir vos favoris.');
+            $this->addFlash('danger', "Veuillez vous connecter pour voir l'historique de vos emprunts");
             return $this->redirectToRoute('home');
         }
 
         if (!$user->isVerified()) {
-            $this->addFlash('danger', 'Votre email doit être validé pour accéder à vos favoris.');
+            $this->addFlash('danger', "Votre email doit être validé pour accéder à votre historique d'emprunts");
             return $this->redirectToRoute('app_user_profile');
         }
 
         $allRenting = $rhr->findBy(['user' => $user]);
 
-        return $this->render('user/bookmarked.html.twig', [
+        return $this->render('user/renting_history.html.twig', [
             'user' => $user,
             'allRenting' => $allRenting
+        ]);
+    }
+
+    #[IsGranted('ROLE_VERIFIED')]
+    #[Route('/historique-connexion', name: 'login_history', methods: ['GET', 'POST'])]
+    public function login_history(LoginHistoryRepository $lhr): Response
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            $this->addFlash('danger', 'Veuillez vous connecter pour voir votre historique de connexion.');
+            return $this->redirectToRoute('home');
+        }
+
+        if (!$user->isVerified()) {
+            $this->addFlash('danger', 'Votre email doit être validé pour accéder à votre historique de connexion.');
+            return $this->redirectToRoute('app_user_profile');
+        }
+
+        $allLogins = $lhr->findBy(['user' => $user]);
+
+        return $this->render('user/logins_history.html.twig', [
+            'user' => $user,
+            'allLogins' => $allLogins
         ]);
     }
 }
