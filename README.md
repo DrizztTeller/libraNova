@@ -246,7 +246,7 @@ Les administrateurs auront un tableau de bord pour :
   - de se rediriger vers les fonctionnalités liées à l'utilisateur (favoris)
 - /profil/favoris : pour voir tous les favoris avec un filtre pour n'afficher que ceux qui sont dispo ou inversement
 - /profil/emprunts : pour voir tous les livres empruntés en cours
-- /profil/emprunts-historique : pour voir tous les livres empruntés depuis l'inscription
+- /profil/historique-emprunts : pour voir tous les livres empruntés depuis l'inscription
 - /contact : page avec formulaire de contact
 - /rgpd 
 - /cgu 

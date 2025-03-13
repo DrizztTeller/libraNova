@@ -127,7 +127,7 @@ final class UserController extends AbstractController
     }
 
     #[IsGranted('ROLE_VERIFIED')]
-    #[Route('/emprunts-historique', name: 'renting_history', methods: ['GET', 'POST'])]
+    #[Route('/historique-emprunts', name: 'renting_history', methods: ['GET', 'POST'])]
     public function renting_history(RentingHistoryRepository $rhr): Response
     {
         $user = $this->getUser();
