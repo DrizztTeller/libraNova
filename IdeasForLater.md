@@ -1,0 +1,7 @@
+- Panier pour les demandes
+- Messagerie
+- Commentaires
+- Abonnements
+- Lecteur epub / convertisseur epub to pdf
+- Notification de disponibilité du livre demandé
+- Liste d'attente pour demande de livre

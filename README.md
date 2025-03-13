@@ -27,7 +27,7 @@ Les administrateurs auront un tableau de bord pour :
 - **Emprunt** :  
   - L’utilisateur pourra demander l’emprunt de jusqu’à 5 livres.  
   - L’administrateur déterminera s’il donne l’accès au livre ou non.  
-  - Une fois accepté, l’utilisateur pourra visionner le livre de manière non copiable (lecture en PDF en ligne par exemple).  
+  - Lorsqu’un emprunt à été accepté, l’utilisateur pourra visionner le livre de manière non copiable (lecture en PDF en ligne par exemple).  
   - L’historique des emprunts sera visible par les utilisateurs.  
 
 #### 3.2 Rôles et Permissions  
@@ -96,17 +96,333 @@ Les administrateurs auront un tableau de bord pour :
   - Sécurité.  
   - Performance.  
 - Un guide pour l’installation et la configuration sur l’hôte choisi devra être fourni en supplément.  
+&nbsp;  
+&nbsp;  
+&nbsp;
 
 
-# Début du projet
+---
+
+# Conception du projet
 
 - Choix du nom : LibraNova
 
-## JOUR 1
-- diagrammes de classe (UML) et cas d'utilisations
-- idée de design
-- Se mettre d'accord sur api ou non
-- faire le résumé pour Raphaël
-- création du projet sur github
-- voir comment réaliser les fonctionnalités essentielles
+## Pre-requis
 
+- PHP 8.3 ou supérieur
+- Composer
+- SGBDR (MySQL, MariaDB, PostgreSQL ou SQLite)
+- symfony-cli
+
+
+## Diagramme des cas d'utilisations : 
+| En tant que | Je veux | Afin de |
+| --- | --- | --- |
+| Visiteur | contacter les responsables du site | demander de l'aide |
+| Visiteur | visiter le site | découvrir celui-ci |
+| Visiteur | voir la liste des livres | découvir le choix existant |
+| Visiteur | voir les détails d'un livre | d'en apprendre plus sur le livre |
+| Visiteur | rechercher un livre | savoir s'il est disponible |
+| Visiteur | créer un compte | pour emprunter et consulter les livres |
+| Utilisateur | me connecter | d'accéder à toutes les fonctionnalités du site |
+| Utilisateur | accéder à mon profil | de modifier/supprimer celui-ci et voir mon historique de login et d'emprunts |
+| Utilisateur | voir ma liste de favoris | de les gérer (visiter la page d'un favoris ou le retirer de la liste) |
+| Utilisateur | mettre en favoris un livre | le sauvegarder et le retrouver plus facilement, être notifié quand celui-ci est disponible |
+| Utilisateur | emprunter un livre (max 5) | le lire |
+| Administrateur | me connecter | gérer la BDD |
+| Administrateur | gérer la BDD | d'ajouter/modifier/supprimer des tables, users, livres, des tags, des emprunts |
+
+
+## Modèle de Base de Données
+
+### User
+| Champ              | Type                |
+|--------------------|---------------------|
+| id                 | int (PK)            |
+| username           | varchar(100)        |
+| email              | varchar(255) (à ne pas créer)         |
+| password           | varchar(255) (à ne pas créer)         |
+| roles              | array (ROLE_USER, ROLE_ADMIN) (à ne pas créer)             |
+| rented_novels_count| int (0-5)           |
+| is_adult           | boolean             |
+| ref                | varchar(255)        |
+| is_verified        | boolean (à ne pas créer)         |
+| is_terms           | boolean             |
+| is_gpdr            | boolean             |
+| novels             | collection (ManyToMany avec Novel)              |
+
+
+### Novel
+| Champ             | Type                |
+|-------------------|---------------------|
+| id                | int (PK)            |
+| name              | varchar(255)        |
+| author            | varchar(255)        |
+| abstract          | text                |
+| is_published      | boolean             |
+| released_at       | date, nullable      |
+| created_at        | datetime immutable  |
+| updated_at        | datetime immutable, nullable |
+| likes             | collection (ManyToMany avec User)                 |
+| pic               | varchar(255)        |
+| file              | varchar(255)        |
+| slug              | varchar(255)        |
+| ref               | varchar(255)        |
+| isbn              | varchar(255)        |
+| is_for_adult      | boolean             |
+
+### Tag
+| Champ           | Type               |
+|-----------------|--------------------|
+| id              | int (PK)           |
+| name            | varchar(100)       |
+| description     | text               |
+| is_for_adult    | boolean            |
+
+### Renting_History
+| Champ           | Type               |
+|-----------------|--------------------|
+| id              | int (PK)           |
+| user_id         | int (FK -> User, ManyToOne)   |
+| novel_id        | int (FK -> Novel, ManyToOne)  |
+| start           | datetime immutable |
+| end             | datetime immutable |
+| last_page       | int, nullable        |
+| updated_at      | datetime immutable, nullable |
+
+### Login_History
+| Champ        | Type                  |
+|--------------|-----------------------|
+| id           | int (PK)              |
+| user_id      | int (FK -> User, ManyToOne)      |
+| login_date   | datetime immutable    |
+| ip_address   | varchar(255)          |
+| device       | varchar(255)          |
+| os           | varchar(255)          |
+| browser      | varchar(255)          |
+
+### Novel_Tag (Table de Jointure)
+| Champ       | Type                  |
+|-------------|-----------------------|
+| id_novel    | int (FK -> Novel)     |
+| id_tag      | int (FK -> Tag)       |
+
+### User_Likes_Novel (Table de Jointure)
+| Champ     | Type                  |
+|-----------|-----------------------|
+| id_user   | int (FK -> User)      |
+| id_novel  | int (FK -> Novel)     |
+
+#### Relations
+- **User** peut emprunter plusieurs **Novel** (relation avec `Renting_History`).
+- **User** peut aimer plusieurs **Novel** (relation `User_Likes_Novel`).
+- **User** a un historique de connexion (**Login_History**).
+- **Novel** peut avoir plusieurs **Tags** (relation `Novel_Tag`).
+- **Novel** peut être emprunté par plusieurs **User** (relation avec `Renting_History`).
+
+
+## Controllers
+- RegistrationController
+- SecurityController
+- UserController
+- NovelController
+- PageController
+
+
+## URLS
+- / : page d'acceuil
+- /livres : page affichant tous les livres et un formulaire de tri
+- /livres/ref : page affichant les détails d'un livre
+- /livres/ref/lecture : page affichant le pdf du livre
+- /inscription : page affichant le formulaire d'inscription
+- /connexion : page affichant le formulaire de connexion
+- /profil : page de profil de l'utilisateur connecté : 
+  - permettant de modifier les informations de son compte
+  - permettant de supprimer le compte
+  - de se rediriger vers les fonctionnalités liées à l'utilisateur (favoris)
+- /profil/favoris : pour voir tous les favoris avec un filtre pour n'afficher que ceux qui sont dispo ou inversement
+- /contact : page avec formulaire de contact
+- /rgpd 
+- /cgu 
+- /mentions-legales 
+
+
+# Réalisation du projet : 
+
+## Créer l'architecture
+```bash
+symfony new libraNova --webapp
+```
+
+---
+
+## Ajout des dépendances
+
+- Faker
+```bash
+composer require fakerphp/faker --dev 
+```
+
+- Fixtures
+```bash
+composer require orm-fixtures --dev 
+```
+
+- Verificateur d'email
+```bash
+composer require symfonycasts/verify-email-bundle
+```
+
+- Icônes
+```bash
+composer require symfony/ux-icons  
+```
+
+- Paginateur
+```bash
+composer require knplabs/knp-paginator-bundle
+```
+
+- Detecteur d'appareil
+```bash
+composer require matomo/device-detector 
+```
+
+- Symfony UX Autocomplete
+```bash
+composer require symfony/ux-autocomplete  
+```
+
+- Affichage du mot de passe
+```bash
+composer require symfony/ux-toggle-password
+```
+
+- Composants twig
+```bash
+composer require symfony/ux-twig-component
+```
+
+- Upload de fichier (pas sûr si besoin car utilisation de easyadmin)
+```bash
+composer require symfony/ux-dropzone
+```
+
+- Tailwind css
+```bash
+composer require symfonycasts/tailwind-bundle
+```
+puis
+```bash
+symfony console tailwind:init
+symfony console tailwind:build --watch
+```
+---
+
+## Créer une BDD
+
+Metre à jour le ficher `.env` avec les informations de connexion à la BDD.
+
+Exemple : 
+
+```
+DATABASE_URL="mysql://root:@localhost:3307/libraNova?serverVersion=8.0.32&charset=utf8mb4"
+```
+
+Puis dans le terminal, grâce à symfony-cli, créer la BDD :
+
+```bash
+# Créer la BDD
+symfony console doctrine:database:create
+```
+
+```bash
+# Créer le ficher de migration
+symfony console make:migration
+```
+
+```bash
+# Exécuter les migrations
+symfony console doctrine:migrations:migrate
+```
+
+---
+
+## Lancer l'application
+
+```bash
+# Lancer l'application
+symfony server:start
+
+# ou
+symfony serve
+
+# ou sans les logs (non recommandé pour Windows)
+symfony server:start -d
+
+# stopper un serveur en cours d'exécution
+symfony server:stop
+```
+
+---
+
+## Accéder à l'application
+
+http://localhost:8000 ou http://127.0.0.1:8000
+
+Pour travailler en local avec une configuration qui se rapporche au mieux de la production, nous pouvons installer un certificat SSL en local.
+
+```bash
+symfony server:ca:install
+```
+
+---
+
+## Création des controllers, formulaires et des templates
+
+### Création Controller et template pour la connexion
+```bash
+ symfony console make:security:form-login 
+```
+
+### Création Controller et template pour l'inscription
+```bash
+ symfony console make:registration-form 
+```
+
+### Création Controller et template pour les pages
+```bash
+ symfony console make:controller PageController 
+```
+
+Puis dans le dossier templates/page, créer les fichiers twig pour la page contact, rgpd, cgu et mentions légales. Fichier twig pour la vue de la page d'acceuil est créée avec la commande. 
+
+---
+
+## 🧰 Technologies Utilisées
+
+- Symfony
+- PHP
+- TailwindCSS
+- UX Turbo
+- Doctrine
+- FakerPHP
+&nbsp;  
+&nbsp;  
+&nbsp;
+
+---
+
+# 🚀 Installation
+
+- Cloner le projet sur github : 
+```bash
+git clone https://github.com/Jensone/todoz-sf.git
+```
+- ouvrir le dossier dans un vscode
+- Supprimer le dépôt distant
+- taper dans le terminal :
+```bash
+composer install
+symfony serve -d
+```
