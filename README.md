@@ -447,7 +447,40 @@ Ajouter les contraintes pour chaques propriétés des entités et pour les champ
 
 ## Installation de easyAdmin
 
----
+ - Installation du bundle
+```bash
+ composer require easycorp/easyadmin-bundle
+ ```
+ - Création du DashboardController
+```bash
+ symfony console make:admin:dashboard
+```
+Où l'on personnalise le chemin
+
+On créer un dossier templates/admin où l'on met le dashboard.html.twig,
+on y met l'extend @EasyAdmin/page/content.html.twig
+
+ - Création des CRUD controllers de la page admin
+```bash
+symfony console make:admin:crud
+```
+A partir du terminal on créer User
+                              Novel
+                              LoginHistory
+                              RentingHistory
+                              Tag
+
+ - On va sur route.yaml
+on y ajoute le admin_dashboard
+  avec son chemin et son controller
+
+ - On nettoi le cache après ça
+```bash
+symfony console cache:clear
+```
+Puis on rappel les entité lié au CRUD Controller en les appelant grâce au " MenuItem::LinkToDashboard "
+
+
 
 ## 🧰 Technologies Utilisées
 

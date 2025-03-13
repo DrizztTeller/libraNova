@@ -1,0 +1,4 @@
+<form method="post" action="{{ path('app_user_delete', {'ref': user.ref}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer votre compte ?');">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.ref) }}">
+    <button class="btn">Supprimer le compte</button>
+</form>
