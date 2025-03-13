@@ -73,7 +73,7 @@ class NovelController extends AbstractController
         return $this->render('novel/show.html.twig', [
             'novel' => $novel,
             'isLiked' => $isLiked,
-            'isRented'=> $isRented
+            'isRented' => $isRented
         ]);
     }
 
@@ -207,13 +207,29 @@ class NovelController extends AbstractController
             }
         }
 
-        if (!$novel->getFile()) {
+        if (!$novel->getFile() || !$novel->isPublished()) {
             $this->addFlash('danger', 'PDF non disponible pour ce roman.');
             return $this->redirectToRoute('app_novel_show', ['ref' => $novel->getRef()], Response::HTTP_SEE_OTHER);
         }
 
-        // TODO : A tester
-        $pdfPath = $this->getParameter('kernel.project_dir') . '/public/uploads/pdf/' . $novel->getFile();
-        return new BinaryFileResponse($pdfPath);
+        $existingRental = $this->rhr->createQueryBuilder('r')
+            ->where('r.novel = :novel')
+            ->andWhere('r.user = :user')
+            ->andWhere('r.end >= :now')
+            ->setParameter('novel', $novel)
+            ->setParameter('user', $user)
+            ->setParameter('now', new \DateTimeImmutable())
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        if ($existingRental) {
+            // TODO : A tester
+            $pdfPath = $this->getParameter('kernel.project_dir') . '/public/uploads/pdf/' . $novel->getFile();
+            return new BinaryFileResponse($pdfPath);
+        } else {
+            $this->addFlash('danger', "Vous n'avez pas emprunter ce livre !");
+            return $this->redirectToRoute('app_novel_show', ['ref' => $novel->getRef()], Response::HTTP_SEE_OTHER);
+        }
     }
 }
