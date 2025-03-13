@@ -36,6 +36,7 @@ class UserFixture extends Fixture
          
          
          $manager->persist($admin);
+
         //création de 10 users
         for ($i = 0; $i < 10; $i++) {
             $user = new User();
