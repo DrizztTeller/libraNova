@@ -186,7 +186,7 @@ Les administrateurs auront un tableau de bord pour :
 | novel_id        | int (FK -> Novel, ManyToOne)  |
 | start           | datetime immutable |
 | end             | datetime immutable |
-| last_page       | int, nullable        |
+| last_page       | string, nullable        |
 | updated_at      | datetime immutable, nullable |
 
 ### Login_History
