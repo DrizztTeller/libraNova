@@ -2,8 +2,9 @@
 
 namespace App\Repository;
 
-use App\Entity\Novel;
+use App\Entity\User;
 // use Doctrine\DBAL\Types\Types;
+use App\Entity\Novel;
 use App\Service\SearchService;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -26,6 +27,64 @@ class NovelRepository extends ServiceEntityRepository
         $queryBuilder = $this->createQueryBuilder('e');
         return $this->searchService->search($queryBuilder, $criteria);
     }
+
+public function findBookmarkedWithFilters(User $user, array $filters, array $sort): array
+{
+    $qb = $this->createQueryBuilder('n')
+        ->leftJoin('n.tags', 't')
+        ->leftJoin('n.likes', 'u') 
+        ->addSelect('COUNT(u.id) AS HIDDEN likes_count') 
+        ->andWhere(':user MEMBER OF n.likes')
+        ->setParameter('user', $user)
+        ->groupBy('n.id');
+
+    // Filtres
+    if (isset($filters['is_published']) && $filters['is_published']) {
+        $qb->andWhere('n.is_published = true'); 
+    }
+
+    if (isset($filters['newly_available']) && $filters['newly_available']) {
+        $date = new \DateTime('-7 days');
+        $qb->andWhere('n.released_at >= :date') 
+           ->setParameter('date', $date);
+    }
+
+    if (!empty($filters['tags'])) {
+        $qb->andWhere('t IN (:tags)')
+           ->setParameter('tags', $filters['tags']);
+    }
+
+    // Tri
+    foreach ($sort as $field => $order) {
+        switch ($field) {
+            case 'author':
+                $qb->addOrderBy('n.author', $order); 
+                break;
+                
+            case 'popularity':
+                $qb->addOrderBy('likes_count', $order); 
+                break;
+                
+            case 'released_at':
+                $qb->addOrderBy('n.released_at', $order); 
+                break;
+                
+            case 'updated_at':
+                $qb->addOrderBy('n.updated_at', $order);
+                break;
+                
+            case 'created_at':
+                $qb->addOrderBy('n.created_at', $order);
+                break;
+                
+            default:
+                $qb->addOrderBy("n.$field", $order);
+        }
+    }
+
+    return $qb->getQuery()->getResult();
+}
+
 
     //    /**
     //     * @return Novel[] Returns an array of Novel objects

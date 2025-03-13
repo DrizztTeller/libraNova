@@ -3,8 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Form\UserType;
-use App\Repository\UserRepository;
+use App\Form\BookmarkedFilterType;
+use App\Repository\NovelRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,13 +13,20 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 #[Route('/profil', name: 'app_user_')]
-final class UserController extends AbstractController{
+final class UserController extends AbstractController
+{
 
     public function __construct(private EntityManagerInterface $em) {}
 
     #[Route('/', name: 'profile', methods: ['GET'])]
-    public function profile(User $user): Response
+    public function profile(): Response
     {
+        $user = $this->getUser();
+        if (!$user) {
+            $this->addFlash('danger', 'Veuillez vous connecter pour voir vos favoris.');
+            return $this->redirectToRoute('home');
+        }
+
         if (!$user->isVerified()) {
             $this->addFlash('warning', 'Merci de validez votre email');
         }
@@ -32,7 +39,7 @@ final class UserController extends AbstractController{
     #[Route('/{ref}', name: 'delete', methods: ['POST'])]
     public function delete(Request $request, User $user): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$user->getRef(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $user->getRef(), $request->getPayload()->getString('_token'))) {
             $this->em->remove($user);
             $this->em->flush();
         }
@@ -42,39 +49,56 @@ final class UserController extends AbstractController{
 
     #[IsGranted('ROLE_VERIFIED')]
     #[Route('/favoris', name: 'bookmarked', methods: ['GET', 'POST'])]
-    public function bookmarked(UserRepository $userRepository, Request $request): Response
+    public function bookmarked(NovelRepository $nr, Request $request): Response
     {
         $user = $this->getUser();
-
-        if (!$user instanceof User) {
-            $this->addFlash('danger', 'Vous devez être connecté pour voir vos favoris');
-            return $this->redirectToRoute('app_login', [], Response::HTTP_SEE_OTHER);
+        if (!$user) {
+            $this->addFlash('danger', 'Veuillez vous connecter pour voir vos favoris.');
+            return $this->redirectToRoute('home');
         }
 
         if (!$user->isVerified()) {
             $this->addFlash('danger', 'Votre email doit être validé pour accéder à vos favoris.');
-            return $this->redirectToRoute('app_user_profile', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_user_profile');
         }
 
-        // $filters = [];
+        $form = $this->createForm(BookmarkedFilterType::class);
+        $form->handleRequest($request);
 
-        // Créer le formulaire de filtre
-        // $form = $this->createForm(FiltersLikesEntitiesType::class);
-        // $form->handleRequest($request);
+        $filterCriteria = [];
+        $sortCriteria = ['title' => 'DESC'];
 
-        // Si le formulaire est soumis et valide, récupérer les données des filtres
-        // if ($form->isSubmitted() && $form->isValid()) {
-        //     $filters = $form->getData();
-        // }
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
 
-        // Récupérer les entités bookmarked selon les filtres
-        // $bookmarked = $userRepository->getBookmarked($user, $filters, $filters['orderBy'] ?? null, $filters['orderDirection'] ?? 'ASC');
+            // Filtres
+            $filterCriteria = [
+                'is_published' => $data['is_published'] ?? false,
+                'newly_available' => $data['newly_available'] ?? false,
+                'tags' => $data['tags'] ? $data['tags']->toArray() : []
+            ];
+
+            // Tri
+            $sortField = $data['sort_by'];
+            $sortOrder = $data['sort_order'] ?? 'DESC'; 
+
+            if ($sortField === 'popularity') {
+                $sortCriteria = ['likes_count' => $sortOrder];
+            } else {
+                $sortCriteria = [$sortField => $sortOrder];
+            }
+        }
+
+        $novels = $nr->findBookmarkedWithFilters(
+            $user,
+            $filterCriteria,
+            $sortCriteria
+        );
 
         return $this->render('user/bookmarked.html.twig', [
             'user' => $user,
-            // 'form' => $form,
-            'novels' => $bookmarked['novels'] ?? [],
-            
+            'form' => $form->createView(),
+            'novels' => $novels
         ]);
     }
 }
