@@ -426,10 +426,10 @@ Puis dans le dossier templates/page, créer les fichiers twig pour la page conta
 ```
 - Supprimer les éléments inutiles (templates, form, et routes index, create et update). 
 - Modifier la route show pour afficher les infos et permettre la modification des informations de l'utilisateur.
-- Créer une route pour voir les favoris avec filtres pour ne voir que ceux qui sont disponibles, ceux en attentes, ceux qui viennent d'être disponibles.
-- Dans le UserRepository créer 2 fonctions pour : 
-  - récupérer les favoris avec possibilité de filtrage
-  - récupérer que les livres qui sont devenus disponibles
+- Créer une route pour voir les favoris avec filtres pour ne voir que ceux qui sont disponibles, ceux qui viennent d'être disponibles.
+- Dans le NovelRepository, créer une fonction pour récupérer les favoris avec possibilité de filtrage
+- Créer les routes pour voir les emprunts actuels, l'historique de tous les emprunts et l'historique de connexion
+- Dans le RentingHistoryRepository, créer une fonction pour pouvoir récupérer que les emprunts en cours
   
 ---
 
