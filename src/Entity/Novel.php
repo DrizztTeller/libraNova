@@ -28,6 +28,10 @@ class Novel
         minMessage: 'Le titre doit contenir au moins {{ limit }} caractères.',
         maxMessage: 'Le titre ne peut pas dépasser {{ limit }} caractères.'
     )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z0-9\s]+$/',
+        message: 'Le titre ne peut contenir que des lettres, des chiffres et des espaces.'
+    )]
     private ?string $title = null;
 
     #[ORM\Column(length: 255)]
@@ -37,6 +41,10 @@ class Novel
         max: 255,
         minMessage: 'Le nom de l\'auteur doit contenir au moins {{ limit }} caractères.',
         maxMessage: 'Le nom de l\'auteur ne peut pas dépasser {{ limit }} caractères.'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z\s]+$/',
+        message: 'Le nom de l\'auteur ne peut contenir que des lettres et des espaces.'
     )]
     private ?string $author = null;
 

@@ -25,6 +25,10 @@ class Tag
         minMessage: "Le nom du tag doit contenir au moins 2 caractères.",
         maxMessage: "Le nom du tag ne peut pas dépasser 255 caractères."
     )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z]+$/',
+        message: 'Le nom du tag ne doit contenir que des lettres alphabétiques.'
+    )]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]

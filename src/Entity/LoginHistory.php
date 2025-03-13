@@ -23,8 +23,12 @@ class LoginHistory
     #[Assert\NotNull(message: "La date de connexion est obligatoire.")]
     #[Assert\Type("\DateTimeImmutable", message: "La date de connexion doit être une date valide.")]
     private ?\DateTimeImmutable $login_date = null;
-
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Regex(
+        pattern: '/^(?:\d{1,3}\.){3}\d{1,3}$/',
+        message: 'Veuillez entrer une adresse IP valide au format IPv4.'
+    )]
+   
     private ?string $ip_address = null;
 
     #[ORM\Column(length: 255, nullable: true)]

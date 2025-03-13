@@ -44,7 +44,7 @@ class RentingHistory
     #[Assert\Type(\DateTimeImmutable::class, message: "La date de mise à jour doit être une date valide.")]
     private ?\DateTimeImmutable $updated_at = null;
 
-    // Méthode de validation personnalisée pour les dates
+   
     public function validateDates(ExecutionContextInterface $context, $payload): void
     {
         if ($this->start && $this->end && $this->end <= $this->start) {
