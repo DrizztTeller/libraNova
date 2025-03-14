@@ -2,17 +2,18 @@
 
 namespace App\Entity;
 
-use App\Repository\NovelRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\NovelRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: NovelRepository::class)]
-#[UniqueEntity(fields: ['slug'], message: 'Ce slug est déjà utilisé.')]
 #[UniqueEntity(fields: ['ref'], message: 'Cette référence est déjà utilisée.')]
+#[ORM\HasLifecycleCallbacks]
 class Novel
 {
     #[ORM\Id]
@@ -58,7 +59,6 @@ class Novel
         pattern: '/^[A-Z].*\.$/',
         message: 'Le résumé doit commencer par une majuscule et se terminer par un point.'
     )]
-    
     private ?string $abstract = null;
 
     #[ORM\Column]
@@ -93,7 +93,7 @@ class Novel
 
     #[ORM\Column]
     #[Assert\NotNull(message: 'L\'indication adulte est obligatoire.')]
-    private ?bool $is_for_adult = null;
+    private bool $is_for_adult = true;
 
     #[ORM\ManyToMany(targetEntity: Tag::class, mappedBy: 'novels')]
     private Collection $tags;
@@ -119,13 +119,36 @@ class Novel
     )]
     private ?\DateTimeImmutable $created_at = null;
 
-    public function __construct()
+
+    public function __construct(private SluggerInterface $slugger)
     {
         $this->tags = new ArrayCollection();
         $this->likes = new ArrayCollection();
         $this->rentings = new ArrayCollection();
+        $this->slug = $this->slugger->slug($this->title)->lower();
+        $this->ref = $this->slug . uniqid();
     }
 
+    #[ORM\PrePersist]
+    public function setCreatedAtValue(): void
+    {
+        $this->created_at = new \DateTimeImmutable();
+    }
+
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function initializeSlugAndReference(SluggerInterface $slugger): void
+    {
+        if (empty($this->slug) && !empty($this->title)) {
+            $this->slug = strtolower($slugger->slug($this->title)->toString());
+        }
+
+        if (empty($this->ref)) {
+            $this->ref = uniqid($this->slug . '_', true);
+        }
+    }
+
+    
     public function getId(): ?int
     {
         return $this->id;
@@ -373,6 +396,13 @@ class Novel
 }
 
 
+
+
+
+
+
+
+   
 
 
 

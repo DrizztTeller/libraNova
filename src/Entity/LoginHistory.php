@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: LoginHistoryRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class LoginHistory
 {
     #[ORM\Id]

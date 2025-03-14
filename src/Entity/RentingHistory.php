@@ -8,7 +8,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ORM\Entity(repositoryClass: RentingHistoryRepository::class)]
-#[Assert\Callback('validateDates')]
+#[ORM\HasLifecycleCallbacks]
 class RentingHistory
 {
     #[ORM\Id]
@@ -44,14 +44,12 @@ class RentingHistory
     #[Assert\Type(\DateTimeImmutable::class, message: "La date de mise à jour doit être une date valide.")]
     private ?\DateTimeImmutable $updated_at = null;
 
-   
-    public function validateDates(ExecutionContextInterface $context, $payload): void
+
+    #[ORM\PrePersist]
+    public function setDatesValue(): void
     {
-        if ($this->start && $this->end && $this->end <= $this->start) {
-            $context->buildViolation('La date de fin doit être postérieure à la date de début.')
-                ->atPath('end')
-                ->addViolation();
-        }
+        $this->start = new \DateTimeImmutable(); 
+        $this->end = new \DateTimeImmutable("+5 days");
     }
 
     // Getters et setters...
