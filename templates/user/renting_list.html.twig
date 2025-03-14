@@ -29,6 +29,11 @@ block body %}
                 like
             </button>
         </form>
+        <form class="likes" action="{{ path('app_novel_return', { ref: renting.novel.ref}) }}" method="POST">
+            <button type="submit" class="heart-button like-button">
+                retourner
+            </button>
+        </form>
       </div>
     </div>
     {% else %}

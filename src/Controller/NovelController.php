@@ -77,6 +77,7 @@ class NovelController extends AbstractController
         } else {
             $isRented = false;
         }
+        // TODO pb : faut un rechargement pour que le status soit mis à jour
 
         return $this->render('novel/show.html.twig', [
             'novel' => $novel,
