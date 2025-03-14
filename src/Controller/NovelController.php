@@ -16,7 +16,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 
-#[Route('/romans', name: 'app_novel_')]
+#[Route('/livres', name: 'app_novel_')]
 class NovelController extends AbstractController
 {
     public function __construct(private EntityManagerInterface $em, private NovelRepository $nr, private RentingHistoryRepository $rhr) {}
@@ -38,7 +38,7 @@ class NovelController extends AbstractController
     }
 
     #[Route('/{ref}', name: 'show', methods: ['GET'])]
-    public function getNovel(string $ref): Response
+    public function show(string $ref): Response
     {
         $novel = $this->nr->findOneBy(['ref' => $ref]);
 
@@ -80,7 +80,8 @@ class NovelController extends AbstractController
         } else {
             $isRented = false;
         }
-
+        // TODO pb : faut un rechargement pour que le status soit mis à jour
+        // TODO template à faire
         return $this->render('novel/show.html.twig', [
             'novel' => $novel,
             'isLiked' => $isLiked,
@@ -128,7 +129,7 @@ class NovelController extends AbstractController
         $this->em->flush();
 
         $this->addFlash('success', 'Livre emprunté avec succès !');
-
+        // TODO : verif l'origine si sur page emprunts retour sur cette page et non sur celle de show
         return $this->redirectToRoute('app_novel_show', ['ref' => $novel->getRef()], Response::HTTP_SEE_OTHER);
     }
 
@@ -242,7 +243,7 @@ class NovelController extends AbstractController
 
         $this->addFlash('success', 'Ce livre a bien été retiré de la liste des favoris');
 
-        // TODO : verif l'origine si sur page emprunts retour sur cette page et non sur celle de show
+        // TODO : verif l'origine si sur page emprunts retour sur page d'origine et non sur celle de show
 
         return $this->redirectToRoute('app_novel_show', ['ref' => $novel->getRef()], Response::HTTP_SEE_OTHER);
     }
@@ -251,6 +252,7 @@ class NovelController extends AbstractController
     #[Route('/{ref}/pdf', 'pdf', methods: ['GET'])]
     public function viewPdf(string $ref): Response
     {
+        //TODO faire template pour vérification
         $novel = $this->nr->findOneBy(['ref' => $ref]);
 
         if (!$novel) {

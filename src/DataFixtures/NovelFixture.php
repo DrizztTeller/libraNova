@@ -79,6 +79,7 @@ class NovelFixture extends Fixture implements DependentFixtureInterface
             $bookCoverIds = [20, 24, 42, 67, 101, 180, 240, 251, 292, 331, 373, 384];
             $randomBookCoverId = $bookCoverIds[array_rand($bookCoverIds)];
             $novel->setPic('https://picsum.photos/id/' . $randomBookCoverId . '/800/600');
+            // TODO remplacer par réel fichier
             $novel->setFile('book_' . $faker->numberBetween(1, 20) . '.pdf');
         
             
@@ -92,6 +93,7 @@ class NovelFixture extends Fixture implements DependentFixtureInterface
             foreach ($selectedTags as $tag) {
                 $novel->addTag($tag);
             }
+            // TODO si is_for_adult true faut absolument tag adulte
             
             $manager->persist($novel);
         }

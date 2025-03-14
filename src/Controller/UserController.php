@@ -33,6 +33,7 @@ final class UserController extends AbstractController
             $this->addFlash('warning', 'Merci de validez votre email');
         }
 
+        // TODO faire le template
         return $this->render('user/profile.html.twig', [
             'user' => $user,
         ]);
@@ -63,6 +64,8 @@ final class UserController extends AbstractController
             $this->addFlash('danger', 'Votre email doit être validé pour accéder à vos favoris.');
             return $this->redirectToRoute('app_user_profile');
         }
+
+        // TODO faire une seule fonction de recherche complète avec un seul form qui sera réutilisé partout pour filtrer directement dans le tableau des romans (allromans ou que romans liké ou que romans empruntés)
 
         $form = $this->createForm(BookmarkedFilterType::class);
         $form->handleRequest($request);
@@ -125,6 +128,8 @@ final class UserController extends AbstractController
             return $this->redirectToRoute('app_user_profile');
         }
 
+        // TODO faire une seule fonction de recherche complète avec un seul form qui sera réutilisé partout pour filtrer directement dans le tableau des romans (allromans ou que romans liké ou que romans empruntés)
+
         $currentRentals = $rhr->findCurrentRentalsForUser($user);
 
         return $this->render('user/renting_list.html.twig', [
@@ -147,6 +152,8 @@ final class UserController extends AbstractController
             $this->addFlash('danger', "Votre email doit être validé pour accéder à votre historique d'emprunts");
             return $this->redirectToRoute('app_user_profile');
         }
+
+        // TODO faire une seule fonction de recherche complète avec un seul form qui sera réutilisé partout pour filtrer directement dans le tableau des romans (allromans ou que romans liké ou que romans empruntés)
 
         $allRenting = $rhr->findBy(['user' => $user]);
 
