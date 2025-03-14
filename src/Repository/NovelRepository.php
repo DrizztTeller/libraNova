@@ -27,6 +27,55 @@ class NovelRepository extends ServiceEntityRepository
         return $this->searchService->search($queryBuilder, $criteria);
     }
 
+    
+    public function findBySearchCriteria(array $criteria = []): array
+{
+    $qb = $this->createQueryBuilder('n');
+
+    // Filtrage par titre
+    if (!empty($criteria['title'])) {
+        $qb->andWhere('n.title LIKE :title')
+           ->setParameter('title', '%' . $criteria['title'] . '%');
+    }
+    
+    // Filtrage par auteur
+    if (!empty($criteria['author'])) {
+        $qb->andWhere('n.author LIKE :author')
+           ->setParameter('author', '%' . $criteria['author'] . '%');
+    }
+    
+    // Filtrage par tags
+    if (!empty($criteria['tags'])) {
+        $qb->join('n.tags', 't')
+           ->andWhere('t IN (:tags)')
+           ->setParameter('tags', $criteria['tags']);
+    }
+    
+    // Filtrage par contenu adulte
+    if (isset($criteria['isForAdult'])) {
+        $qb->andWhere('n.is_for_adult = :isForAdult')
+           ->setParameter('isForAdult', $criteria['isForAdult']);
+    }
+    
+    // Tri
+    $orderBy = !empty($criteria['orderBy']) ? $criteria['orderBy'] : 'created_at';
+    $orderDirection = !empty($criteria['orderDirection']) ? $criteria['orderDirection'] : 'DESC';
+    
+    // Convertir les noms de colonnes pour qu'ils correspondent à votre entité
+    $orderByMap = [
+        'created_at' => 'n.created_at',
+        'released_at' => 'n.released_at',
+        'likes' => 'SIZE(n.likes)', // Pour compter les likes
+        'title' => 'n.title'
+    ];
+    
+    $orderByField = isset($orderByMap[$orderBy]) ? $orderByMap[$orderBy] : 'n.created_at';
+    
+    $qb->orderBy($orderByField, $orderDirection);
+    
+    return $qb->getQuery()->getResult();
+}
+
     //    /**
     //     * @return Novel[] Returns an array of Novel objects
     //     */
