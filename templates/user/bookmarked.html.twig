@@ -11,13 +11,21 @@
         <div class="bg-white shadow-md rounded-lg p-6">
           <h2 class="text-xl font-semibold mb-6">Filtres et Tri</h2>
           {{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
-              <div class="grid grid-cols-2 gap-2 ">
+              <div class="grid gap-4">
+                <div class="flex flex-col space-y-2">
+                    {{ form_label(form.publication_status, 'Statut de publication', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                    <div class="space-y-2">
+                        {% for choice in form.publication_status %}
+                            <div class="flex items-center">
+                                {{ form_widget(choice, {'attr': {'class': 'h-2 w-2 text-indigo-600 focus:ring-indigo-500 border-gray-300'}}) }}
+                                {{ form_label(choice, null, {'label_attr': {'class': 'ml-2 block text-sm text-gray-900'}}) }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
                   <div class="flex items-center">
-                      {{ form_widget(form.is_published, {'attr': {'class': 'h-3 w-3 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded'}}) }}
-                      {{ form_label(form.is_published, 'Disponibles', {'label_attr': {'class': 'ml-2 block text-sm text-gray-900'}}) }}
-                  </div>
-                  <div class="flex items-center">
-                      {{ form_widget(form.newly_available, {'attr': {'class': 'h-3 w-3 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded'}}) }}
+                      {{ form_widget(form.newly_available, {'attr': {'class': 'h-2 w-2 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded'}}) }}
                       {{ form_label(form.newly_available, 'Nouveautés', {'label_attr': {'class': 'ml-2 block text-sm text-gray-900'}}) }}
                   </div>
               </div>
@@ -26,7 +34,7 @@
                   <div class="grid grid-cols-2 gap-2">
                       {% for tag in form.tags %}
                           <div class="flex items-center">
-                              {{ form_widget(tag, {'attr': {'class': 'h-3 w-3 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded'}}) }}
+                              {{ form_widget(tag, {'attr': {'class': 'h-2 w-2 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded'}}) }}
                               {{ form_label(tag, null, {'label_attr': {'class': 'ml-2 block text-sm text-gray-900'}}) }}
                           </div>
                       {% endfor %}

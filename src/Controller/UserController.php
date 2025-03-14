@@ -75,14 +75,25 @@ final class UserController extends AbstractController
 
             // Filtres
             $filterCriteria = [
-                'is_published' => $data['is_published'] ?? false,
-                'newly_available' => $data['newly_available'] ?? false,
                 'tags' => $data['tags'] ? $data['tags']->toArray() : []
             ];
 
+            switch ($data['publication_status']) {
+                case 'published':
+                    $filterCriteria['is_published'] = true;
+                    break;
+                case 'unpublished':
+                    $filterCriteria['is_published'] = false;
+                    break;
+                case 'newly_available':
+                    $filterCriteria['is_published'] = true;
+                    $filterCriteria['newly_available'] = true;
+                    break;
+            }
+
             // Tri
             $sortField = $data['sort_by'];
-            $sortOrder = $data['sort_order'] ?? 'DESC'; 
+            $sortOrder = $data['sort_order'] ?? 'DESC';
 
             if ($sortField === 'popularity') {
                 $sortCriteria = ['likes_count' => $sortOrder];

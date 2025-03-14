@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Form;
 
 use App\Entity\Tag;
@@ -14,14 +15,18 @@ class BookmarkedFilterType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('is_published', CheckboxType::class, [
-                'label' => 'Disponibles uniquement',
-                'required' => false
-            ])
-            ->add('newly_available', CheckboxType::class, [
-                'label' => 'Nouveautés disponibles',
-                'required' => false,
-                'help' => 'Disponibles depuis moins de 7 jours'
+            ->add('publication_status', ChoiceType::class, [
+                'label' => 'Statut de publication',
+                'choices' => [
+                    'Tous les romans' => 'all',
+                    'Disponibles' => 'published',
+                    'Indisponibles' => 'unpublished',
+                    'Nouveautés disponibles' => 'newly_available'
+                ],
+                'required' => true,
+                'expanded' => true,
+                'multiple' => false,
+                'data' => 'all' // Valeur par défaut
             ])
             ->add('tags', EntityType::class, [
                 'class' => Tag::class,
@@ -50,7 +55,7 @@ class BookmarkedFilterType extends AbstractType
                     'Descendant' => 'DESC'
                 ],
                 'required' => true,
-                'data' => 'DESC' 
+                'data' => 'DESC'
             ])
             ->add('submit', SubmitType::class, [
                 'label' => 'Filtrer',

@@ -39,13 +39,14 @@ public function findBookmarkedWithFilters(User $user, array $filters, array $sor
         ->groupBy('n.id');
 
     // Filtres
-    if (isset($filters['is_published']) && $filters['is_published']) {
-        $qb->andWhere('n.is_published = true'); 
+    if (array_key_exists('is_published', $filters)) {
+        $qb->andWhere('n.is_published = :isPublished')
+           ->setParameter('isPublished', $filters['is_published']);
     }
 
     if (isset($filters['newly_available']) && $filters['newly_available']) {
         $date = new \DateTime('-7 days');
-        $qb->andWhere('n.released_at >= :date') 
+        $qb->andWhere('n.updated_at >= :date') 
            ->setParameter('date', $date);
     }
 
