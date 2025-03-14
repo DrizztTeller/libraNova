@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ novel.title }}{% endblock %}
+
+{% block body %}
+<h1>{{ novel.title }}</h1>
+{% if isLiked %}
+est liké
+{% else %}
+non liké 
+{% endif %}
+{% if isRented %}
+est emprunté
+{% else %}
+non emprunté 
+{% endif %}
+{% endblock %}

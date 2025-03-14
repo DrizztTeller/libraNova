@@ -33,8 +33,8 @@
                         </td>
                         <td class="py-3 px-6">{{ renting.start|date_modify('+1 hour')|date('d/m/Y H:i') }}</td>
                         <td class="py-3 px-6">{{ renting.end|date('d/m/Y H:i') }}</td>
-                        <td class="py-3 px-6">{{ renting.last_page ?: 'Non renseigné' }}</td>
-                        <td class="py-3 px-6">{{ renting.updated_at ? renting.updated_at|date('d/m/Y H:i') : 'Jamais' }}</td>
+                        <td class="py-3 px-6">{{ renting.lastPage ?: 'Non renseigné' }}</td>
+                        <td class="py-3 px-6">{{ renting.getUpdatedAt() ? renting.getUpdatedAt()|date('d/m/Y H:i') : 'Jamais' }}</td>
                     </tr>
                 {% else %}
                     <tr>

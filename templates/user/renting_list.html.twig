@@ -1,36 +1,41 @@
-{% extends 'base.html.twig' %}
-
-{% block title %}Mes emprunts{% endblock %}
-
-{% block body %}
+{% extends 'base.html.twig' %} {% block title %}Mes emprunts{% endblock %} {%
+block body %}
 <div class="container mx-auto p-6">
-    <h1 class="text-2xl font-semibold text-gray-800 mb-4">Mes emprunts en cours</h1>
+  <h1 class="text-2xl font-semibold text-gray-800 mb-4">
+    Mes emprunts en cours
+  </h1>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% for renting in rentings %}
-            <div class="bg-white shadow-md rounded-lg p-4">
-                <h2 class="text-lg font-semibold text-gray-800">
-                    <a href="{{ path('app_novel_show', {'ref': renting.novel.ref}) }}" class="text-blue-500 hover:underline">
-                        {{ renting.novel.title }}
-                    </a>
-                </h2>
-                <p class="text-gray-600 text-sm">Emprunté le : {{ renting.start|date_modify('+1 hour')|date('d/m/Y H:i') }}</p>
-                <p class="text-gray-600 text-sm">Retour prévu : {{ renting.end|date('d/m/Y H:i') }}</p>
-                <div class="flex space-x-4 mt-4">
-                    <a href="{{ path(renting.novel in user.novels ? 'app_novel_unlike' : 'app_novel_like', {'ref': renting.novel.ref}) }}" class="text-red-500 hover:text-red-700">
-                        <i class="ux-icon-heart{% if renting.novel in user.novels %} fill-current{% endif %}"></i>
-                    </a>
-                    <a href="{{ path('app_novel_pdf', {'ref': renting.novel.ref}) }}" class="text-gray-500 hover:text-gray-700">
-                        <i class="ux-icon-file-pdf"></i>
-                    </a>
-                    <a href="{{ path('app_novel_return', {'ref': renting.novel.ref}) }}" class="text-blue-500 hover:text-blue-700">
-                        Retourner
-                    </a>
-                </div>
-            </div>
-        {% else %}
-            <p class="text-gray-500 col-span-full text-center">Aucun emprunt en cours.</p>
-        {% endfor %}
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for renting in rentings %}
+    <div class="bg-white shadow-md rounded-lg p-4">
+      <h2 class="text-lg font-semibold text-gray-800">
+        <a
+          href="{{ path('app_novel_show', { ref: renting.novel.ref }) }}"
+          class="text-blue-500 hover:underline"
+        >
+          {{ renting.novel.title }}
+        </a>
+      </h2>
+      <p class="text-gray-600 text-sm">
+        Emprunté le :
+        {{ renting.start|date_modify('+1 hour')|date('d/m/Y H:i') }}
+      </p>
+      <p class="text-gray-600 text-sm">
+        Retour prévu : {{ renting.end|date('d/m/Y H:i') }}
+      </p>
+      <div class="flex space-x-4 mt-4">
+        <form class="likes" action="{{ path('app_novel_like', { ref: renting.novel.ref}) }}" method="POST">
+            <button type="submit" class="heart-button like-button">
+                like
+            </button>
+        </form>
+      </div>
     </div>
+    {% else %}
+    <p class="text-gray-500 col-span-full text-center">
+      Aucun emprunt en cours.
+    </p>
+    {% endfor %}
+  </div>
 </div>
 {% endblock %}
