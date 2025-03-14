@@ -11,10 +11,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
+#[UniqueEntity(fields: ['email'], message: 'Il existe déjà un compte avec cet email.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -23,30 +25,44 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Assert\NotBlank(message: "L'email est obligatoire.")]
+    #[Assert\Email(message: "Veuillez entrer un email valide.")]
     private ?string $email = null;
 
-    /**
-     * @var list<string> The user roles
-     */
     #[ORM\Column]
     private array $roles = [];
 
-    /**
-     * @var string The hashed password
-     */
     #[ORM\Column]
+    #[Assert\NotBlank(message: "Le mot de passe est obligatoire.")]
+    #[Assert\Length(
+        min: 8,
+        minMessage: "Le mot de passe doit contenir au moins 8 caractères."
+    )]
+    #[Assert\Regex(
+        pattern: '/[!@#$%^&*(),.?":{}|<>]/',
+        message: "Le mot de passe doit contenir au moins un caractère spécial."
+    )]
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Le nom d'utilisateur est obligatoire.")]
+    #[Assert\Length(min: 3, max: 50, minMessage: "Le nom d'utilisateur doit contenir au moins 3 caractères.")]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z0-9\-]+$/',
+        message: "Le nom d'utilisateur ne peut contenir que des lettres, des chiffres et des traits d'union."
+    )]  
     private ?string $username = null;
 
     #[ORM\Column(type: Types::SMALLINT)]
+    #[Assert\PositiveOrZero(message: "Le nombre de romans empruntés ne peut pas être négatif.")]
     private ?int $rented_novels_count = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: "L'information sur la majorité est requise.")]
     private bool $is_adult = false;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "La référence est obligatoire.")]
     private ?string $ref = null;
 
     /**
@@ -55,15 +71,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: Novel::class, mappedBy: 'likes')]
     private Collection $novels;
 
-    /**
-     * @var Collection<int, RentingHistory>
-     */
     #[ORM\OneToMany(targetEntity: RentingHistory::class, mappedBy: 'user')]
     private Collection $rentings;
 
-    /**
-     * @var Collection<int, LoginHistory>
-     */
     #[ORM\OneToMany(targetEntity: LoginHistory::class, mappedBy: 'user')]
     private Collection $loginHistories;
 
@@ -71,9 +81,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private bool $isVerified = false;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: "L'acceptation des conditions générales est requise.")]
     private bool $is_terms = false;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: "L'acceptation de la politique de confidentialité est requise.")]
     private bool $is_gpdr = false;
 
     public function __construct()
@@ -101,25 +113,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
 
-    /**
-     * @see UserInterface
-     *
-     * @return list<string>
-     */
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
 
         // Si l'user est vérifié, role supp pour pouvoir avoir et voir ses bookmarked
@@ -135,9 +136,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return array_unique($roles);
     }
 
-    /**
-     * @param list<string> $roles
-     */
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
@@ -145,9 +143,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
     public function getPassword(): ?string
     {
         return $this->password;
@@ -160,14 +155,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @see UserInterface
-     */
-    public function eraseCredentials(): void
-    {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
-    }
+    public function eraseCredentials(): void {}
 
     public function getUsername(): ?string
     {
@@ -217,9 +205,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, Novel>
-     */
     public function getNovels(): Collection
     {
         return $this->novels;
@@ -241,9 +226,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, RentingHistory>
-     */
     public function getRentings(): Collection
     {
         return $this->rentings;
@@ -262,7 +244,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeRenting(RentingHistory $renting): static
     {
         if ($this->rentings->removeElement($renting)) {
-            // set the owning side to null (unless already changed)
             if ($renting->getUser() === $this) {
                 $renting->setUser(null);
             }
@@ -271,9 +252,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, LoginHistory>
-     */
     public function getLoginHistories(): Collection
     {
         return $this->loginHistories;
@@ -292,7 +270,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeLoginHistory(LoginHistory $loginHistory): static
     {
         if ($this->loginHistories->removeElement($loginHistory)) {
-            // set the owning side to null (unless already changed)
             if ($loginHistory->getUser() === $this) {
                 $loginHistory->setUser(null);
             }

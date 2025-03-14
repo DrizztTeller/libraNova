@@ -2,14 +2,19 @@
 
 namespace App\Entity;
 
-use ORM\Cascade;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\NovelRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
 
 #[ORM\Entity(repositoryClass: NovelRepository::class)]
+#[UniqueEntity(fields: ['ref'], message: 'Cette référence est déjà utilisée.')]
+#[ORM\HasLifecycleCallbacks]
 class Novel
 {
     #[ORM\Id]
@@ -18,43 +23,82 @@ class Novel
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le titre est obligatoire.')]
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: 'Le titre doit contenir au moins {{ limit }} caractères.',
+        maxMessage: 'Le titre ne peut pas dépasser {{ limit }} caractères.'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z0-9\s]+$/',
+        message: 'Le titre ne peut contenir que des lettres, des chiffres et des espaces.'
+    )]
     private ?string $title = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le nom de l\'auteur est obligatoire.')]
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: 'Le nom de l\'auteur doit contenir au moins {{ limit }} caractères.',
+        maxMessage: 'Le nom de l\'auteur ne peut pas dépasser {{ limit }} caractères.'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z\s]+$/',
+        message: 'Le nom de l\'auteur ne peut contenir que des lettres et des espaces.'
+    )]
     private ?string $author = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'Le résumé est obligatoire.')]
+    #[Assert\Length(
+        min: 10,
+        minMessage: 'Le résumé doit contenir au moins {{ limit }} caractères.'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[A-Z].*\.$/',
+        message: 'Le résumé doit commencer par une majuscule et se terminer par un point.'
+    )]
     private ?string $abstract = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: 'L\'état de publication est obligatoire.')]
     private ?bool $is_published = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[Assert\Type(
+        type: \DateTimeInterface::class,
+        message: 'La date de sortie doit être une date valide.'
+    )]
     private ?\DateTimeInterface $released_at = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\Type(
+        type: \DateTimeImmutable::class,
+        message: 'La date de mise à jour doit être une date valide.'
+    )]
     private ?\DateTimeImmutable $updated_at = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $pic = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $file = null;
-
-    #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le slug est obligatoire.')]
+    #[Assert\Regex(
+        pattern: '/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
+        message: 'Le slug ne peut contenir que des lettres minuscules, des chiffres et des tirets.'
+    )]
     private ?string $slug = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'La référence est obligatoire.')]
     private ?string $ref = null;
 
     #[ORM\Column]
-    private ?bool $is_for_adult = null;
+    #[Assert\NotNull(message: 'L\'indication adulte est obligatoire.')]
+    private bool $is_for_adult = true;
 
-    /**
-     * @var Collection<int, Tag>
-     */
     #[ORM\ManyToMany(targetEntity: Tag::class, mappedBy: 'novels')]
     private Collection $tags;
+
 
     /**
      * @var Collection<int, User>
@@ -62,25 +106,54 @@ class Novel
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'novels')]
     private Collection $likes;
 
-    /**
-     * @var Collection<int, RentingHistory>
-     */
     #[ORM\OneToMany(targetEntity: RentingHistory::class, mappedBy: 'novel')]
     private Collection $rentings;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Isbn(
+        type: Assert\Isbn::ISBN_13,
+        message: 'Veuillez entrer un ISBN valide.'
+    )]
     private ?string $isbn = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: 'La date de création est obligatoire.')]
+    #[Assert\Type(
+        type: \DateTimeImmutable::class,
+        message: 'La date de création doit être une date valide.'
+    )]
     private ?\DateTimeImmutable $created_at = null;
 
-    public function __construct()
+
+    public function __construct(private SluggerInterface $slugger)
     {
         $this->tags = new ArrayCollection();
         $this->likes = new ArrayCollection();
         $this->rentings = new ArrayCollection();
+        $this->slug = $this->slugger->slug($this->title)->lower();
+        $this->ref = $this->slug . uniqid();
     }
 
+    #[ORM\PrePersist]
+    public function setCreatedAtValue(): void
+    {
+        $this->created_at = new \DateTimeImmutable();
+    }
+
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function initializeSlugAndReference(SluggerInterface $slugger): void
+    {
+        if (empty($this->slug) && !empty($this->title)) {
+            $this->slug = strtolower($slugger->slug($this->title)->toString());
+        }
+
+        if (empty($this->ref)) {
+            $this->ref = uniqid($this->slug . '_', true);
+        }
+    }
+
+    
     public function getId(): ?int
     {
         return $this->id;
@@ -326,3 +399,17 @@ class Novel
         return $this;
     }
 }
+
+
+
+
+
+
+
+
+   
+
+
+
+
+
