@@ -427,7 +427,7 @@ Puis dans le dossier templates/page, créer les fichiers twig pour la page conta
 - Supprimer les éléments inutiles (templates, form, et routes index, create et update). 
 - Modifier la route show pour afficher les infos et permettre la modification des informations de l'utilisateur.
 - Créer une route pour voir les favoris avec filtres pour ne voir que ceux qui sont disponibles, ceux qui viennent d'être disponibles.
-- Dans le NovelRepository, créer une fonction pour récupérer les favoris avec possibilité de filtrage
+- Dans le NovelRepository, créer une fonction pour récupérer les favoris avec possibilité de filtrage (donc création d'un formulaire en plus)
 - Créer les routes pour voir les emprunts actuels, l'historique de tous les emprunts et l'historique de connexion
 - Dans le RentingHistoryRepository, créer une fonction pour pouvoir récupérer que les emprunts en cours
   
@@ -435,6 +435,17 @@ Puis dans le dossier templates/page, créer les fichiers twig pour la page conta
 
 ## Sécuriser les entités et les formulaires
 Ajouter les contraintes pour chaques propriétés des entités et pour les champs des formulaires
+
+---
+
+## Enregistrement des connexions
+Création d'un dossier EventListener dans src, puis d'un fichier LoginSuccessListener.php
+Ajout de l'écouteur dans services.yaml : 
+```bash
+    App\EventListener\LoginSuccessListener:
+        tags:
+            - { name: kernel.event_listener, event: security.authentication.success, method: onLoginSuccess }
+```
 
 ---
 
