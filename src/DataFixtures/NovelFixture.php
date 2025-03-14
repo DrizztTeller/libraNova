@@ -85,7 +85,7 @@ class NovelFixture extends Fixture implements DependentFixtureInterface
             // Slug et référence
             $slug = $this->slugger->slug($title)->lower();
             $novel->setSlug($slug);
-            $novel->setRef('NOVEL-' . $faker->unique()->numerify('######'));
+            $novel->setRef($slug . '-' . $faker->unique()->numerify('######'));
             $novel->setIsbn($faker->isbn13());
             $novel->setIsForAdult($faker->boolean(20));
             // Ajouter les tags au roman
