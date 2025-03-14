@@ -18,6 +18,10 @@ class SearchService
 
   public function search(QueryBuilder $queryBuilder, array $criteria): array
   {
+    if (isset($criteria['title'])) {
+      $queryBuilder->andWhere('e.title LIKE :title')
+         ->setParameter('title', '%' . $criteria['title'] . '%');
+  }
     $this->applyPropertyFilter($queryBuilder, $criteria);
     $this->applyTitleFilter($queryBuilder, $criteria);
     $this->applyAuthorFilter($queryBuilder, $criteria);
@@ -82,7 +86,7 @@ class SearchService
   private function applyTagFilters(QueryBuilder $queryBuilder, array $criteria): void
   {
     if (!empty($criteria['tags'])) {
-      $queryBuilder->join('e.tag', 't')
+      $queryBuilder->join('e.tags', 't')
         ->andWhere('t.id IN (:tags)')
         ->setParameter('tags', $criteria['tags']);
 
