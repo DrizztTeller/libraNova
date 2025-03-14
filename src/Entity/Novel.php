@@ -2,11 +2,12 @@
 
 namespace App\Entity;
 
-use App\Repository\NovelRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use ORM\Cascade;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\NovelRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 
 #[ORM\Entity(repositoryClass: NovelRepository::class)]
 class Novel
@@ -58,7 +59,7 @@ class Novel
     /**
      * @var Collection<int, User>
      */
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'novels')]
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'novels')]
     private Collection $likes;
 
     /**
