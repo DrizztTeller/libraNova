@@ -483,9 +483,13 @@ A partir du terminal on créer User
                               RentingHistory
                               Tag
 
- - On va sur route.yaml
-on y ajoute le admin_dashboard
-  avec son chemin et son controller
+ - On va sur routes.yaml
+on y ajoute le admin_dashboard avec son chemin et son controller : 
+```bash
+admin_dashboard:
+    path: '/admin'
+    controller: 'App\Controller\Admin\DashboardController::index'
+```
 
  - On nettoi le cache après ça
 ```bash
