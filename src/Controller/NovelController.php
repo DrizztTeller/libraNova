@@ -23,7 +23,7 @@ class NovelController extends AbstractController
     {
         $user = $this->getUser();
 
-        if (in_array('ROLE_ADULT', $user->getRoles())) {
+        if ($user && in_array('ROLE_ADULT', $user->getRoles())) {
             $novels = $this->nr->findAll();
         } else {
             $novels = $this->nr->findBy(["is_for_adult" => false]);
@@ -35,8 +35,15 @@ class NovelController extends AbstractController
     }
 
     #[Route('/{ref}', name: 'show', methods: ['GET'])]
-    public function getNovel(Novel $novel): Response
+    public function getNovel(string $ref): Response
     {
+        $novel = $this->nr->findOneBy(['ref' => $ref]);
+
+        if (!$novel) {
+            $this->addFlash('danger', 'Roman non trouvé.');
+            return $this->redirectToRoute('app_novel_index');
+        }
+
 
         if (!$novel) {
             $this->addFlash('danger', 'Roman non trouvé.');
@@ -79,9 +86,16 @@ class NovelController extends AbstractController
     }
 
     #[IsGranted('ROLE_VERIFIED')]
-    #[Route('/{ref}', name: 'borrow', methods: ['POST'])]
-    public function borrow(Novel $novel): Response
+    #[Route('/{ref}/borrow', 'borrow', methods: ['POST'])]
+    public function borrow(string $ref): Response
     {
+        $novel = $this->nr->findOneBy(['ref' => $ref]);
+
+        if (!$novel) {
+            $this->addFlash('danger', 'Roman non trouvé.');
+            return $this->redirectToRoute('app_novel_index');
+        }
+
         $user = $this->getUser();
 
         if (!$novel) {
@@ -106,7 +120,7 @@ class NovelController extends AbstractController
         $rental->setUser($user);
         $rental->setNovel($novel);
         $rental->setStart(new \DateTimeImmutable());
-
+        $rental->setEnd(new \DateTimeImmutable("+5 days"));
         $this->em->persist($rental);
         $this->em->flush();
 
@@ -115,9 +129,16 @@ class NovelController extends AbstractController
         return $this->redirectToRoute('app_novel_show', ['ref' => $novel->getRef()], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/{ref}', name: 'return', methods: ['POST'])]
-    public function returnBook(Novel $novel): Response
+    #[Route('/{ref}/return', 'return', methods: ['POST'])]
+    public function return(string $ref): Response
     {
+        $novel = $this->nr->findOneBy(['ref' => $ref]);
+
+        if (!$novel) {
+            $this->addFlash('danger', 'Roman non trouvé.');
+            return $this->redirectToRoute('app_novel_index');
+        }
+
         $user = $this->getUser();
 
         if (!$novel) {
@@ -142,19 +163,33 @@ class NovelController extends AbstractController
             'user' => $user,
         ]);
 
+        if (!$rental) {
+            $this->addFlash('danger', 'Emprunt non trouvé.');
+            return $this->redirectToRoute('app_novel_show', ['ref' => $novel->getRef()], Response::HTTP_SEE_OTHER);
+        }
+
         $rental->setEnd(new \DateTimeImmutable());
         $rental->setUpdatedAt(new \DateTimeImmutable());
         // TODO : Rajouter un form pour que l'utilisateur ajoute à quelle page il s'est arrête quand il retourne le livre
         $this->em->flush();
 
         $this->addFlash('success', 'Livre retourné avec succès !');
+
+        // TODO : verif l'origine si sur page emprunts retour sur cette page et non sur celle de show
         return $this->redirectToRoute('app_novel_show', ['ref' => $novel->getRef()], Response::HTTP_SEE_OTHER);
     }
 
     #[IsGranted('ROLE_VERIFIED')]
-    #[Route('/{ref}', name: 'like', methods: ['POST'])]
-    public function like(Novel $novel): Response
+    #[Route('/{ref}/like', 'like', methods: ['POST'])]
+    public function like(string $ref): Response
     {
+        $novel = $this->nr->findOneBy(['ref' => $ref]);
+
+        if (!$novel) {
+            $this->addFlash('danger', 'Roman non trouvé.');
+            return $this->redirectToRoute('app_novel_index');
+        }
+
         $user = $this->getUser();
 
         // Inutile car contrainte
@@ -171,15 +206,26 @@ class NovelController extends AbstractController
         }
 
         $novel->addLike($user);
+        // $this->em->persist($novel);
         $this->em->flush();
 
         $this->addFlash('success', 'Ce livre a bien été rajouté à votre liste de favoris');
+
+        // TODO : verif l'origine si sur page emprunts retour sur cette page et non sur celle de show
+
         return $this->redirectToRoute('app_novel_show', ['ref' => $novel->getRef()], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/{ref}', name: 'unlike', methods: ['POST'])]
-    public function unlike(Novel $novel): Response
+    #[Route('/{ref}/unlike', 'unlike', methods: ['POST'])]
+    public function unlike(string $ref): Response
     {
+        $novel = $this->nr->findOneBy(['ref' => $ref]);
+
+        if (!$novel) {
+            $this->addFlash('danger', 'Roman non trouvé.');
+            return $this->redirectToRoute('app_novel_index');
+        }
+
         $user = $this->getUser();
 
         //Normalement pas besoin car si pas d'user, pas de liste de fav
@@ -192,13 +238,23 @@ class NovelController extends AbstractController
         $this->em->flush();
 
         $this->addFlash('success', 'Ce livre a bien été retiré de la liste des favoris');
+
+        // TODO : verif l'origine si sur page emprunts retour sur cette page et non sur celle de show
+
         return $this->redirectToRoute('app_novel_show', ['ref' => $novel->getRef()], Response::HTTP_SEE_OTHER);
     }
 
     #[IsGranted('ROLE_VERIFIED')]
-    #[Route('/{ref}/pdf', name: 'pdf', methods: ['GET'])]
-    public function viewPdf(Novel $novel): Response
+    #[Route('/{ref}/pdf', 'pdf', methods: ['GET'])]
+    public function viewPdf(string $ref): Response
     {
+        $novel = $this->nr->findOneBy(['ref' => $ref]);
+
+        if (!$novel) {
+            $this->addFlash('danger', 'Roman non trouvé.');
+            return $this->redirectToRoute('app_novel_index');
+        }
+
         if (!$novel) {
             $this->addFlash('danger', 'Roman non trouvé.');
             return $this->redirectToRoute('app_novel_index');

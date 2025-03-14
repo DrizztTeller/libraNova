@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use DateTime;
 use App\Service\SearchService;
 use App\Repository\NovelRepository;
 use Symfony\Component\HttpFoundation\Response;

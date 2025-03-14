@@ -2,14 +2,15 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use ORM\Cascade;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\UserRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
@@ -43,7 +44,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $rented_novels_count = null;
 
     #[ORM\Column]
-    private ?bool $is_adult = null;
+    private bool $is_adult = false;
 
     #[ORM\Column(length: 255)]
     private ?string $ref = null;
@@ -51,7 +52,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, Novel>
      */
-    #[ORM\ManyToMany(targetEntity: Novel::class, inversedBy: 'likes')]
+    #[ORM\ManyToMany(targetEntity: Novel::class, mappedBy: 'likes')]
     private Collection $novels;
 
     /**
@@ -70,16 +71,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private bool $isVerified = false;
 
     #[ORM\Column]
-    private ?bool $is_terms = null;
+    private bool $is_terms = false;
 
     #[ORM\Column]
-    private ?bool $is_gpdr = null;
+    private bool $is_gpdr = false;
 
     public function __construct()
     {
         $this->novels = new ArrayCollection();
         $this->rentings = new ArrayCollection();
         $this->loginHistories = new ArrayCollection();
+        $this->rented_novels_count = 0;
     }
 
     public function getId(): ?int
@@ -119,6 +121,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
+
+        // Si l'user est vérifié, role supp pour pouvoir avoir et voir ses bookmarked
+        if ($this->isVerified == true) {
+            $roles[] = 'ROLE_VERIFIED';
+        };
+        
+        //Si l'user est majeur, Role supplémentaire ajouté pour plus d'options
+        if ($this->is_adult == true) {
+            $roles[] = 'ROLE_ADULT';
+        };
 
         return array_unique($roles);
     }
