@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: TagRepository::class)]
 class Tag
@@ -16,11 +17,31 @@ class Tag
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
+    #[Assert\NotBlank(message: "Le nom du tag est obligatoire.")]
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: "Le nom du tag doit contenir au moins 2 caractères.",
+        maxMessage: "Le nom du tag ne peut pas dépasser 255 caractères."
+    )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z]+$/',
+        message: 'Le nom du tag ne doit contenir que des lettres alphabétiques.'
+    )]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    private ?string $description = null;
+    #[Assert\NotBlank(message: "La description du tag est obligatoire.")]
+    #[Assert\Length(
+        min: 12,
+        minMessage: "La description doit contenir au moins 12 caractères."
+    )]
+    #[Assert\Regex(
+        pattern: '/^[\p{L}\p{N}\p{P}\p{Zs}]+$/u',
+        message: 'La description ne peut contenir que des lettres, des chiffres, des espaces et des signes de ponctuation.'
+    )]
+    
 
     /**
      * @var Collection<int, Novel>
@@ -46,7 +67,6 @@ class Tag
     public function setName(string $name): static
     {
         $this->name = $name;
-
         return $this;
     }
 
@@ -58,7 +78,6 @@ class Tag
     public function setDescription(string $description): static
     {
         $this->description = $description;
-
         return $this;
     }
 
@@ -75,14 +94,12 @@ class Tag
         if (!$this->novels->contains($novel)) {
             $this->novels->add($novel);
         }
-
         return $this;
     }
 
     public function removeNovel(Novel $novel): static
     {
         $this->novels->removeElement($novel);
-
         return $this;
     }
 }

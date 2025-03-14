@@ -5,13 +5,16 @@ namespace App\Controller;
 use App\Entity\Novel;
 use App\Entity\RentingHistory;
 use App\Repository\NovelRepository;
+use Symfony\Component\Security\Core\Security;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use App\Repository\RentingHistoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+
 
 #[Route('/livres', name: 'app_novel_')]
 class NovelController extends AbstractController

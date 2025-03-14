@@ -108,9 +108,9 @@ class NovelRepository extends ServiceEntityRepository
     // public function findByProperty(string $property, string $operator, mixed $filter): array
     // {
     //     $allowedProperties = ['title', 'author', 'created_at', 'released_at', 'likes'];
-    //     if (!in_array($property, $allowedProperties)) {
-    //         throw new \InvalidArgumentException("Propriété non autorisée.");
-    //     }
+    //  if (!in_array($property, $allowedProperties)) {
+      //     throw new \InvalidArgumentException("Propriété non autorisée.");
+     //  }
 
     //     $allowedOperators = ['=', '!=', '<', '>', '<=', '>='];
     //     if (!in_array($operator, $allowedOperators)) {
