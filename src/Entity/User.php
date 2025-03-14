@@ -43,7 +43,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $rented_novels_count = null;
 
     #[ORM\Column]
-    private ?bool $is_adult = null;
+    private bool $is_adult = false;
 
     #[ORM\Column(length: 255)]
     private ?string $ref = null;
@@ -70,16 +70,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private bool $isVerified = false;
 
     #[ORM\Column]
-    private ?bool $is_terms = null;
+    private bool $is_terms = false;
 
     #[ORM\Column]
-    private ?bool $is_gpdr = null;
+    private bool $is_gpdr = false;
 
     public function __construct()
     {
         $this->novels = new ArrayCollection();
         $this->rentings = new ArrayCollection();
         $this->loginHistories = new ArrayCollection();
+        $this->rented_novels_count = 0;
     }
 
     public function getId(): ?int
