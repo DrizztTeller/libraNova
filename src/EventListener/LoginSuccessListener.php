@@ -6,30 +6,32 @@ use App\Entity\User;
 use App\Entity\LoginHistory;
 use DeviceDetector\DeviceDetector;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Security\Http\Event\LoginSuccessEvent;
+use Symfony\Component\Security\Core\Event\AuthenticationSuccessEvent;
+
 
 class LoginSuccessListener
 {
   private $entityManager;
-  // private $requestStack;
+  private $requestStack;
 
   public function __construct(
     EntityManagerInterface $entityManager,
-    // RequestStack $requestStack
+    RequestStack $requestStack
   ) {
     $this->entityManager = $entityManager;
-    // $this->requestStack = $requestStack;
+    $this->requestStack = $requestStack;
   }
 
-  public function onLoginSuccess(Request $request, LoginSuccessEvent $event): void
+  public function onLoginSuccess(AuthenticationSuccessEvent $event): void
   {
-    $user = $event->getUser();
+    $user = $event->getAuthenticationToken()->getUser();
+
     if (!$user instanceof User) {
       return;
     }
 
+    $request = $this->requestStack->getCurrentRequest();
     $userAgent = $request->headers->get('User-Agent');
 
     $deviceDetector = new DeviceDetector($userAgent);
@@ -37,6 +39,7 @@ class LoginSuccessListener
 
     $loginHistory = new LoginHistory();
     $loginHistory->setUser($user)
+      ->setLoginDate(new \DateTimeImmutable())
       ->setIpAddress($request->getClientIp())
       ->setDevice($deviceDetector->getDeviceName())
       ->setOs($deviceDetector->getOs()['name'])
