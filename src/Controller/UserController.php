@@ -74,10 +74,6 @@ final class UserController extends AbstractController
             $data = $form->getData();
 
             // Filtres
-            $filterCriteria = [
-                'tags' => $data['tags'] ? $data['tags']->toArray() : []
-            ];
-
             switch ($data['publication_status']) {
                 case 'published':
                     $filterCriteria['is_published'] = true;
@@ -91,25 +87,23 @@ final class UserController extends AbstractController
                     break;
             }
 
-            // Tri
-            $sortField = $data['sort_by'];
-            $sortOrder = $data['sort_order'] ?? 'DESC';
-
-            if ($sortField === 'popularity') {
-                $sortCriteria = ['likes_count' => $sortOrder];
-            } else {
-                $sortCriteria = [$sortField => $sortOrder];
+            if (!empty($data['tags'])) {
+                $filterCriteria['tags'] = $data['tags'];
             }
+
+            // Tri
+            $sortField = $data['sort_by'] ?? 'title';
+            $sortOrder = $data['sort_order'] ?? 'DESC';
+            $sortCriteria = [$sortField => $sortOrder];
         }
 
         $novels = $nr->findBookmarkedWithFilters(
-            $user,
+            $this->getUser(),
             $filterCriteria,
             $sortCriteria
         );
 
         return $this->render('user/bookmarked.html.twig', [
-            'user' => $user,
             'form' => $form->createView(),
             'novels' => $novels
         ]);
