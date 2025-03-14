@@ -37,8 +37,8 @@ class RentingHistory
     private ?\DateTimeImmutable $end = null;
 
     #[ORM\Column(nullable: true)]
-    #[Assert\PositiveOrZero(message: "Le numéro de la dernière page lue ne peut pas être négatif.")]
-    private ?int $last_page = null;
+
+    private ?string $last_page = null;
 
     #[ORM\Column(nullable: true)]
     #[Assert\Type(\DateTimeImmutable::class, message: "La date de mise à jour doit être une date valide.")]
@@ -103,12 +103,12 @@ class RentingHistory
         return $this;
     }
 
-    public function getLastPage(): ?int
+    public function getLastPage(): ?string
     {
         return $this->last_page;
     }
 
-    public function setLastPage(?int $last_page): static
+    public function setLastPage(?string $last_page): static
     {
         $this->last_page = $last_page;
         return $this;

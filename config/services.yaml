@@ -33,3 +33,7 @@ services:
     App\Controller\PageController:
         arguments:
             $searchService: '@App\Service\SearchService'
+
+    App\EventListener\LoginSuccessListener:
+        tags:
+            - { name: kernel.event_listener, event: security.authentication.success, method: onLoginSuccess }

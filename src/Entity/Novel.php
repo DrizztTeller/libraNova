@@ -11,6 +11,7 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
+
 #[ORM\Entity(repositoryClass: NovelRepository::class)]
 #[UniqueEntity(fields: ['ref'], message: 'Cette référence est déjà utilisée.')]
 #[ORM\HasLifecycleCallbacks]
@@ -98,7 +99,11 @@ class Novel
     #[ORM\ManyToMany(targetEntity: Tag::class, mappedBy: 'novels')]
     private Collection $tags;
 
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'novels')]
+
+    /**
+     * @var Collection<int, User>
+     */
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'novels')]
     private Collection $likes;
 
     #[ORM\OneToMany(targetEntity: RentingHistory::class, mappedBy: 'novel')]

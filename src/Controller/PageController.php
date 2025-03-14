@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use DateTime;
 use App\Service\SearchService;
 use App\Repository\NovelRepository;
 use Symfony\Component\HttpFoundation\Response;
@@ -68,7 +67,6 @@ final class PageController extends AbstractController
                 'limit' => 10
             ]);
         }
-
 
         return $this->render('page/index2.html.twig', [
             'novelsNewest' => $novelsNewest,
