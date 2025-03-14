@@ -49,6 +49,7 @@ class RentingHistoryFixture extends Fixture implements DependentFixtureInterface
                     $endDate = $faker->dateTimeBetween('+1 day', '+30 days');
                 } else {
                     $endDate = $faker->dateTimeBetween($startDate, 'now');
+                    // TODO $start modify + 5jours
                 }
                 $end = \DateTimeImmutable::createFromMutable($endDate);
                 $renting->setEnd($end);
