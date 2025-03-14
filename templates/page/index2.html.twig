@@ -13,7 +13,93 @@
             </div>
         </div>
     </section>
+    <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-center mb-6">Bibliothèque de Romans</h1>
 
+    <!-- Formulaire de recherche -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-10">
+        <h2 class="text-xl font-semibold mb-4">Rechercher un roman</h2>
+        
+        {{ form_start(form) }}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    {{ form_label(form.title, 'Titre', {'label_attr': {'class': 'block mb-1 font-medium'}}) }}
+                    {{ form_widget(form.title) }}
+                </div>
+                
+                <div>
+                    {{ form_label(form.author, 'Auteur', {'label_attr': {'class': 'block mb-1 font-medium'}}) }}
+                    {{ form_widget(form.author) }}
+                </div>
+                
+                <div>
+                    {{ form_label(form.tags, 'Tags', {'label_attr': {'class': 'block mb-1 font-medium'}}) }}
+                    {{ form_widget(form.tags) }}
+                </div>
+                
+                <div>
+                    {{ form_label(form.orderBy, 'Trier par', {'label_attr': {'class': 'block mb-1 font-medium'}}) }}
+                    {{ form_widget(form.orderBy) }}
+                </div>
+                
+                <div class="md:col-span-2">
+                    {{ form_label(form.orderDirection, 'Direction', {'label_attr': {'class': 'block mb-1 font-medium'}}) }}
+                    <div class="flex space-x-4">
+                        {{ form_widget(form.orderDirection) }}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4 text-center">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-md transition duration-200">
+                    Rechercher
+                </button>
+            </div>
+        {{ form_end(form) }}
+    </div>
+
+    <!-- Affichage des résultats de recherche si présents -->
+    {% if isSearchResults %}
+        <section class="mb-16">
+            <h2 class="text-2xl font-semibold mb-4">Résultats de recherche</h2>
+            
+            {% if searchResults|length > 0 %}
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    {% for novel in searchResults %}
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-full">
+                            <div class="h-48 bg-gray-300 relative">
+                                {% if novel.pic %}
+                                    <img src="{{ novel.pic }}" alt="{{ novel.title }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    <div class="w-full h-full flex items-center justify-center bg-gray-200">
+                                        <span class="text-gray-500">Pas d'image</span>
+                                    </div>
+                                {% endif %}
+                                {% if novel.isForAdult %}
+                                    <div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">18+</div>
+                                {% endif %}
+                            </div>
+                            <div class="p-4 flex-grow flex flex-col">
+                                <h3 class="font-semibold text-lg mb-1">{{ novel.title }}</h3>
+                                <p class="text-sm text-gray-500 mb-2">Par {{ novel.author }}</p>
+                                <p class="text-sm text-gray-600 mb-3 line-clamp-3">{{ novel.abstract|default('Aucun résumé disponible.') }}</p>
+                                <div class="mt-auto pt-3 border-t">
+                                    <a href="{{ path('app_novel_show', {'ref': novel.ref}) }}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-1.5 px-3 rounded transition duration-200">
+                                        Voir le détail
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 p-4 rounded-md">
+                    Aucun roman ne correspond à votre recherche.
+                </div>
+            {% endif %}
+        </section>
+    {% else %}
+        <!-- Sections existantes (Romans Récemment Publiés, etc.) -->
     <!-- Featured Novels Section -->
     <section class="container mx-auto px-4 py-16">
         <h2 class="text-3xl font-bold mb-8 relative pb-3 after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-1 after:w-20 after:bg-blue-600">Romans à découvrir</h2>
@@ -116,5 +202,21 @@
             {% endif %}
         </div>
     </section>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Initialiser Select2 sur les sélections multiples (pour les tags)
+        $(document).ready(function() {
+            $('select[multiple]').select2({
+                placeholder: 'Sélectionnez des tags',
+                allowClear: true
+            });
+        });
+        
+    </script>
 {% endblock %}
                     
