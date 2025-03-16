@@ -32,6 +32,10 @@ class Tag
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    private ?string $description = null;
+
+    
+    #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank(message: "La description du tag est obligatoire.")]
     #[Assert\Length(
         min: 12,
