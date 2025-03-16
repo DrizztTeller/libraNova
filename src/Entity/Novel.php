@@ -81,6 +81,12 @@ class Novel
     private ?\DateTimeImmutable $updated_at = null;
 
     #[ORM\Column(length: 255)]
+    private ?string $pic = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $file = null;
+    
+    #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le slug est obligatoire.')]
     #[Assert\Regex(
         pattern: '/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
