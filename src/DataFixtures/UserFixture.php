@@ -46,7 +46,7 @@ class UserFixture extends Fixture
             $user->setIsAdult($faker->boolean(70)); // 70% sont adultes
             $user->setRentedBooksCount($faker->numberBetween(1, 5)); // Nombre aléatoire entre 1 et 5 de livre loué
             $user->setRef('USER-' . $faker->unique()->numerify('######')); //création d'un numéro pour chaque user
-            $user->setIsVerified(true);
+            $user->setIsVerified( $faker->boolean(70));
             $user->setIsTerms(true);
             $user->setIsGpdr(true);
 
