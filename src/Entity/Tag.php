@@ -32,20 +32,16 @@ class Tag
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    private ?string $description = null;
-
-    
-    #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank(message: "La description du tag est obligatoire.")]
     #[Assert\Length(
         min: 12,
         minMessage: "La description doit contenir au moins 12 caractères."
     )]
     #[Assert\Regex(
-        pattern: '/^[\p{L}\p{N}\p{P}\p{Zs}]+$/u',
+        pattern: '/^[\p{L}\p{N}\p{P}\p{Zs}_\-]+$/u',
         message: 'La description ne peut contenir que des lettres, des chiffres, des espaces et des signes de ponctuation.'
     )]
-    
+    private ?string $description = null;
 
     /**
      * @var Collection<int, Novel>
