@@ -34,6 +34,10 @@ services:
         arguments:
             $searchService: '@App\Service\SearchService'
 
+    # App\Controller\BookController:
+    #     arguments:
+    #         $searchService: '@App\Service\SearchService'
+
     App\EventListener\LoginSuccessListener:
         tags:
             - { name: kernel.event_listener, event: security.authentication.success, method: onLoginSuccess }
