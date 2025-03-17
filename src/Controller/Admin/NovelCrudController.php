@@ -3,19 +3,24 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Novel;
+use Vich\UploaderBundle\Form\Type\VichFileType;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
+use Symfony\Component\Validator\Constraints\File;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
+use Symfony\Component\Validator\Constraints\Image;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Form\Type\FileUploadType;
+use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 
 class NovelCrudController extends AbstractCrudController
 {
@@ -24,13 +29,14 @@ class NovelCrudController extends AbstractCrudController
         return Novel::class;
     }
 
+    // -------------------------------Configuration du crud
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Roman')
-            ->setEntityLabelInPlural('Romans')
-            ->setSearchFields(['title', 'author', 'abstract', 'isbn'])
-            ->setPaginatorPageSize(10);
+            ->setEntityLabelInSingular('Livre') //Personnalisation de l'affichage de l'entité d'un livre
+            ->setEntityLabelInPlural('Livres') //Personnalisation de l'affichage de tout les livres
+            ->setSearchFields(['title', 'author', 'abstract', 'isbn']) // Champs de recherche
+            ->setPaginatorPageSize(10); // Nombre de livres par page
     }
 
     public function configureFields(string $pageName): iterable
@@ -38,91 +44,120 @@ class NovelCrudController extends AbstractCrudController
         $formFieldsOnly = [Crud::PAGE_NEW, Crud::PAGE_EDIT];
         $viewFieldsOnly = [Crud::PAGE_INDEX, Crud::PAGE_DETAIL];
         
-        // Configuration de base
-        yield FormField::addPanel('Informations de base')->setIcon('fa fa-book');
-        yield IdField::new('id')->hideOnForm();
-        yield TextField::new('title', 'Titre');
-        yield TextField::new('author', 'Auteur');
-        yield TextEditorField::new('abstract', 'Résumé')->hideOnIndex();
-        yield TextField::new('isbn', 'ISBN');
+        // --------------------------Configuration de la structure admin de base
+        yield FormField::addFieldset('Informations de base')->setIcon('fa fa-book'); // Titre du panel
+        yield IdField::new('id')->hideOnForm(); // Cacher l'id
+        yield TextField::new('title', 'Titre'); // Afficher le titre
+        yield TextField::new('author', 'Auteur'); // Afficher l'auteur
+        yield TextEditorField::new('abstract', 'Résumé')
+            ->hideOnIndex()
+            ->setFormTypeOption('attr', ['id' => 'novel_abstract', 'name' => 'novel_abstract']); //
+        yield TextField::new('isbn', 'ISBN'); // Afficher l'isbn
         
-        yield FormField::addPanel('Fichiers')->setIcon('fa fa-file');
+        // ---------------------Configuration des ajouts de fichiers
+        yield FormField::addFieldset('Fichiers')->setIcon('fa fa-file');
         
-        // Pour l'image (champ de formulaire uniquement)
+        // ------------------------------Pour l'image (champ de formulaire uniquement)
         if (in_array($pageName, $formFieldsOnly)) {
-            yield ImageField::new('pic', 'Image de couverture')
-                ->setBasePath('uploads/images')
-                ->setUploadDir('public/uploads/images')
-                ->setUploadedFileNamePattern('[randomhash].[extension]')
-                ->setFormTypeOption('required', false)
-                ->setHelp('Format recommandé: JPG, PNG - Max 5MB');
-                
-            yield ImageField::new('file', 'Fichier PDF')
-                ->setBasePath('uploads/pdf')
-                ->setUploadDir('public/uploads/pdf')
-                ->setUploadedFileNamePattern('[randomhash].[extension]')
-                ->setFormTypeOption('required', false)
+            yield ImageField::new('pic', 'Image de couverture') // Nom du champ
+                ->setBasePath('uploads/images') // Chemin de base des images en readonly
+                ->setUploadDir('public/uploads/images') // Chemin physique d'upload des images
+                ->setUploadedFileNamePattern('[randomhash].[extension]') // Nom de fichier personnalisé
+                ->setFormTypeOption('required', false) // Pour dire que c'est un champ facultatif 
+                ->setFormTypeOption('constraints', [
+                    new Image([
+                        'maxSize' => '5M',
+                        'mimeTypes' => ['image/jpeg', 'image/png'],
+                        'mimeTypesMessage' => 'Veuillez télécharger une image valide (JPG ou PNG)'
+                    ])
+                ])      //------------------------------- Contraintes de validation
+                ->setFormTypeOption('attr', [
+                    'id' => 'novel_pic',
+                    'name' => 'novel_pic'
+                ])
+                ->setHelp('Format recommandé: JPG, PNG - Max 5MB'); // Message d'information
+            
+                // ------------------------------Pour le pdf (champ de formulaire uniquement)
+                yield Field::new('fileObject', 'Fichier PDF') // Nom du champ
+                ->setFormType(VichFileType::class) // Type de champ
+                ->setFormTypeOption('required', false) // Pour dire que c'est un champ facultatif
+                ->setFormTypeOption('constraints', [
+                    new File([
+                        'maxSize' => '10M',
+                        'mimeTypes' => ['application/pdf', 'application/x-pdf'],
+                        'mimeTypesMessage' => 'Veuillez télécharger un fichier PDF valide'
+                    ])
+                ]) //------------------------------- Contraintes de validation
                 ->setFormTypeOptions([
                     'attr' => [
-                        'accept' => '.pdf'
+                        'accept' => '.pdf',
                     ]
-                ])
-                ->setHelp('Format accepté: PDF - Max 10MB');
+                ]) //------------------------------- Contraintes de validation
+                ->setHelp('Format accepté: PDF - Max 10MB'); // Message d'information
         }
         
-        // Pour l'affichage des images (uniquement sur les vues)
+        // -----------------------Condition pour l'affichage des images (uniquement sur les vues)
         if (in_array($pageName, $viewFieldsOnly)) {
             yield TextField::new('pic', 'Image de couverture')
                 ->formatValue(function ($value, $entity) {
                     if (!$value) {
                         return 'Aucune image';
                     }
-                    return sprintf('<img src="%s" height="70" />', $value);
+                     // ------------------------Vérifier si $value est déjà une URL complète
+                    return sprintf('<img src="%s" height="70" />',
+                        filter_var($value, FILTER_VALIDATE_URL) ? $value : '/uploads/images/'.$value
+                    );
                 })
                 ->setVirtual(true);
-             // Pour l'affichage des pdf (uniquement sur les vues)
+
+
+             // ------------------Condition pour l'affichage des pdf (uniquement sur les vues)
             yield TextField::new('file', 'Fichier PDF')
                 ->formatValue(function ($value, $entity) {
                     if (!$value) {
                         return 'Aucun fichier';
                     }
-                    return sprintf('<a href="/uploads/pdf/%s" target="_blank" class="btn btn-sm btn-info"><i class="fa fa-file-pdf"></i> Voir PDF</a>', $value);
+                    return sprintf('<a href="%s" target="_blank" class="btn btn-sm btn-info"><i class="fa fa-file-pdf"></i> Voir PDF</a>', $value);
                 })
                 ->setVirtual(true);
         }
         
         // Reste de la configuration
-        yield FormField::addPanel('Publication')->setIcon('fa fa-calendar');
-        yield BooleanField::new('is_published', 'Publié');
-        yield BooleanField::new('is_for_adult', 'Contenu adulte');
-        yield DateField::new('released_at', 'Date de sortie');
+        yield FormField::addFieldset('Publication')->setIcon('fa fa-calendar');
+        yield BooleanField::new('is_published', 'Publié')
+            ->setFormTypeOption('attr', ['id' => 'novel_is_published', 'name' => 'novel_is_published']);
+        yield BooleanField::new('is_for_adult', 'Contenu adulte')
+            ->setFormTypeOption('attr', ['id' => 'novel_is_for_adult', 'name' => 'novel_is_for_adult']);
+        yield DateField::new('released_at', 'Date de sortie')
+            ->setFormTypeOption('attr', ['id' => 'novel_released_at', 'name' => 'novel_released_at']);
         
         if (in_array($pageName, $viewFieldsOnly)) {
             yield DateTimeField::new('created_at', 'Date de création');
             yield DateTimeField::new('updated_at', 'Date de mise à jour');
         }
         
-        yield FormField::addPanel('Métadonnées')->setIcon('fa fa-tags')->hideOnIndex();
+        yield FormField::addFieldset('Métadonnées')->setIcon('fa fa-tags')->hideOnIndex();
         yield TextField::new('ref', 'Référence')->hideOnForm();
         yield TextField::new('slug', 'Slug URL')->hideOnForm();
         
-        yield AssociationField::new('tags', 'Étiquettes')
+        yield AssociationField::new('tags', 'Catégories')
             ->setFormTypeOption('by_reference', false)
+            ->setFormTypeOption('attr', ['id' => 'novel_tags', 'name' => 'novel_tags'])
             ->autocomplete();
     }
     
-
+    // Ajout de l'action sur la page d'accueil et de la page de detail
     public function configureActions(Actions $actions): Actions
     {
-        $viewPdf = Action::new('viewPdf', 'Voir PDF', 'fa fa-file-pdf')
+        $viewPdf = Action::new('viewPdf', 'Voir PDF', 'fa fa-file-pdf') // Nom de l'action
             ->linkToUrl(function (Novel $novel) {
-                return $novel->getFile() ? '/uploads/pdf/' . $novel->getFile() : '#';
+                return $novel->getFile() ? '/uploads/pdf/' . $novel->getFile() : '#'; // URL de redirection
             })
-            ->setHtmlAttributes(['target' => '_blank'])
-            ->displayIf(fn (Novel $novel) => $novel->getFile() !== null && $novel->getFile() !== '');
+            ->setHtmlAttributes(['target' => '_blank']) // Ouverture dans un nouvel onglet
+            ->displayIf(fn (Novel $novel) => $novel->getFile() !== null && $novel->getFile() !== ''); // Condition pour afficher l'action
 
         return $actions
-            ->add(Crud::PAGE_INDEX, $viewPdf)
-            ->add(Crud::PAGE_DETAIL, $viewPdf);
+            ->add(Crud::PAGE_INDEX, $viewPdf) // Ajout de l'action sur la page d'accueil
+            ->add(Crud::PAGE_DETAIL, $viewPdf); // Ajout de l'action sur la page de detail
     }
 }
