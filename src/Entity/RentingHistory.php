@@ -5,7 +5,6 @@ namespace App\Entity;
 use App\Repository\RentingHistoryRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ORM\Entity(repositoryClass: RentingHistoryRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -37,18 +36,20 @@ class RentingHistory
     private ?\DateTimeImmutable $end = null;
 
     #[ORM\Column(nullable: true)]
-
+    #[Assert\Regex(
+        pattern: '/^\d+$|^terminé$/',
+        message: 'Le numéro de la page où vous vous êtes arrêté dans votre lecture, si le livre est terminé, écrire "terminé"'
+    )]
     private ?string $last_page = null;
 
     #[ORM\Column(nullable: true)]
     #[Assert\Type(\DateTimeImmutable::class, message: "La date de mise à jour doit être une date valide.")]
     private ?\DateTimeImmutable $updated_at = null;
 
-
     #[ORM\PrePersist]
     public function setDatesValue(): void
     {
-        $this->start = new \DateTimeImmutable(); 
+        $this->start = new \DateTimeImmutable();
         $this->end = new \DateTimeImmutable("+5 days");
     }
 
