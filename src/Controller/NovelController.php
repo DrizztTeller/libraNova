@@ -13,13 +13,14 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 
 #[Route('/livres', name: 'app_novel_')]
 class NovelController extends AbstractController
 {
-    public function __construct(private EntityManagerInterface $em, private NovelRepository $nr, private RentingHistoryRepository $rhr) {}
+    public function __construct(private EntityManagerInterface $em, private NovelRepository $nr, private RentingHistoryRepository $rhr, private Request $request) {}
 
     #[Route('/', name: 'index', methods: ['GET'])]
     public function index(): Response
@@ -47,46 +48,50 @@ class NovelController extends AbstractController
             return $this->redirectToRoute('app_novel_index');
         }
 
-
-        if (!$novel) {
-            $this->addFlash('danger', 'Roman non trouvé.');
-            return $this->redirectToRoute('app_novel_index');
-        }
-
         $user = $this->getUser();
+        if ($user) {
+            if (!in_array('ROLE_ADULT', $user->getRoles())) {
+                if ($novel->isForAdult()) {
+                    $this->addFlash('warning', 'Vous ne pouvez pas voir les détails de ce livre !');
+                    return $this->redirectToRoute('app_novel_index', [], Response::HTTP_SEE_OTHER);
+                }
+            }
 
-        if (!in_array('ROLE_ADULT', $user->getRoles())) {
+            $isLiked = $user ? $novel->getLikes()->contains($user) : false;
+
+            $existingRental = $this->rhr->createQueryBuilder('r')
+                ->where('r.novel = :novel')
+                ->andWhere('r.user = :user')
+                ->andWhere('r.end >= :now')
+                ->setParameter('novel', $novel)
+                ->setParameter('user', $user)
+                ->setParameter('now', new \DateTimeImmutable())
+                ->setMaxResults(1)
+                ->getQuery()
+                ->getOneOrNullResult();
+
+            if ($existingRental) {
+                $isRented = true;
+            } else {
+                $isRented = false;
+            }
+            // TODO pb : faut un rechargement pour que le status soit mis à jour
+            // TODO template à faire
+            return $this->render('novel/show.html.twig', [
+                'novel' => $novel,
+                'isLiked' => $isLiked,
+                'isRented' => $isRented
+            ]);
+        } else {
             if ($novel->isForAdult()) {
                 $this->addFlash('warning', 'Vous ne pouvez pas voir les détails de ce livre !');
                 return $this->redirectToRoute('app_novel_index', [], Response::HTTP_SEE_OTHER);
             }
+
+            return $this->render('novel/show.html.twig', [
+                'novel' => $novel,
+            ]);
         }
-
-        $isLiked = $user ? $novel->getLikes()->contains($user) : false;
-
-        $existingRental = $this->rhr->createQueryBuilder('r')
-            ->where('r.novel = :novel')
-            ->andWhere('r.user = :user')
-            ->andWhere('r.end >= :now')
-            ->setParameter('novel', $novel)
-            ->setParameter('user', $user)
-            ->setParameter('now', new \DateTimeImmutable())
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
-
-        if ($existingRental) {
-            $isRented = true;
-        } else {
-            $isRented = false;
-        }
-        // TODO pb : faut un rechargement pour que le status soit mis à jour
-        // TODO template à faire
-        return $this->render('novel/show.html.twig', [
-            'novel' => $novel,
-            'isLiked' => $isLiked,
-            'isRented' => $isRented
-        ]);
     }
 
     #[IsGranted('ROLE_VERIFIED')]
@@ -102,15 +107,10 @@ class NovelController extends AbstractController
 
         $user = $this->getUser();
 
-        if (!$novel) {
-            $this->addFlash('danger', 'Roman non trouvé.');
-            return $this->redirectToRoute('app_novel_index');
-        }
-
         //inutile car contrainte sur la route
         if (!$user) {
             $this->addFlash('danger', 'Vous devez être connecté pour emprunter un livre.');
-            return $this->redirectToRoute('app_novel_show', ['ref' => $novel->getRef()], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_login');
         }
 
         if (!in_array('ROLE_ADULT', $user->getRoles())) {
@@ -120,19 +120,36 @@ class NovelController extends AbstractController
             }
         }
 
-        $rental = new RentingHistory();
-        $rental->setUser($user);
-        $rental->setNovel($novel);
-        $rental->setStart(new \DateTimeImmutable());
-        $rental->setEnd(new \DateTimeImmutable("+5 days"));
-        $this->em->persist($rental);
-        $this->em->flush();
+        if ($user->getRentedNovelsCount() < 5) {
+            $rental = new RentingHistory();
+            $rental->setUser($user);
+            $rental->setNovel($novel);
+            $this->em->persist($rental);
+            $this->em->flush();
 
-        $this->addFlash('success', 'Livre emprunté avec succès !');
-        // TODO : verif l'origine si sur page emprunts retour sur cette page et non sur celle de show
-        return $this->redirectToRoute('app_novel_show', ['ref' => $novel->getRef()], Response::HTTP_SEE_OTHER);
+            $this->addFlash('success', 'Livre emprunté avec succès !');
+
+            // Récupérer l'URL précédente pour rediriger correctement
+            $referer = $this->request->headers->get('referer');
+            // Si l'URL du référent est disponible, rediriger l'utilisateur vers cette page
+            if ($referer) {
+                return $this->redirect($referer);
+            } else {
+                return $this->redirectToRoute('app_novel_show', ['ref' => $novel->getRef()], Response::HTTP_SEE_OTHER);
+            }
+        } else {
+            $this->addFlash('danger', "Vous avez déjà 5 livres d'empruntés");
+            $referer = $this->request->headers->get('referer');
+            // Si l'URL du référent est disponible, rediriger l'utilisateur vers cette page
+            if ($referer) {
+                return $this->redirect($referer);
+            } else {
+                return $this->redirectToRoute('app_novel_show', ['ref' => $novel->getRef()], Response::HTTP_SEE_OTHER);
+            }
+        }
     }
 
+    #[IsGranted('ROLE_VERIFIED')]
     #[Route('/{ref}/return', 'return', methods: ['POST'])]
     public function return(string $ref): Response
     {
@@ -155,13 +172,6 @@ class NovelController extends AbstractController
             return $this->redirectToRoute('app_novel_show', ['ref' => $novel->getRef()], Response::HTTP_SEE_OTHER);
         }
 
-        if (!in_array('ROLE_ADULT', $user->getRoles())) {
-            if ($novel->isForAdult()) {
-                $this->addFlash('warning', 'Vous ne pouvez pas emprunter ce livre !');
-                return $this->redirectToRoute('app_novel_index', [], Response::HTTP_SEE_OTHER);
-            }
-        }
-
         $rental = $this->rhr->findOneBy([
             'novel' => $novel,
             'user' => $user,
@@ -174,13 +184,20 @@ class NovelController extends AbstractController
 
         $rental->setEnd(new \DateTimeImmutable());
         $rental->setUpdatedAt(new \DateTimeImmutable());
+        $user->setRentedNovelsCount($user->getRentedNovelsCount() - 1);
+
         // TODO : Rajouter un form pour que l'utilisateur ajoute à quelle page il s'est arrête quand il retourne le livre
         $this->em->flush();
 
         $this->addFlash('success', 'Livre retourné avec succès !');
 
-        // TODO : verif l'origine si sur page emprunts retour sur cette page et non sur celle de show
-        return $this->redirectToRoute('app_novel_show', ['ref' => $novel->getRef()], Response::HTTP_SEE_OTHER);
+        $referer = $this->request->headers->get('referer');
+        // Si l'URL du référent est disponible, rediriger l'utilisateur vers cette page
+        if ($referer) {
+            return $this->redirect($referer);
+        } else {
+            return $this->redirectToRoute('app_novel_show', ['ref' => $novel->getRef()], Response::HTTP_SEE_OTHER);
+        }
     }
 
     #[IsGranted('ROLE_VERIFIED')]
@@ -215,11 +232,16 @@ class NovelController extends AbstractController
 
         $this->addFlash('success', 'Ce livre a bien été rajouté à votre liste de favoris');
 
-        // TODO : verif l'origine si sur page emprunts retour sur cette page et non sur celle de show
-
-        return $this->redirectToRoute('app_novel_show', ['ref' => $novel->getRef()], Response::HTTP_SEE_OTHER);
+        $referer = $this->request->headers->get('referer');
+        // Si l'URL du référent est disponible, rediriger l'utilisateur vers cette page
+        if ($referer) {
+            return $this->redirect($referer);
+        } else {
+            return $this->redirectToRoute('app_novel_show', ['ref' => $novel->getRef()], Response::HTTP_SEE_OTHER);
+        }
     }
 
+    #[IsGranted('ROLE_VERIFIED')]
     #[Route('/{ref}/unlike', 'unlike', methods: ['POST'])]
     public function unlike(string $ref): Response
     {
@@ -243,9 +265,13 @@ class NovelController extends AbstractController
 
         $this->addFlash('success', 'Ce livre a bien été retiré de la liste des favoris');
 
-        // TODO : verif l'origine si sur page emprunts retour sur page d'origine et non sur celle de show
-
-        return $this->redirectToRoute('app_novel_show', ['ref' => $novel->getRef()], Response::HTTP_SEE_OTHER);
+        $referer = $this->request->headers->get('referer');
+        // Si l'URL du référent est disponible, rediriger l'utilisateur vers cette page
+        if ($referer) {
+            return $this->redirect($referer);
+        } else {
+            return $this->redirectToRoute('app_novel_show', ['ref' => $novel->getRef()], Response::HTTP_SEE_OTHER);
+        }
     }
 
     #[IsGranted('ROLE_VERIFIED')]
