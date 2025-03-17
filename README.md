@@ -226,11 +226,11 @@ Les administrateurs auront un tableau de bord pour :
 - ROLE_ADMIN : rôle de l'administrateur
 
 ## Controllers
+- NovelController
+- PageController
 - RegistrationController
 - SecurityController
 - UserController
-- NovelController
-- PageController
 
 
 ## URLS
