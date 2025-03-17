@@ -32,7 +32,7 @@ class Novel
     )]
     #[Assert\Regex(
         pattern: '/^[a-zA-Z0-9_\s\-éèêëàâäîïôöùûüçñÑ&µ@$£€*%!?,;:\'".^°()#+\/]{2,255}$/',
-        message: "Le titre ne peut contenir que des lettres, les lettres minuscules avec accents, des chiffres, des espaces, des traits-d'union, des underscores et les symboles : &, µ, @, $, £, €, *, %, !, ?, ;, :, \', \", ^, °, (, ), +, /, . et #"
+        message: "Le titre ne peut contenir que des lettres, les lettres minuscules avec accents, des chiffres, des espaces, des traits d'union, des underscores et les symboles : &, µ, @, $, £, €, *, %, !, ?, ;, :, \', \", ^, °, (, ), +, /, . et #"
     )]
     private ?string $title = null;
 
@@ -46,7 +46,7 @@ class Novel
     )]
     #[Assert\Regex(
         pattern: '/^[a-zA-Z0-9_\s\-éèêëàâäîïôöùûüçñÑ&µ@$£€*%!?,;:\'".^°()#+\/]{2,255}$/',
-        message: "Le nom de l'auteur ne peut contenir que des lettres, les lettres minuscules avec accents, des chiffres, des espaces, des traits-d'union, des underscores et les symboles : &, µ, @, $, £, €, *, %, !, ?, ;, :, \', \", ^, °, (, ), +, /, . et #"
+        message: "Le nom de l'auteur ne peut contenir que des lettres, les lettres minuscules avec accents, des chiffres, des espaces, des traits d'union, des underscores et les symboles : &, µ, @, $, £, €, *, %, !, ?, ;, :, \', \", ^, °, (, ), +, /, . et #"
     )]
     private ?string $author = null;
 
@@ -73,6 +73,14 @@ class Novel
     )]
     private ?\DateTimeInterface $released_at = null;
 
+    #[ORM\Column]
+    #[Assert\NotNull(message: 'La date de création est obligatoire.')]
+    #[Assert\Type(
+        type: \DateTimeImmutable::class,
+        message: 'La date de création doit être une date valide.'
+    )]
+    private ?\DateTimeImmutable $created_at = null;
+
     #[ORM\Column(nullable: true)]
     #[Assert\Type(
         type: \DateTimeImmutable::class,
@@ -98,10 +106,21 @@ class Novel
     #[Assert\NotBlank(message: 'La référence est obligatoire.')]
     private ?string $ref = null;
 
+    #[ORM\Column(length: 13, nullable: true)]
+    #[Assert\Isbn(
+        isbn10Message: 'L\'ISBN-10 fourni est invalide.',
+        isbn13Message: 'L\'ISBN-13 fourni est invalide.',
+        bothIsbnMessage: 'Veuillez entrer un ISBN valide (ISBN-10 ou ISBN-13).'
+    )]
+    private ?string $isbn = null;
+
     #[ORM\Column]
     #[Assert\NotNull(message: 'L\'indication adulte est obligatoire.')]
     private bool $is_for_adult = true;
 
+    /**
+     * @var Collection<int, Tag>
+     */
     #[ORM\ManyToMany(targetEntity: Tag::class, mappedBy: 'novels')]
     private Collection $tags;
 
@@ -113,22 +132,6 @@ class Novel
 
     #[ORM\OneToMany(targetEntity: RentingHistory::class, mappedBy: 'novel')]
     private Collection $rentings;
-
-    #[ORM\Column(length: 13, nullable: true)]
-    #[Assert\Isbn(
-        isbn10Message: 'L\'ISBN-10 fourni est invalide.',
-        isbn13Message: 'L\'ISBN-13 fourni est invalide.',
-        bothIsbnMessage: 'Veuillez entrer un ISBN valide (ISBN-10 ou ISBN-13).'
-    )]
-    private ?string $isbn = null;
-
-    #[ORM\Column]
-    #[Assert\NotNull(message: 'La date de création est obligatoire.')]
-    #[Assert\Type(
-        type: \DateTimeImmutable::class,
-        message: 'La date de création doit être une date valide.'
-    )]
-    private ?\DateTimeImmutable $created_at = null;
 
     public function __construct(private SluggerInterface $slugger)
     {
