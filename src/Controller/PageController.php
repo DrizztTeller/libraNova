@@ -68,7 +68,7 @@ final class PageController extends AbstractController
             ]);
         }
         
-        return $this->render('page/index2.html.twig', [
+        return $this->render('page/index.html.twig', [
             'booksNewest' => $booksNewest,
             'booksLatest' => $booksLatest,
             'booksTop' => $booksTop,
