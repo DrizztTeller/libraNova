@@ -50,7 +50,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Regex(
         pattern: '/^[a-zA-Z0-9\-]+$/',
         message: "Le nom d'utilisateur ne peut contenir que des lettres, des chiffres et des traits d'union."
-    )]  
+    )]
     private ?string $username = null;
 
     #[ORM\Column(type: Types::SMALLINT)]
