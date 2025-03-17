@@ -50,9 +50,9 @@ class DashboardController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linkToDashboard('Menu', 'fa fa-home');
-        // yield MenuItem::linkToCrud('The Label', 'fas fa-list', EntityClass::class);
 
-        //Ici je créer les liens vers mes entités pour le menu admin
+
+        //-------------------------------Ici je créer les liens vers mes entités pour le menu admin
         yield MenuItem::linkToCrud('Utilisateurs', 'fas fa-users', User::class);
         yield MenuItem::linkToCrud('Livres', 'fas fa-book-quran',  NovelCrudController::getEntityFqcn());
         yield MenuItem::linkToCrud('Locations', 'fas fa-clock-rotate-left', RentingHistory::class);
