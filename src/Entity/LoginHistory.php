@@ -24,8 +24,8 @@ class LoginHistory
     #[Assert\NotNull(message: "La date de connexion est obligatoire.")]
     #[Assert\Type("\DateTimeImmutable", message: "La date de connexion doit être une date valide.")]
     private ?\DateTimeImmutable $login_date = null;
+
     #[ORM\Column(length: 255, nullable: true)]
-    
     private ?string $ip_address = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -36,10 +36,6 @@ class LoginHistory
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "Le navigateur est obligatoire.")]
-    #[Assert\Length(
-        max: 255,
-        maxMessage: "Le navigateur ne peut pas dépasser 255 caractères."
-    )]
     private ?string $browser = null;
 
     public function getId(): ?int
