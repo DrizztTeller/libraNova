@@ -79,9 +79,6 @@ class BookFixture extends Fixture implements DependentFixtureInterface
             $bookCoverIds = [20, 24, 42, 67, 101, 180, 240, 251, 292, 331, 373, 384];
             $randomBookCoverId = $bookCoverIds[array_rand($bookCoverIds)];
             $book->setPic('https://picsum.photos/id/' . $randomBookCoverId . '/800/600');
-            // TODO remplacer par réel fichier
-            $book->setFile('book_' . $faker->numberBetween(1, 20) . '.pdf');
-        
             
             // Slug et référence
             $slug = $this->slugger->slug($title)->lower();

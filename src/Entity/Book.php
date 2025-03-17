@@ -92,7 +92,7 @@ class Book
     private ?string $pic = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $file = null;
+    private string $file = "pdf/default.pdf";
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le slug est obligatoire.')]
