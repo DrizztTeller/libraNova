@@ -4,6 +4,7 @@ namespace App\DataFixtures;
 
 use App\Entity\Book;
 use App\Entity\Tag;
+use App\Repository\TagRepository;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
@@ -14,7 +15,7 @@ class BookFixture extends Fixture implements DependentFixtureInterface
 {
     private SluggerInterface $slugger;
 
-    public function __construct(SluggerInterface $slugger)
+    public function __construct(SluggerInterface $slugger, private TagRepository $tr)
     {
         $this->slugger = $slugger;
     }
@@ -48,8 +49,10 @@ class BookFixture extends Fixture implements DependentFixtureInterface
         ];
 
         // Récupérer tous les tags
-        $tagRepo = $manager->getRepository(Tag::class);
-        $allTags = $tagRepo->findAll();
+        // $tagRepo = $manager->getRepository(Tag::class);
+        // $allTags = $tagRepo->findAll();
+        $allTags = $this->tr->findAll();
+        $adultTag = $this->tr->findOneBy(['name' => 'Adulte']);
         
              // Créer 50 livres
         for ($i = 0; $i < 20; $i++) {
@@ -61,6 +64,7 @@ class BookFixture extends Fixture implements DependentFixtureInterface
 
             // Déterminer un titre en fonction du premier tag
             $firstTag = $selectedTags[0];
+
             $tagName = $firstTag->getName();
             $prefix = $titlePrefixes[$tagName] ?? '';
             $title = $prefix . $faker->words(3, true);
@@ -88,7 +92,7 @@ class BookFixture extends Fixture implements DependentFixtureInterface
             foreach ($selectedTags as $tag) {
                 $book->addTag($tag);
                 if ($book->isForAdult()) {
-                    $book->addTag("Adulte");
+                    $book->addTag($adultTag);
                 }
             }            
             $manager->persist($book);
