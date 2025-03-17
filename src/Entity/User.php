@@ -65,7 +65,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: Types::SMALLINT)]
     #[Assert\PositiveOrZero(message: "Le nombre de romans empruntés ne peut pas être négatif.")]
-    private int $rented_novels_count = 0;
+    private int $rented_books_count = 0;
 
     #[ORM\Column]
     #[Assert\NotNull(message: "L'information sur la majorité est requise.")]
@@ -76,10 +76,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $ref = null;
 
     /**
-     * @var Collection<int, Novel>
+     * @var Collection<int, Book>
      */
-    #[ORM\ManyToMany(targetEntity: Novel::class, mappedBy: 'likes')]
-    private Collection $novels;
+    #[ORM\ManyToMany(targetEntity: Book::class, mappedBy: 'likes')]
+    private Collection $books;
 
     #[ORM\OneToMany(targetEntity: RentingHistory::class, mappedBy: 'user')]
     private Collection $rentings;
@@ -106,7 +106,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
-        $this->novels = new ArrayCollection();
+        $this->books = new ArrayCollection();
         $this->rentings = new ArrayCollection();
         $this->loginHistories = new ArrayCollection();
     }
@@ -218,14 +218,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getRentedNovelsCount(): ?int
+    public function getRentedBooksCount(): ?int
     {
-        return $this->rented_novels_count;
+        return $this->rented_books_count;
     }
 
-    public function setRentedNovelsCount(int $rented_novels_count): static
+    public function setRentedBooksCount(int $rented_books_count): static
     {
-        $this->rented_novels_count = $rented_novels_count;
+        $this->rented_books_count = $rented_books_count;
 
         return $this;
     }
@@ -254,23 +254,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getNovels(): Collection
+    public function getBooks(): Collection
     {
-        return $this->novels;
+        return $this->books;
     }
 
-    public function addNovel(Novel $novel): static
+    public function addBook(Book $book): static
     {
-        if (!$this->novels->contains($novel)) {
-            $this->novels->add($novel);
+        if (!$this->books->contains($book)) {
+            $this->books->add($book);
         }
 
         return $this;
     }
 
-    public function removeNovel(Novel $novel): static
+    public function removeBook(Book $book): static
     {
-        $this->novels->removeElement($novel);
+        $this->books->removeElement($book);
 
         return $this;
     }

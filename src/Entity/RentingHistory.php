@@ -23,7 +23,7 @@ class RentingHistory
     #[ORM\ManyToOne(inversedBy: 'rentings')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull(message: "Le roman est obligatoire.")]
-    private ?Novel $novel = null;
+    private ?Book $book = null;
 
     #[ORM\Column]
     #[Assert\NotNull(message: "La date de début est obligatoire.")]
@@ -71,14 +71,14 @@ class RentingHistory
         return $this;
     }
 
-    public function getNovel(): ?Novel
+    public function getBook(): ?Book
     {
-        return $this->novel;
+        return $this->book;
     }
 
-    public function setNovel(?Novel $novel): static
+    public function setBook(?Book $book): static
     {
-        $this->novel = $novel;
+        $this->book = $book;
         return $this;
     }
 

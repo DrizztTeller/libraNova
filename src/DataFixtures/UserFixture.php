@@ -33,7 +33,7 @@ class UserFixture extends Fixture
         $admin->setIsGpdr(true);
         $admin->setIsVerified(true);
         $admin->setIsAdult(true);
-        $admin->setRentedNovelsCount(0);
+        $admin->setRentedBooksCount(0);
         $admin->setRef('ADMIN-' . $faker->unique()->numerify('######'));
 
 
@@ -44,7 +44,7 @@ class UserFixture extends Fixture
             $user->setEmail($faker->email());
             $user->setUsername($faker->username);
             $user->setIsAdult($faker->boolean(70)); // 70% sont adultes
-            $user->setRentedNovelsCount($faker->numberBetween(1, 5)); // Nombre aléatoire entre 1 et 5 de livre loué
+            $user->setRentedBooksCount($faker->numberBetween(1, 5)); // Nombre aléatoire entre 1 et 5 de livre loué
             $user->setRef('USER-' . $faker->unique()->numerify('######')); //création d'un numéro pour chaque user
             $user->setIsVerified(true);
             $user->setIsTerms(true);

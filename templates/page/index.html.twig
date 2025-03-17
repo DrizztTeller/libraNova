@@ -20,12 +20,12 @@
 
 {% block body %}
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-center mb-12">Bibliothèque de Romans</h1>
+    <h1 class="text-3xl font-bold text-center mb-12">Bibliothèque de Livres</h1>
 
-    <!-- Section Romans Récemment Publiés -->
+    <!-- Section Livres Récemment Publiés -->
     <section class="mb-16">
         <div class="flex justify-between items-center mb-4">
-            <h2 class="text-2xl font-semibold">Romans Récemment Publiés</h2>
+            <h2 class="text-2xl font-semibold">Livres Récemment Publiés</h2>
             <div class="flex gap-2">
                 <button id="newest-prev" class="bg-gray-200 hover:bg-gray-300 rounded-full p-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -42,28 +42,28 @@
 
         <div class="relative">
             <div id="newest-carousel" class="carousel-container flex overflow-x-scroll overflow-y-hidden hide-scrollbar gap-4 pb-4">
-                {% if novelsNewest|length > 0 %}
-                    {% for novel in novelsNewest %}
+                {% if booksNewest|length > 0 %}
+                    {% for book in booksNewest %}
                         <div class="carousel-item flex-none w-64">
                             <div class="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col">
                                 <div class="h-40 bg-gray-300 relative">
-                                    {% if novel.pic %}
-                                        <img src="{{ novel.pic }}" alt="{{ novel.title }}" class="w-full h-full object-cover">
+                                    {% if book.pic %}
+                                        <img src="{{ book.pic }}" alt="{{ book.title }}" class="w-full h-full object-cover">
                                     {% else %}
                                         <div class="w-full h-full flex items-center justify-center bg-gray-200">
                                             <span class="text-gray-500">Pas d'image</span>
                                         </div>
                                     {% endif %}
-                                    {% if novel.isForAdult %}
+                                    {% if book.isForAdult %}
                                         <div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">18+</div>
                                     {% endif %}
                                 </div>
                                 <div class="p-4 flex-grow flex flex-col">
-                                    <h3 class="font-semibold text-lg mb-1 line-clamp-1">{{ novel.title }}</h3>
-                                    <p class="text-sm text-gray-500 mb-2">Par {{ novel.author }}</p>
-                                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ novel.abstract|default('Aucun résumé disponible.') }}</p>
+                                    <h3 class="font-semibold text-lg mb-1 line-clamp-1">{{ book.title }}</h3>
+                                    <p class="text-sm text-gray-500 mb-2">Par {{ book.author }}</p>
+                                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ book.abstract|default('Aucun résumé disponible.') }}</p>
                                     <div class="mt-auto flex items-center justify-between">
-                                        <span class="text-sm text-gray-500">{{ novel.releasedAt|date('d/m/Y') }}</span>
+                                        <span class="text-sm text-gray-500">{{ book.releasedAt|date('d/m/Y') }}</span>
                                         <span class="flex items-center text-sm">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500 mr-1" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
@@ -83,10 +83,10 @@
         </div>
     </section>
 
-    <!-- Section Derniers Romans Ajoutés -->
+    <!-- Section Derniers Livres Ajoutés -->
     <section class="mb-16">
         <div class="flex justify-between items-center mb-4">
-            <h2 class="text-2xl font-semibold">Derniers Romans Ajoutés</h2>
+            <h2 class="text-2xl font-semibold">Derniers Livres Ajoutés</h2>
             <div class="flex gap-2">
                 <button id="latest-prev" class="bg-gray-200 hover:bg-gray-300 rounded-full p-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -103,28 +103,28 @@
 
         <div class="relative">
             <div id="latest-carousel" class="carousel-container flex overflow-x-scroll overflow-y-hidden hide-scrollbar gap-4 pb-4">
-                {% if novelsLatest|length > 0 %}
-                    {% for novel in novelsLatest %}
+                {% if booksLatest|length > 0 %}
+                    {% for book in booksLatest %}
                         <div class="carousel-item flex-none w-64">
                             <div class="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col">
                                 <div class="h-40 bg-gray-300 relative">
-                                    {% if novel.pic %}
-                                        <img src="{{ novel.pic }}" alt="{{ novel.title }}" class="w-full h-full object-cover">
+                                    {% if book.pic %}
+                                        <img src="{{ book.pic }}" alt="{{ book.title }}" class="w-full h-full object-cover">
                                     {% else %}
                                         <div class="w-full h-full flex items-center justify-center bg-gray-200">
                                             <span class="text-gray-500">Pas d'image</span>
                                         </div>
                                     {% endif %}
-                                    {% if novel.isForAdult %}
+                                    {% if book.isForAdult %}
                                         <div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">18+</div>
                                     {% endif %}
                                 </div>
                                 <div class="p-4 flex-grow flex flex-col">
-                                    <h3 class="font-semibold text-lg mb-1 line-clamp-1">{{ novel.title }}</h3>
-                                    <p class="text-sm text-gray-500 mb-2">Par {{ novel.author }}</p>
-                                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ novel.abstract|default('Aucun résumé disponible.') }}</p>
+                                    <h3 class="font-semibold text-lg mb-1 line-clamp-1">{{ book.title }}</h3>
+                                    <p class="text-sm text-gray-500 mb-2">Par {{ book.author }}</p>
+                                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ book.abstract|default('Aucun résumé disponible.') }}</p>
                                     <div class="mt-auto flex items-center justify-between">
-                                        <span class="text-sm text-gray-500">{{ novel.createdAt|date('d/m/Y') }}</span>
+                                        <span class="text-sm text-gray-500">{{ book.createdAt|date('d/m/Y') }}</span>
                                         <span class="flex items-center text-sm">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500 mr-1" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
@@ -144,10 +144,10 @@
         </div>
     </section>
 
-    <!-- Section Romans les Plus Populaires -->
+    <!-- Section Livres les Plus Populaires -->
     <section class="mb-16">
         <div class="flex justify-between items-center mb-4">
-            <h2 class="text-2xl font-semibold">Romans les Plus Populaires</h2>
+            <h2 class="text-2xl font-semibold">Livres les Plus Populaires</h2>
             <div class="flex gap-2">
                 <button id="top-prev" class="bg-gray-200 hover:bg-gray-300 rounded-full p-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -164,26 +164,26 @@
 
         <div class="relative">
             <div id="top-carousel" class="carousel-container flex overflow-x-scroll overflow-y-hidden hide-scrollbar gap-4 pb-4">
-                {% if novelsTop|length > 0 %}
-                    {% for novel in novelsTop %}
+                {% if booksTop|length > 0 %}
+                    {% for book in booksTop %}
                         <div class="carousel-item flex-none w-64">
                             <div class="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col">
                                 <div class="h-40 bg-gray-300 relative">
-                                    {% if novel.pic %}
-                                        <img src="{{ novel.pic }}" alt="{{ novel.title }}" class="w-full h-full object-cover">
+                                    {% if book.pic %}
+                                        <img src="{{ book.pic }}" alt="{{ book.title }}" class="w-full h-full object-cover">
                                     {% else %}
                                         <div class="w-full h-full flex items-center justify-center bg-gray-200">
                                             <span class="text-gray-500">Pas d'image</span>
                                         </div>
                                     {% endif %}
-                                    {% if novel.isForAdult %}
+                                    {% if book.isForAdult %}
                                         <div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">18+</div>
                                     {% endif %}
                                 </div>
                                 <div class="p-4 flex-grow flex flex-col">
-                                    <h3 class="font-semibold text-lg mb-1 line-clamp-1">{{ novel.title }}</h3>
-                                    <p class="text-sm text-gray-500 mb-2">Par {{ novel.author }}</p>
-                                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ novel.abstract|default('Aucun résumé disponible.') }}</p>
+                                    <h3 class="font-semibold text-lg mb-1 line-clamp-1">{{ book.title }}</h3>
+                                    <p class="text-sm text-gray-500 mb-2">Par {{ book.author }}</p>
+                                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ book.abstract|default('Aucun résumé disponible.') }}</p>
                                     <div class="mt-auto flex items-center justify-between">
                                     </div>
                                 </div>

@@ -3,7 +3,7 @@
 namespace App\Form;
 
 use App\Entity\User;
-use App\Entity\Novel;
+use App\Entity\Book;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -79,8 +79,8 @@ class UserType extends AbstractType
             'label' => 'Modifier mon profil',
             'attr' => ['class' => 'btn btn-primary'],
         ])
-//             ->add('novels', EntityType::class, [
-//                 'class' => Novel::class,
+//             ->add('books', EntityType::class, [
+//                 'class' => Book::class,
 // 'choice_label' => 'id',
 // 'multiple' => true,
 //             ])

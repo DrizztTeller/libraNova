@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Service\SearchService;
-use App\Repository\NovelRepository;
+use App\Repository\BookRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -19,32 +19,32 @@ final class PageController extends AbstractController
     }
 
     #[Route('/', name: 'home', methods: ['GET'])]
-    public function index(NovelRepository $nr): Response
+    public function index(BookRepository $br): Response
     {
         $user = $this->getUser();
 
         if ($user && $user->isAdult() === true) {
-            $novelsNewest = $nr->searchNovels([
+            $booksNewest = $br->searchBooks([
                 'published_within_week' => true,
                 'is_published' => true,
                 'orderBy' => 'released_at',
                 'orderDirection' => 'DESC',
             ]);
 
-            $novelsLatest = $nr->searchNovels([
+            $booksLatest = $br->searchBooks([
                 'created_within_week' => true,
                 'orderBy' => 'created_at',
                 'orderDirection' => 'DESC',
             ]);
 
-            $novelsTop = $nr->searchNovels([
+            $booksTop = $br->searchBooks([
                 'likes' => true,
                 'orderBy' => 'likes',
                 'orderDirection' => 'DESC',
                 'limit' => 10
             ]);
         } else {
-            $novelsNewest = $nr->searchNovels([
+            $booksNewest = $br->searchBooks([
                 'published_within_week' => true,
                 'is_published' => true,
                 'is_for_adult' => false,
@@ -52,14 +52,14 @@ final class PageController extends AbstractController
                 'orderDirection' => 'DESC',
             ]);
 
-            $novelsLatest = $nr->searchNovels([
+            $booksLatest = $br->searchBooks([
                 'created_within_week' => true,
                 'is_for_adult' => false,
                 'orderBy' => 'created_at',
                 'orderDirection' => 'DESC',
             ]);
 
-            $novelsTop = $nr->searchNovels([
+            $booksTop = $br->searchBooks([
                 'is_for_adult' => false,
                 'likes' => true,
                 'orderBy' => 'likes',
@@ -69,9 +69,9 @@ final class PageController extends AbstractController
         }
         
         return $this->render('page/index2.html.twig', [
-            'novelsNewest' => $novelsNewest,
-            'novelsLatest' => $novelsLatest,
-            'novelsTop' => $novelsTop,
+            'booksNewest' => $booksNewest,
+            'booksLatest' => $booksLatest,
+            'booksTop' => $booksTop,
         ]);
     }
 

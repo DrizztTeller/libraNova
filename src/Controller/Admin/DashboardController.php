@@ -3,7 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\LoginHistory;
-use App\Entity\Novel;
+use App\Entity\Book;
 use App\Entity\RentingHistory;
 use App\Entity\Tag;
 use App\Entity\User;
@@ -54,7 +54,7 @@ class DashboardController extends AbstractDashboardController
 
         //Ici je créer les liens vers mes entités pour le menu admin
         yield MenuItem::linkToCrud('Utilisateurs', 'fas fa-users', User::class);
-        yield MenuItem::linkToCrud('Livres', 'fas fa-book-quran',  NovelCrudController::getEntityFqcn());
+        yield MenuItem::linkToCrud('Livres', 'fas fa-book-quran',  BookCrudController::getEntityFqcn());
         yield MenuItem::linkToCrud('Locations', 'fas fa-clock-rotate-left', RentingHistory::class);
         yield MenuItem::linkToCrud('Connexions utilisateurs', 'fas fa-font-awesome', LoginHistory::class);
         yield MenuItem::linkToCrud('Tags', 'fas fa-icons', Tag::class);

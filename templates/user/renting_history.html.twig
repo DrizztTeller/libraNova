@@ -27,8 +27,8 @@
                 {% for renting in allRenting %}
                     <tr class="border-b border-gray-200 hover:bg-gray-100">
                         <td class="py-3 px-6">
-                            <a href="{{ path('app_novel_show', {'ref': renting.novel.ref}) }}" class="text-blue-500 hover:underline">
-                                {{ renting.novel.title }}
+                            <a href="{{ path('app_book_show', {'ref': renting.book.ref}) }}" class="text-blue-500 hover:underline">
+                                {{ renting.book.title }}
                             </a>
                         </td>
                         <td class="py-3 px-6">{{ renting.start|date_modify('+1 hour')|date('d/m/Y H:i') }}</td>

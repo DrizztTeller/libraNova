@@ -3,7 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\RentingHistory;
-use App\Entity\Novel;
+use App\Entity\Book;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
@@ -20,13 +20,13 @@ class RentingHistoryFixture extends Fixture implements DependentFixtureInterface
         $userRepo = $manager->getRepository(User::class);
         $users = $userRepo->findAll();
         
-        $novelRepo = $manager->getRepository(Novel::class);
-        $novels = $novelRepo->findAll();
+        $bookRepo = $manager->getRepository(Book::class);
+        $books = $bookRepo->findAll();
         
         // Création d'historiques de location aléatoires
         foreach ($users as $user) {
             // Chaque utilisateur loue entre 1 et 5 livres
-            $rentCount = $user->getRentedNovelsCount();
+            $rentCount = $user->getRentedBooksCount();
             
             for ($i = 0; $i < $rentCount; $i++) {
                 $renting = new RentingHistory();
@@ -35,8 +35,8 @@ class RentingHistoryFixture extends Fixture implements DependentFixtureInterface
                 $renting->setUser($user);
                 
                 // Attribuer un roman aléatoire
-                $novel = $faker->randomElement($novels);
-                $renting->setNovel($novel);
+                $book = $faker->randomElement($books);
+                $renting->setBook($book);
                 
                 // Dates de début et de fin
                 $startDate = $faker->dateTimeBetween('-6 months', 'now');
@@ -71,7 +71,7 @@ class RentingHistoryFixture extends Fixture implements DependentFixtureInterface
     {
         return [
             UserFixture::class,
-            NovelFixture::class
+            BookFixture::class
         ];
     }
 }

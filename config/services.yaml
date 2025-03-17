@@ -26,7 +26,7 @@ services:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
 
-    App\Repository\NovelRepository:
+    App\Repository\BookRepository:
         arguments:
             $searchService: '@App\Service\SearchService'
 

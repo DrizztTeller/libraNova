@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\BookmarkedFilterType;
 use App\Repository\LoginHistoryRepository;
-use App\Repository\NovelRepository;
+use App\Repository\BookRepository;
 use App\Repository\RentingHistoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -52,7 +52,7 @@ final class UserController extends AbstractController
 
     #[IsGranted('ROLE_VERIFIED')]
     #[Route('/favoris', name: 'bookmarked', methods: ['GET', 'POST'])]
-    public function bookmarked(NovelRepository $nr, Request $request): Response
+    public function bookmarked(BookRepository $nr, Request $request): Response
     {
         $user = $this->getUser();
         if (!$user) {
@@ -95,7 +95,7 @@ final class UserController extends AbstractController
             $sortCriteria = [$sortField => $sortOrder];
         }
 
-        $novels = $nr->findBookmarkedWithFilters(
+        $books = $nr->findBookmarkedWithFilters(
             $this->getUser(),
             $filterCriteria,
             $sortCriteria
@@ -103,7 +103,7 @@ final class UserController extends AbstractController
 
         return $this->render('user/bookmarked.html.twig', [
             'form' => $form->createView(),
-            'novels' => $novels
+            'books' => $books
         ]);
     }
 

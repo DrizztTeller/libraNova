@@ -4,7 +4,7 @@ namespace App\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\NovelRepository;
+use App\Repository\BookRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\String\Slugger\SluggerInterface;
@@ -12,10 +12,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 
-#[ORM\Entity(repositoryClass: NovelRepository::class)]
+#[ORM\Entity(repositoryClass: BookRepository::class)]
 #[UniqueEntity(fields: ['ref'], message: 'Cette référence est déjà utilisée.')]
 #[ORM\HasLifecycleCallbacks]
-class Novel
+class Book
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -121,16 +121,16 @@ class Novel
     /**
      * @var Collection<int, Tag>
      */
-    #[ORM\ManyToMany(targetEntity: Tag::class, mappedBy: 'novels')]
+    #[ORM\ManyToMany(targetEntity: Tag::class, mappedBy: 'books')]
     private Collection $tags;
 
     /**
      * @var Collection<int, User>
      */
-    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'novels')]
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'books')]
     private Collection $likes;
 
-    #[ORM\OneToMany(targetEntity: RentingHistory::class, mappedBy: 'novel')]
+    #[ORM\OneToMany(targetEntity: RentingHistory::class, mappedBy: 'book')]
     private Collection $rentings;
 
     public function __construct(private SluggerInterface $slugger)
@@ -310,7 +310,7 @@ class Novel
     {
         if (!$this->tags->contains($tag)) {
             $this->tags->add($tag);
-            $tag->addNovel($this);
+            $tag->addBook($this);
         }
 
         return $this;
@@ -319,7 +319,7 @@ class Novel
     public function removeTag(Tag $tag): static
     {
         if ($this->tags->removeElement($tag)) {
-            $tag->removeNovel($this);
+            $tag->removeBook($this);
         }
 
         return $this;
@@ -337,7 +337,7 @@ class Novel
     {
         if (!$this->likes->contains($like)) {
             $this->likes->add($like);
-            $like->addNovel($this);
+            $like->addBook($this);
         }
 
         return $this;
@@ -346,7 +346,7 @@ class Novel
     public function removeLike(User $like): static
     {
         if ($this->likes->removeElement($like)) {
-            $like->removeNovel($this);
+            $like->removeBook($this);
         }
 
         return $this;
@@ -364,7 +364,7 @@ class Novel
     {
         if (!$this->rentings->contains($renting)) {
             $this->rentings->add($renting);
-            $renting->setNovel($this);
+            $renting->setBook($this);
         }
 
         return $this;
@@ -374,8 +374,8 @@ class Novel
     {
         if ($this->rentings->removeElement($renting)) {
             // set the owning side to null (unless already changed)
-            if ($renting->getNovel() === $this) {
-                $renting->setNovel(null);
+            if ($renting->getBook() === $this) {
+                $renting->setBook(null);
             }
         }
 

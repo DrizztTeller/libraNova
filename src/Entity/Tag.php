@@ -44,14 +44,14 @@ class Tag
     private ?string $description = null;
 
     /**
-     * @var Collection<int, Novel>
+     * @var Collection<int, Book>
      */
-    #[ORM\ManyToMany(targetEntity: Novel::class, inversedBy: 'tags')]
-    private Collection $novels;
+    #[ORM\ManyToMany(targetEntity: Book::class, inversedBy: 'tags')]
+    private Collection $books;
 
     public function __construct()
     {
-        $this->novels = new ArrayCollection();
+        $this->books = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -82,24 +82,24 @@ class Tag
     }
 
     /**
-     * @return Collection<int, Novel>
+     * @return Collection<int, Book>
      */
-    public function getNovels(): Collection
+    public function getBooks(): Collection
     {
-        return $this->novels;
+        return $this->books;
     }
 
-    public function addNovel(Novel $novel): static
+    public function addBook(Book $book): static
     {
-        if (!$this->novels->contains($novel)) {
-            $this->novels->add($novel);
+        if (!$this->books->contains($book)) {
+            $this->books->add($book);
         }
         return $this;
     }
 
-    public function removeNovel(Novel $novel): static
+    public function removeBook(Book $book): static
     {
-        $this->novels->removeElement($novel);
+        $this->books->removeElement($book);
         return $this;
     }
 }

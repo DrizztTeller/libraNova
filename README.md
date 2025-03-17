@@ -143,16 +143,16 @@ Les administrateurs auront un tableau de bord pour :
 | email              | varchar(255) (à ne pas créer)         |
 | password           | varchar(255) (à ne pas créer)         |
 | roles              | array (ROLE_USER, ROLE_ADMIN) (à ne pas créer)             |
-| rented_novels_count| int (0-5)           |
+| rented_books_count| int (0-5)           |
 | is_adult           | boolean             |
 | ref                | varchar(255)        |
 | is_verified        | boolean (à ne pas créer)         |
 | is_terms           | boolean             |
 | is_gpdr            | boolean             |
-| novels             | collection (ManyToMany avec Novel)              |
+| books             | collection (ManyToMany avec Book)              |
 
 
-### Novel
+### Book
 | Champ             | Type                |
 |-------------------|---------------------|
 | id                | int (PK)            |
@@ -183,7 +183,7 @@ Les administrateurs auront un tableau de bord pour :
 |-----------------|--------------------|
 | id              | int (PK)           |
 | user_id         | int (FK -> User, ManyToOne)   |
-| novel_id        | int (FK -> Novel, ManyToOne)  |
+| book_id        | int (FK -> Book, ManyToOne)  |
 | start           | datetime immutable |
 | end             | datetime immutable |
 | last_page       | string, nullable        |
@@ -200,24 +200,24 @@ Les administrateurs auront un tableau de bord pour :
 | os           | varchar(255)          |
 | browser      | varchar(255)          |
 
-### Novel_Tag (Table de Jointure)
+### Book_Tag (Table de Jointure)
 | Champ       | Type                  |
 |-------------|-----------------------|
-| id_novel    | int (FK -> Novel)     |
+| id_book    | int (FK -> Book)     |
 | id_tag      | int (FK -> Tag)       |
 
-### User_Likes_Novel (Table de Jointure)
+### User_Likes_Book (Table de Jointure)
 | Champ     | Type                  |
 |-----------|-----------------------|
 | id_user   | int (FK -> User)      |
-| id_novel  | int (FK -> Novel)     |
+| id_book  | int (FK -> Book)     |
 
 #### Relations
-- **User** peut emprunter plusieurs **Novel** (relation avec `Renting_History`).
-- **User** peut aimer plusieurs **Novel** (relation `User_Likes_Novel`).
+- **User** peut emprunter plusieurs **Book** (relation avec `Renting_History`).
+- **User** peut aimer plusieurs **Book** (relation `User_Likes_Book`).
 - **User** a un historique de connexion (**Login_History**).
-- **Novel** peut avoir plusieurs **Tags** (relation `Novel_Tag`).
-- **Novel** peut être emprunté par plusieurs **User** (relation avec `Renting_History`).
+- **Book** peut avoir plusieurs **Tags** (relation `Book_Tag`).
+- **Book** peut être emprunté par plusieurs **User** (relation avec `Renting_History`).
 
 ### Roles des utilisateurs 
 - ROLE_USER : rôle de base d'un utilisateur connecté
@@ -226,7 +226,7 @@ Les administrateurs auront un tableau de bord pour :
 - ROLE_ADMIN : rôle de l'administrateur
 
 ## Controllers
-- NovelController
+- BookController
 - PageController
 - RegistrationController
 - SecurityController
@@ -405,7 +405,7 @@ Puis dans le dossier templates/page, créer les fichiers twig pour la page conta
 ### Création service de recherche
 - Créer un dossier Service dans le dossier src, puis un fichier SearchService.php
 - Activer le service dans le fichier services.yaml
-- Importer le service dans le NovelRepository
+- Importer le service dans le BookRepository
 
 ### Création Controller et template pour les livres
 ```bash
@@ -427,7 +427,7 @@ Puis dans le dossier templates/page, créer les fichiers twig pour la page conta
 - Supprimer les éléments inutiles (templates, form, et routes index, create et update). 
 - Modifier la route show pour afficher les infos et permettre la modification des informations de l'utilisateur.
 - Créer une route pour voir les favoris avec filtres pour ne voir que ceux qui sont disponibles, ceux qui viennent d'être disponibles.
-- Dans le NovelRepository, créer une fonction pour récupérer les favoris avec possibilité de filtrage (donc création d'un formulaire en plus)
+- Dans le BookRepository, créer une fonction pour récupérer les favoris avec possibilité de filtrage (donc création d'un formulaire en plus)
 - Créer les routes pour voir les emprunts actuels, l'historique de tous les emprunts et l'historique de connexion
 - Dans le RentingHistoryRepository, créer une fonction pour pouvoir récupérer que les emprunts en cours
   
@@ -478,7 +478,7 @@ on y met l'extend @EasyAdmin/page/content.html.twig
 symfony console make:admin:crud
 ```
 A partir du terminal on créer User
-                              Novel
+                              Book
                               LoginHistory
                               RentingHistory
                               Tag
