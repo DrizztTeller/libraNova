@@ -5,8 +5,6 @@ namespace App\Controller;
 use App\Entity\Book;
 use App\Entity\RentingHistory;
 use App\Repository\BookRepository;
-use Symfony\Component\Security\Core\Security;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use App\Repository\RentingHistoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,7 +18,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[Route('/livres', name: 'app_book_')]
 class BookController extends AbstractController
 {
-    public function __construct(private EntityManagerInterface $em, private BookRepository $br, private RentingHistoryRepository $rhr, private Request $request) {}
+    public function __construct(private EntityManagerInterface $em, private BookRepository $br, private RentingHistoryRepository $rhr) {
+
+    }
 
     #[Route('/', name: 'index', methods: ['GET'])]
     public function index(): Response
@@ -96,7 +96,7 @@ class BookController extends AbstractController
 
     #[IsGranted('ROLE_VERIFIED')]
     #[Route('/{ref}/borrow', 'borrow', methods: ['POST'])]
-    public function borrow(string $ref): Response
+    public function borrow(string $ref, Request $request): Response
     {
         $book = $this->br->findOneBy(['ref' => $ref]);
 
@@ -130,7 +130,7 @@ class BookController extends AbstractController
             $this->addFlash('success', 'Livre emprunté avec succès !');
 
             // Récupérer l'URL précédente pour rediriger correctement
-            $referer = $this->request->headers->get('referer');
+            $referer = $request->headers->get('referer');
             // Si l'URL du référent est disponible, rediriger l'utilisateur vers cette page
             if ($referer) {
                 return $this->redirect($referer);
@@ -139,7 +139,7 @@ class BookController extends AbstractController
             }
         } else {
             $this->addFlash('danger', "Vous avez déjà 5 livres d'empruntés");
-            $referer = $this->request->headers->get('referer');
+            $referer = $request->headers->get('referer');
             // Si l'URL du référent est disponible, rediriger l'utilisateur vers cette page
             if ($referer) {
                 return $this->redirect($referer);
@@ -151,7 +151,7 @@ class BookController extends AbstractController
 
     #[IsGranted('ROLE_VERIFIED')]
     #[Route('/{ref}/return', 'return', methods: ['POST'])]
-    public function return(string $ref): Response
+    public function return(string $ref, Request $request): Response
     {
         $book = $this->br->findOneBy(['ref' => $ref]);
 
@@ -194,7 +194,7 @@ class BookController extends AbstractController
 
         $this->addFlash('success', 'Livre retourné avec succès !');
 
-        $referer = $this->request->headers->get('referer');
+        $referer = $request->headers->get('referer');
         // Si l'URL du référent est disponible, rediriger l'utilisateur vers cette page
         if ($referer) {
             return $this->redirect($referer);
@@ -205,7 +205,7 @@ class BookController extends AbstractController
 
     #[IsGranted('ROLE_VERIFIED')]
     #[Route('/{ref}/like', 'like', methods: ['POST'])]
-    public function like(string $ref): Response
+    public function like(string $ref, Request $request): Response
     {
         $book = $this->br->findOneBy(['ref' => $ref]);
 
@@ -235,7 +235,7 @@ class BookController extends AbstractController
 
         $this->addFlash('success', 'Ce livre a bien été rajouté à votre liste de favoris');
 
-        $referer = $this->request->headers->get('referer');
+        $referer = $request->headers->get('referer');
         // Si l'URL du référent est disponible, rediriger l'utilisateur vers cette page
         if ($referer) {
             return $this->redirect($referer);
@@ -246,7 +246,7 @@ class BookController extends AbstractController
 
     #[IsGranted('ROLE_VERIFIED')]
     #[Route('/{ref}/unlike', 'unlike', methods: ['POST'])]
-    public function unlike(string $ref): Response
+    public function unlike(string $ref, Request $request): Response
     {
         $book = $this->br->findOneBy(['ref' => $ref]);
 
@@ -268,7 +268,7 @@ class BookController extends AbstractController
 
         $this->addFlash('success', 'Ce livre a bien été retiré de la liste des favoris');
 
-        $referer = $this->request->headers->get('referer');
+        $referer = $request->headers->get('referer');
         // Si l'URL du référent est disponible, rediriger l'utilisateur vers cette page
         if ($referer) {
             return $this->redirect($referer);
@@ -321,7 +321,7 @@ class BookController extends AbstractController
 
         if ($existingRental) {
             // TODO : A tester
-            $pdfPath = $this->getParameter('kernel.project_dir') . '/public/uploads/pdf/' . $book->getFile();
+            $pdfPath = $this->getParameter('kernel.project_dir') . '/public/' . $book->getFile();
             return new BinaryFileResponse($pdfPath);
         } else {
             $this->addFlash('danger', "Vous n'avez pas emprunter ce livre !");
