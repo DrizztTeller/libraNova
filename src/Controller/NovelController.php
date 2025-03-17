@@ -184,6 +184,9 @@ class NovelController extends AbstractController
 
         $rental->setEnd(new \DateTimeImmutable());
         $rental->setUpdatedAt(new \DateTimeImmutable());
+        // $rentedNovelCount = $user->getRentedNovelsCount();
+        // $newRentedNovelCount = $rentedNovelCount - 1;
+        // $user->setRentedNovelsCount($newRentedNovelCount);
         $user->setRentedNovelsCount($user->getRentedNovelsCount() - 1);
 
         // TODO : Rajouter un form pour que l'utilisateur ajoute à quelle page il s'est arrête quand il retourne le livre
