@@ -8,6 +8,8 @@
 /var/
 /vendor/
 /*.png
+.env
+.env.dev
 ###< symfony/framework-bundle ###
 
 ###> phpunit/phpunit ###
