@@ -41,7 +41,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      */
     #[ORM\Column]
-    #[Assert\NotBlank(message: "Le mot de passe est obligatoire.")]
+    // #[Assert\NotBlank(message: "Le mot de passe est obligatoire.")] // Ne pas le mettre car cré des erreurs
     #[Assert\Length(
         min: 12,
         minMessage: "Le mot de passe doit contenir au moins 12 caractères."

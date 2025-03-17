@@ -38,9 +38,6 @@ class RegistrationFormType extends AbstractType
                 'mapped' => false,
                 'invalid_message' => 'Les mots de passe doivent être identiques.',
                 'options' => ['row_attr' => ['class' => 'mb-3']],
-                'toggle' => true,
-                'visible_icon' => '🐵',
-                'hidden_icon' => '🙈',
                 'first_options' => [
                     'label' => 'Mot de passe',
                     'label_attr' => ['class' => 'form-label'],
@@ -94,7 +91,7 @@ class RegistrationFormType extends AbstractType
             ])
             ->add('is_terms', CheckboxType::class, [
                 'row_attr' => ['class' => 'form-check mb-2'],
-                'label' => "J'accepte <a href='" . $options['cgu_url'] . "' target='_blank'>les conditions d'utilisation</a>", // Ajout du lien dans le label et Utilisation de l'URL générée dans le RegistrationController
+                'label' => "J'accepte <a class='underline' href='" . $options['cgu_url'] . "' target='_blank'>les conditions d'utilisation</a>", // Ajout du lien dans le label et Utilisation de l'URL générée dans le RegistrationController
                 'label_html' => true, // Permet l'interprétation du HTML dans le label
                 'label_attr' => ['class' => 'form-check-label'],
                 'attr' => ['class' => 'form-check-input'],
@@ -106,7 +103,7 @@ class RegistrationFormType extends AbstractType
             ])
             ->add('is_gpdr', CheckboxType::class, [
                 'row_attr' => ['class' => 'form-check mb-2'],
-                'label' => "J'accepte <a href='" . $options['rgpd_url'] . "' target='_blank'>la politique RGPD de LibraNova</a>", // Ajout du lien dans le label et et Utilisation de l'URL générée
+                'label' => "J'accepte <a class='underline' href='" . $options['rgpd_url'] . "' target='_blank'>la politique RGPD de LibraNova</a>", // Ajout du lien dans le label et et Utilisation de l'URL générée
                 'label_html' => true, // Permet l'interprétation du HTML dans le label
                 'label_attr' => ['class' => 'form-check-label'],
                 'attr' => ['class' => 'form-check-input'],
