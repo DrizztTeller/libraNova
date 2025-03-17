@@ -100,6 +100,7 @@ class RegistrationFormType extends AbstractType
                         'message' => 'Vous devez accepter les CGU pour vous inscrire',
                     ]),
                 ],
+                'data' => true,
             ])
             ->add('is_gpdr', CheckboxType::class, [
                 'row_attr' => ['class' => 'form-check mb-2'],
@@ -112,6 +113,7 @@ class RegistrationFormType extends AbstractType
                         'message' => 'Vous devez accepter notre politique RGPD pour vous inscrire',
                     ]),
                 ],
+                'data' => true,
             ])
             ->add('submit', SubmitType::class, [
                 'label' => "S'inscrire",
