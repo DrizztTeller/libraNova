@@ -38,10 +38,10 @@ class Tag
         minMessage: "La description doit contenir au moins 12 caractères."
     )]
     #[Assert\Regex(
-        pattern: '/^[\p{L}\p{N}\p{P}\p{Zs}]+$/u',
+        pattern: '/^[\p{L}\p{N}\p{P}\p{Zs}_\-]+$/u',
         message: 'La description ne peut contenir que des lettres, des chiffres, des espaces et des signes de ponctuation.'
     )]
-    
+    private ?string $description = null;
 
     /**
      * @var Collection<int, Novel>

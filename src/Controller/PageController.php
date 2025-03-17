@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use DateTime;
 use App\Service\SearchService;
 use App\Repository\NovelRepository;
 use Symfony\Component\HttpFoundation\Response;
@@ -68,8 +67,7 @@ final class PageController extends AbstractController
                 'limit' => 10
             ]);
         }
-
-
+        
         return $this->render('page/index2.html.twig', [
             'novelsNewest' => $novelsNewest,
             'novelsLatest' => $novelsLatest,
@@ -80,24 +78,28 @@ final class PageController extends AbstractController
     #[Route('/contact', name: 'contact', methods: ['GET'])]
     public function contact(): Response
     {
+        // TODO template à faire
         return $this->render('page/contact.html.twig', []);
     }
 
     #[Route('/cgu', name: 'cgu', methods: ['GET'])]
     public function cgu(): Response
     {
+        // TODO template à faire
         return $this->render('page/cgu.html.twig', []);
     }
 
     #[Route('/rgpd', name: 'rgpd', methods: ['GET'])]
     public function rgpd(): Response
     {
+        // TODO template à faire
         return $this->render('page/rgpd.html.twig', []);
     }
 
     #[Route('/mentions-legales', name: 'm_l', methods: ['GET'])]
     public function m_l(): Response
     {
+        // TODO template à faire
         return $this->render('page/m_l.html.twig', []);
     }
 }

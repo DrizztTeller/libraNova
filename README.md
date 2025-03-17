@@ -186,7 +186,7 @@ Les administrateurs auront un tableau de bord pour :
 | novel_id        | int (FK -> Novel, ManyToOne)  |
 | start           | datetime immutable |
 | end             | datetime immutable |
-| last_page       | int, nullable        |
+| last_page       | string, nullable        |
 | updated_at      | datetime immutable, nullable |
 
 ### Login_History
@@ -226,11 +226,11 @@ Les administrateurs auront un tableau de bord pour :
 - ROLE_ADMIN : rôle de l'administrateur
 
 ## Controllers
+- NovelController
+- PageController
 - RegistrationController
 - SecurityController
 - UserController
-- NovelController
-- PageController
 
 
 ## URLS
@@ -245,6 +245,8 @@ Les administrateurs auront un tableau de bord pour :
   - permettant de supprimer le compte
   - de se rediriger vers les fonctionnalités liées à l'utilisateur (favoris)
 - /profil/favoris : pour voir tous les favoris avec un filtre pour n'afficher que ceux qui sont dispo ou inversement
+- /profil/emprunts : pour voir tous les livres empruntés en cours
+- /profil/historique-emprunts : pour voir tous les livres empruntés depuis l'inscription
 - /contact : page avec formulaire de contact
 - /rgpd 
 - /cgu 
@@ -424,15 +426,26 @@ Puis dans le dossier templates/page, créer les fichiers twig pour la page conta
 ```
 - Supprimer les éléments inutiles (templates, form, et routes index, create et update). 
 - Modifier la route show pour afficher les infos et permettre la modification des informations de l'utilisateur.
-- Créer une route pour voir les favoris avec filtres pour ne voir que ceux qui sont disponibles, ceux en attentes, ceux qui viennent d'être disponibles.
-- Dans le UserRepository créer 2 fonctions pour : 
-  - récupérer les favoris avec possibilité de filtrage
-  - récupérer que les livres qui sont devenus disponibles
+- Créer une route pour voir les favoris avec filtres pour ne voir que ceux qui sont disponibles, ceux qui viennent d'être disponibles.
+- Dans le NovelRepository, créer une fonction pour récupérer les favoris avec possibilité de filtrage (donc création d'un formulaire en plus)
+- Créer les routes pour voir les emprunts actuels, l'historique de tous les emprunts et l'historique de connexion
+- Dans le RentingHistoryRepository, créer une fonction pour pouvoir récupérer que les emprunts en cours
   
 ---
 
 ## Sécuriser les entités et les formulaires
 Ajouter les contraintes pour chaques propriétés des entités et pour les champs des formulaires
+
+---
+
+## Enregistrement des connexions
+Création d'un dossier EventListener dans src, puis d'un fichier LoginSuccessListener.php
+Ajout de l'écouteur dans services.yaml : 
+```bash
+    App\EventListener\LoginSuccessListener:
+        tags:
+            - { name: kernel.event_listener, event: security.authentication.success, method: onLoginSuccess }
+```
 
 ---
 
@@ -447,7 +460,44 @@ Ajouter les contraintes pour chaques propriétés des entités et pour les champ
 
 ## Installation de easyAdmin
 
----
+ - Installation du bundle
+```bash
+ composer require easycorp/easyadmin-bundle
+ ```
+ - Création du DashboardController
+```bash
+ symfony console make:admin:dashboard
+```
+Où l'on personnalise le chemin
+
+On créer un dossier templates/admin où l'on met le dashboard.html.twig,
+on y met l'extend @EasyAdmin/page/content.html.twig
+
+ - Création des CRUD controllers de la page admin
+```bash
+symfony console make:admin:crud
+```
+A partir du terminal on créer User
+                              Novel
+                              LoginHistory
+                              RentingHistory
+                              Tag
+
+ - On va sur routes.yaml
+on y ajoute le admin_dashboard avec son chemin et son controller : 
+```bash
+admin_dashboard:
+    path: '/admin'
+    controller: 'App\Controller\Admin\DashboardController::index'
+```
+
+ - On nettoi le cache après ça
+```bash
+symfony console cache:clear
+```
+Puis on rappel les entité lié au CRUD Controller en les appelant grâce au " MenuItem::LinkToDashboard "
+
+
 
 ## 🧰 Technologies Utilisées
 
