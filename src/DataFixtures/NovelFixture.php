@@ -53,7 +53,7 @@ class NovelFixture extends Fixture implements DependentFixtureInterface
         
              // Créer 50 livres
         for ($i = 0; $i < 20; $i++) {
-            $novel = new Novel();
+            $novel = new Novel($this->slugger);
 
             //Selection de tags
             $tagCount = $faker->numberBetween(1, 3);
