@@ -40,7 +40,7 @@ class RentingHistory
         pattern: '/^\d+$|^terminé$/',
         message: 'Le numéro de la page où vous vous êtes arrêté dans votre lecture, si le livre est terminé, écrire "terminé"'
     )]
-    private ?string $last_page = null;
+    private string $last_page = '0';
 
     #[ORM\Column(nullable: true)]
     #[Assert\Type(\DateTimeImmutable::class, message: "La date de mise à jour doit être une date valide.")]
