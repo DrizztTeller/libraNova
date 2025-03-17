@@ -60,11 +60,6 @@ final class UserController extends AbstractController
             return $this->redirectToRoute('home');
         }
 
-        if (!$user->isVerified()) {
-            $this->addFlash('danger', 'Votre email doit être validé pour accéder à vos favoris.');
-            return $this->redirectToRoute('app_user_profile');
-        }
-
         // TODO faire une seule fonction de recherche complète avec un seul form qui sera réutilisé partout pour filtrer directement dans le tableau des romans (allromans ou que romans liké ou que romans empruntés)
 
         $form = $this->createForm(BookmarkedFilterType::class);
@@ -122,12 +117,6 @@ final class UserController extends AbstractController
             return $this->redirectToRoute('home');
         }
 
-        //Inutile car pas possible d'emprunter si email non vérifié
-        if (!$user->isVerified()) {
-            $this->addFlash('danger', 'Votre email doit être validé pour voir vos emprunts');
-            return $this->redirectToRoute('app_user_profile');
-        }
-
         // TODO faire une seule fonction de recherche complète avec un seul form qui sera réutilisé partout pour filtrer directement dans le tableau des romans (allromans ou que romans liké ou que romans empruntés)
 
         $currentRentals = $rhr->findCurrentRentalsForUser($user);
@@ -148,11 +137,6 @@ final class UserController extends AbstractController
             return $this->redirectToRoute('home');
         }
 
-        if (!$user->isVerified()) {
-            $this->addFlash('danger', "Votre email doit être validé pour accéder à votre historique d'emprunts");
-            return $this->redirectToRoute('app_user_profile');
-        }
-
         // TODO faire une seule fonction de recherche complète avec un seul form qui sera réutilisé partout pour filtrer directement dans le tableau des romans (allromans ou que romans liké ou que romans empruntés)
 
         $allRenting = $rhr->findBy(['user' => $user]);
@@ -171,11 +155,6 @@ final class UserController extends AbstractController
         if (!$user) {
             $this->addFlash('danger', 'Veuillez vous connecter pour voir votre historique de connexion.');
             return $this->redirectToRoute('home');
-        }
-
-        if (!$user->isVerified()) {
-            $this->addFlash('danger', 'Votre email doit être validé pour accéder à votre historique de connexion.');
-            return $this->redirectToRoute('app_user_profile');
         }
 
         $allLogins = $lhr->findBy(['user' => $user]);
