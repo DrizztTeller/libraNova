@@ -2,21 +2,22 @@
 
 namespace App\Entity;
 
-use ORM\Cascade;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Validator\Constraints as Assert;
 
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[UniqueEntity(fields: ['email'], message: 'Il existe déjà un compte avec cet email.')]
+#[HasLifecycleCallbacks]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -27,6 +28,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 180)]
     #[Assert\NotBlank(message: "L'email est obligatoire.")]
     #[Assert\Email(message: "Veuillez entrer un email valide.")]
+    #[Assert\Regex(
+        pattern: '/^[A-Za-z0-9._%+-]+(?!\..)[A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+(?<!\.\.)\.[A-Za-z]{2,}$/',
+        message: "Votre email ne peut contenir que des lettres sans accents, des chiffres, des points, underscores, traits d'union et les symboles % et +"
+    )]
     private ?string $email = null;
 
     #[ORM\Column]
@@ -39,23 +44,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         minMessage: "Le mot de passe doit contenir au moins 8 caractères."
     )]
     #[Assert\Regex(
-        pattern: '/[!@#$%^&*(),.?":{}|<>]/',
-        message: "Le mot de passe doit contenir au moins un caractère spécial."
+        pattern: '/^(?=.*[!@#$%^*-])(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])\S{12,}$/',
+        message: "Le mot de passe doit être composé d'au moins 12 caractères consécutifs, sans espace, et doit contenir au moins une lettre Majuscule, une lettre minuscule, un chiffre et un caractère spécial parmis ! @ # $ % ^ * -"
     )]
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "Le nom d'utilisateur est obligatoire.")]
-    #[Assert\Length(min: 3, max: 50, minMessage: "Le nom d'utilisateur doit contenir au moins 3 caractères.")]
+    #[Assert\Length(
+        min: 2,
+        max: 50,
+        minMessage: "Le nom d'utilisateur doit contenir au moins 2 caractères.",
+        maxMessage: "Le nom d'utilisateur ne peut avoir que 50 caractères au maximum."
+    )]
     #[Assert\Regex(
-        pattern: '/^[a-zA-Z0-9\-]+$/',
-        message: "Le nom d'utilisateur ne peut contenir que des lettres, des chiffres et des traits d'union."
-    )]  
+        pattern: '/^[a-zA-Z0-9_\s\-éèêëàâäîïôöùûüçñÑ&\'"]{2,50}$/',
+        message: "Le nom d'utilisateur ne peut contenir que des lettres, des chiffres, des espaces, des traits d'union, des underscores et les apostrophes. Il doit avoir entre 2 et 50 caractères"
+    )]
     private ?string $username = null;
 
     #[ORM\Column(type: Types::SMALLINT)]
     #[Assert\PositiveOrZero(message: "Le nombre de romans empruntés ne peut pas être négatif.")]
-    private ?int $rented_novels_count = null;
+    private int $rented_novels_count = 0;
 
     #[ORM\Column]
     #[Assert\NotNull(message: "L'information sur la majorité est requise.")]
@@ -88,14 +98,63 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\NotNull(message: "L'acceptation de la politique de confidentialité est requise.")]
     private bool $is_gpdr = false;
 
+    #[ORM\Column]
+    private ?\DateTimeImmutable $created_at = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $updated_at = null;
+
     public function __construct()
     {
         $this->novels = new ArrayCollection();
         $this->rentings = new ArrayCollection();
         $this->loginHistories = new ArrayCollection();
-        $this->rented_novels_count = 0;
     }
 
+    #[ORM\PrePersist]
+    public function setCreatedAtValue()
+    {
+        $this->created_at = new \DateTimeImmutable();
+        $this->updated_at = new \DateTimeImmutable;
+    }
+
+    #[ORM\PrePersist]
+    public function setUpdatedAtValue()
+    {
+        $this->updated_at = new \DateTimeImmutable;
+    }
+
+    #[ORM\PrePersist]
+    public function addDefaultRolesOnCreation(): void
+    {
+        // Ajouter le rôle de base ROLE_USER lors de la création
+        $this->roles[] = 'ROLE_USER';
+
+        //Si l'user est majeur, Role supplémentaire ajouté pour plus d'options
+        if ($this->is_adult) {
+            $this->roles[] = 'ROLE_ADULT';
+        }
+
+        // Assurer l'unicité des rôles (pas de doublons)
+        $this->roles = array_unique($this->roles);
+    }
+
+    #[ORM\PreUpdate]
+    public function updateRolesOnModification(): void
+    {
+        // Si l'user est vérifié, role supp pour pouvoir avoir et voir ses bookmarked
+        if ($this->isVerified && !in_array('ROLE_VERIFIED', $this->roles)) {
+            $this->roles[] = 'ROLE_VERIFIED';
+        }
+
+        //Si l'user est majeur, Role supplémentaire ajouté pour plus d'options
+        if ($this->is_adult && !in_array('ROLE_ADULT', $this->roles)) {
+            $this->roles[] = 'ROLE_ADULT';
+        }
+
+        // Assurer l'unicité des rôles (pas de doublons)
+        $this->roles = array_unique($this->roles);
+    }
     public function getId(): ?int
     {
         return $this->id;
@@ -122,16 +181,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $roles = $this->roles;
         $roles[] = 'ROLE_USER';
-
-        // Si l'user est vérifié, role supp pour pouvoir avoir et voir ses bookmarked
-        if ($this->isVerified == true) {
-            $roles[] = 'ROLE_VERIFIED';
-        };
-        
-        //Si l'user est majeur, Role supplémentaire ajouté pour plus d'options
-        if ($this->is_adult == true) {
-            $roles[] = 'ROLE_ADULT';
-        };
 
         return array_unique($roles);
     }
@@ -310,6 +359,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsGpdr(bool $is_gpdr): static
     {
         $this->is_gpdr = $is_gpdr;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->created_at;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $created_at): static
+    {
+        $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updated_at;
+    }
+
+    public function setUpdatedAt(\DateTimeImmutable $updated_at): static
+    {
+        $this->updated_at = $updated_at;
 
         return $this;
     }
