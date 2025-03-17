@@ -3,13 +3,16 @@
 namespace App\Service;
 
 use DateTimeImmutable;
+use DateTimeZone;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Common\Collections\Collection;
 
 class SearchService
 {
   private EntityManagerInterface $entityManager;
   private const ALLOWED_PROPERTIES = ['title', 'author', 'created_at', 'released_at', 'updated_at', 'likes', 'tags'];
+  private const ALLOWED_SORT_FIELDS = ['title', 'author', 'created_at', 'released_at', 'updated_at', 'likes'];
 
   public function __construct(EntityManagerInterface $entityManager)
   {
@@ -37,7 +40,7 @@ class SearchService
   {
     if (!empty($criteria['property']) && in_array($criteria['property'], self::ALLOWED_PROPERTIES, true)) {
       if ($criteria['property'] === 'tags' && !empty($criteria['filter'])) {
-        $queryBuilder->join('e.tag', 't')
+        $queryBuilder->join('e.tags', 't')
           ->andWhere('t.id IN (:tags)')
           ->setParameter('tags', $criteria['filter']);
       } else {
@@ -47,6 +50,7 @@ class SearchService
       }
     }
   }
+
 
   private function applyTitleFilter(QueryBuilder $queryBuilder, array $criteria): void
   {
@@ -66,7 +70,7 @@ class SearchService
 
   private function applyDateFilters(QueryBuilder $queryBuilder, array $criteria): void
   {
-    $oneWeekAgo = new DateTimeImmutable('-1 week');
+    $oneWeekAgo = new DateTimeImmutable('-1 week', new DateTimeZone('Europe/Paris'));
 
     if (!empty($criteria['created_within_week'])) {
       $queryBuilder->andWhere('e.created_at >= :createdOneWeekAgo')
@@ -87,14 +91,20 @@ class SearchService
   private function applyTagFilters(QueryBuilder $queryBuilder, array $criteria): void
   {
     if (!empty($criteria['tags'])) {
-      $queryBuilder->join('e.tag', 't')
-        ->andWhere('t.id IN (:tags)')
-        ->setParameter('tags', $criteria['tags']);
+      $tagIds = $criteria['tags'] instanceof Collection
+        ? array_map(fn($tag) => $tag->getId(), $criteria['tags']->toArray())
+        : array_map(fn($tag) => $tag->getId(), (array) $criteria['tags']);
+
+      if (!empty($tagIds)) {
+        $queryBuilder->join('e.tags', 't')
+          ->andWhere('t.id IN (:tags)')
+          ->setParameter('tags', $tagIds);
+      }
 
       if (!empty($criteria['matchType']) && $criteria['matchType'] === 'all') {
         $queryBuilder->groupBy('e.id')
           ->having('COUNT(DISTINCT t.id) = :tagCount')
-          ->setParameter('tagCount', count($criteria['tags']));
+          ->setParameter('tagCount', count($tagIds));
       }
     }
   }
@@ -102,16 +112,15 @@ class SearchService
   private function applyExcludedTagsFilter(QueryBuilder $queryBuilder, array $criteria): void
   {
     if (!empty($criteria['excludeTags'])) {
-      $rootEntity = $queryBuilder->getRootEntities()[0];
+      $excludeTagIds = $criteria['excludeTags'] instanceof Collection
+        ? array_map(fn($tag) => $tag->getId(), $criteria['excludeTags']->toArray())
+        : array_map(fn($tag) => $tag->getId(), (array) $criteria['excludeTags']);
 
-      $subQuery = $this->entityManager->createQueryBuilder()
-        ->select('sub.id')
-        ->from($rootEntity, 'sub')
-        ->leftJoin('sub.tag', 'st')
-        ->where('st.id IN (:excludeTags)');
-
-      $queryBuilder->andWhere($queryBuilder->expr()->notIn('e.id', $subQuery->getDQL()))
-        ->setParameter('excludeTags', $criteria['excludeTags']);
+      if (!empty($excludeTagIds)) {
+        $queryBuilder->join('e.tags', 'st')
+          ->andWhere('st.id NOT IN (:excludeTags)')
+          ->setParameter('excludeTags', $excludeTagIds);
+      }
     }
   }
 
@@ -120,19 +129,20 @@ class SearchService
     if (!empty($criteria['likes']) && is_numeric($criteria['likes'])) {
       $queryBuilder->leftJoin('e.likes', 'u')
         ->groupBy('e.id')
-        ->having('COUNT(u.id) >= :likes')
+        ->having('COALESCE(COUNT(u.id), 0) >= :likes')
         ->setParameter('likes', $criteria['likes']);
     }
   }
-  
+
+
   private function applyPublicationStatusFilter(QueryBuilder $queryBuilder, array $criteria): void
   {
     if (isset($criteria['is_published'])) {
       $queryBuilder->andWhere('e.is_published = :isPublished')
-      ->setParameter('isPublished', $criteria['is_published']);
+        ->setParameter('isPublished', $criteria['is_published']);
     }
   }
-  
+
   private function applyAdultFilter(QueryBuilder $queryBuilder, array $criteria): void
   {
     if (isset($criteria['is_for_adult'])) {
@@ -143,19 +153,21 @@ class SearchService
 
   private function applySorting(QueryBuilder $queryBuilder, array $criteria): void
   {
-      if (!empty($criteria['orderBy'])) {
-          if ($criteria['orderBy'] === 'likes') {
-              $queryBuilder->leftJoin('e.likes', 'l')
-                  ->groupBy('e.id')
-                  ->orderBy('COUNT(l.id)', $criteria['orderDirection'] ?? 'DESC');
-          } else {
-              $queryBuilder->orderBy('e.' . $criteria['orderBy'], $criteria['orderDirection'] ?? 'DESC');
-          }
+    if (!empty($criteria['orderBy']) && in_array($criteria['orderBy'], self::ALLOWED_SORT_FIELDS, true)) {
+      $direction = strtoupper($criteria['orderDirection'] ?? 'DESC');
+      $direction = in_array($direction, ['ASC', 'DESC']) ? $direction : 'DESC';
+
+      if ($criteria['orderBy'] === 'likes') {
+        $queryBuilder->leftJoin('e.likes', 'l')
+          ->groupBy('e.id')
+          ->orderBy('COUNT(l.id)', $direction);
       } else {
-          $queryBuilder->orderBy('e.created_at', 'DESC');
+        $queryBuilder->orderBy('e.' . $criteria['orderBy'], $direction);
       }
+    } else {
+      $queryBuilder->orderBy('e.created_at', 'DESC');
+    }
   }
-  
 
   private function applyLimit(QueryBuilder $queryBuilder, array $criteria): void
   {

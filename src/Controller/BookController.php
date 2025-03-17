@@ -3,27 +3,26 @@
 namespace App\Controller;
 
 use App\Entity\Book;
+use App\Form\BookSearchType;
 use App\Entity\RentingHistory;
 use App\Repository\BookRepository;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use App\Repository\RentingHistoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\RentingHistoryRepository;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 
 #[Route('/livres', name: 'app_book_')]
 class BookController extends AbstractController
 {
-    public function __construct(private EntityManagerInterface $em, private BookRepository $br, private RentingHistoryRepository $rhr) {
-
-    }
+    public function __construct(private EntityManagerInterface $em, private BookRepository $br, private RentingHistoryRepository $rhr) {}
 
     #[Route('/', name: 'index', methods: ['GET'])]
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $user = $this->getUser();
 
@@ -33,8 +32,44 @@ class BookController extends AbstractController
             $books = $this->br->findBy(["is_for_adult" => false]);
         }
 
+        $form = $this->createForm(BookSearchType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $criteria = $form->getData();
+
+            // Récupérer les tags sélectionnés et les tags à exclure
+            $tags = $criteria['tags'] ?? [];  // Ce sont des objets Tag ou IDs (selon le formulaire)
+            $excludeTags = $criteria['excludeTags'] ?? [];  // Ce sont des IDs de tags à exclure
+
+            // Pour être sûr que excludeTags est bien un tableau d'IDs
+            if (!empty($excludeTags) && is_string($excludeTags)) {
+                $excludeTags = explode(',', $excludeTags);  // Si les tags sont sous forme de chaîne séparée par des virgules
+            }
+
+            $title = $criteria['title'] instanceof Book ? $criteria['title']->getTitle() : null;  
+            $author = $criteria['author'] instanceof Book ? $criteria['author']->getAuthor() : null;  
+        
+            // Préparer les critères pour la recherche
+            $criteria['tags'] = $tags;
+            $criteria['excludeTags'] = $excludeTags;
+            $criteria['title'] = $title;
+            $criteria['author'] = $author;
+            // dd($criteria);
+
+            $books = $this->br->searchBooks($criteria) ?? [];
+            // dd($books);
+
+            if (!$user || !$user->isAdult()) {
+                $books = array_filter($books, function ($book) {
+                    return !$book->isForAdult();
+                });
+            }
+        }
+
         return $this->render('book/index.html.twig', [
             'books' => $books,
+            'form' => $form,
         ]);
     }
 
