@@ -3,13 +3,30 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Novel;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use App\EventListener\NovelUpdatedEvent;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 
 class NovelCrudController extends AbstractCrudController
 {
+    private $eventDispatcher;
+
+    public function __construct(EventDispatcherInterface $eventDispatcher)
+    {
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        parent::updateEntity($entityManager, $entityInstance);
+        
+        $event = new NovelUpdatedEvent($entityInstance);
+        $this->eventDispatcher->dispatch($event);
+    }
     public static function getEntityFqcn(): string
     {
         return Novel::class;
