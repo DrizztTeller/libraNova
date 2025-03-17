@@ -35,6 +35,27 @@
             </div>
 
             <div class="flex items-center">
+                {{ form_widget(registrationForm.isMajor, {'attr': {'class': 'h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500'}}) }}
+                <label for="{{ registrationForm.isMajor.vars.id }}" class="ml-2 block text-sm text-gray-900">
+                    Vous confirmez que vous êtes majeur
+                </label>
+            </div>
+
+            <div class="flex items-center">
+                {{ form_widget(registrationForm.isTerms, {'attr': {'class': 'h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500'}}) }}
+                <label for="{{ registrationForm.isTerms.vars.id }}" class="ml-2 block text-sm text-gray-900">
+                    J'accepte les CGU et CGV
+                </label>
+            </div>
+
+            <div class="flex items-center">
+                {{ form_widget(registrationForm.isGpdr, {'attr': {'class': 'h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500'}}) }}
+                <label for="{{ registrationForm.isGpdr.vars.id }}" class="ml-2 block text-sm text-gray-900">
+                    J'accepte la politique RGPD de miniamaker
+                </label>
+            </div>
+
+            <div class="flex items-center">
                 {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500'}}) }}
                 <label for="{{ registrationForm.agreeTerms.vars.id }}" class="ml-2 block text-sm text-gray-900">
                     J'accepte les termes et conditions

@@ -3,15 +3,23 @@
 {% block title %}{{ novel.title }}{% endblock %}
 
 {% block body %}
-<h1>{{ novel.title }}</h1>
-{% if isLiked %}
-est liké
-{% else %}
-non liké 
-{% endif %}
-{% if isRented %}
-est emprunté
-{% else %}
-non emprunté 
-{% endif %}
+<div class="max-w-md mx-auto p-6 bg-white rounded-xl shadow-md space-y-4 font-sans">
+    <h1 class="text-2xl font-bold text-gray-800">{{ novel.title }}</h1>
+
+    <div>
+        {% if isLiked %}
+            <span class="text-green-600 font-semibold">✔️ liké</span>
+        {% else %}
+            <span class="text-gray-400">♡ Non liké</span>
+        {% endif %}
+    </div>
+
+    <div>
+        {% if isRented %}
+            <span class="text-red-500 font-semibold">📕 Emprunté</span>
+        {% else %}
+            <span class="text-green-500 font-semibold">📗 Disponible</span>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}
