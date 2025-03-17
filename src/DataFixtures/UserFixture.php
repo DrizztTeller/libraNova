@@ -25,7 +25,7 @@ class UserFixture extends Fixture
 
         // Créer un admin
         $admin = new User();
-        $admin->setEmail('admin@admin.com');
+        $admin->setEmail('admin@admin.com'); // TODO à changer en mode prod
         $admin->setRoles(['ROLE_ADMIN', 'ROLE_VERIFIED', 'ROLE_ADULT']);
         $admin->setPassword($this->passwordHasher->hashPassword($admin, 'admin123'));
         $admin->setUsername('MFT');
