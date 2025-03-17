@@ -37,11 +37,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private array $roles = [];
 
+     /**
+     * @var string The hashed password
+     */
     #[ORM\Column]
     #[Assert\NotBlank(message: "Le mot de passe est obligatoire.")]
     #[Assert\Length(
-        min: 8,
-        minMessage: "Le mot de passe doit contenir au moins 8 caractères."
+        min: 12,
+        minMessage: "Le mot de passe doit contenir au moins 12 caractères."
     )]
     #[Assert\Regex(
         pattern: '/^(?=.*[!@#$%^*-])(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])\S{12,}$/',
@@ -109,6 +112,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->books = new ArrayCollection();
         $this->rentings = new ArrayCollection();
         $this->loginHistories = new ArrayCollection();
+        $this->ref = 'USER-'.uniqid();
     }
 
     #[ORM\PrePersist]

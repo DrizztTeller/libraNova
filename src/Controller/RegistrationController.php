@@ -33,16 +33,20 @@ class RegistrationController extends AbstractController
         }
 
         $user = new User();
-        $form = $this->createForm(RegistrationFormType::class, $user);
+        $form = $this->createForm(RegistrationFormType::class, $user, [
+            'cgu_url' => $this->generateUrl('cgu'), // Génération de l'URL de la page CGU
+            'rgpd_url' => $this->generateUrl('rgpd') // Génération de l'URL de la page RGPD
+        ]);
         $form->handleRequest($request);
 
+        // dd('hi');
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var string $plainPassword */
-            $plainPassword = $form->get('plainPassword')->getData();
-
+            $formData = $form->getData();
+            // $plainPassword = $form->get('plainPassword')->getData();
+            dd($formData);
             // encode the plain password
-            $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
-
+            // $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
+            // $user->setRef('USER-'.uniqid());
             $entityManager->persist($user);
             $entityManager->flush();
 
