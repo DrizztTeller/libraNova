@@ -43,21 +43,20 @@ class RentingHistoryFixture extends Fixture implements DependentFixtureInterface
                 $start = \DateTimeImmutable::createFromMutable($startDate);
                 $renting->setStart($start);
                 
-                // La fin est soit dans le futur (location en cours) soit dans le passé (terminée)
-                $isActive = $faker->boolean(70); // 70% des locations sont actives
-                if ($isActive) {
-                    $endDate = $faker->dateTimeBetween('+1 day', '+30 days');
-                } else {
-                    $endDate = $faker->dateTimeBetween($startDate, 'now');
-                    // TODO $start modify + 5jours
-                }
+                // La fin d'emprunt est 5 jours plus tard
+                $endDate = clone $startDate;
+                $endDate->modify("+5 days"); 
                 $end = \DateTimeImmutable::createFromMutable($endDate);
                 $renting->setEnd($end);
                 
                 // Dernière page lue
-                if ($isActive) {
-                    $renting->setLastPage($faker->numberBetween(1, 500));
-                    $renting->setUpdatedAt(new \DateTimeImmutable('-' . $faker->numberBetween(1, 30) . ' days'));
+                $now = new \DateTimeImmutable();
+                if ($end > $now) {
+                    $renting->setLastPage((string) $faker->numberBetween(1, 500));
+                    $renting->setUpdatedAt($now);
+                } else {
+                    $renting->setLastPage((string) $faker->numberBetween(1, 500));
+                    $renting->setUpdatedAt($end);
                 }
                 
                 $manager->persist($renting);
