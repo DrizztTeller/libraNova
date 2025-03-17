@@ -6,15 +6,18 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\NovelRepository;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\HttpFoundation\File\File;
 use Doctrine\Common\Collections\ArrayCollection;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-
 
 #[ORM\Entity(repositoryClass: NovelRepository::class)]
 #[UniqueEntity(fields: ['ref'], message: 'Cette référence est déjà utilisée.')]
 #[ORM\HasLifecycleCallbacks]
+#[Vich\Uploadable]
 class Novel
 {
     #[ORM\Id]
@@ -30,10 +33,10 @@ class Novel
         minMessage: 'Le titre doit contenir au moins {{ limit }} caractères.',
         maxMessage: 'Le titre ne peut pas dépasser {{ limit }} caractères.'
     )]
-    #[Assert\Regex(
-        pattern: '/^[a-zA-Z0-9\s]+$/',
-        message: 'Le titre ne peut contenir que des lettres, des chiffres et des espaces.'
-    )]
+    // #[Assert\Regex(
+    //     pattern: '/^[a-zA-Z0-9\s]+$/',
+    //     message: 'Le titre ne peut contenir que des lettres, des chiffres et des espaces.'
+    // )]
     private ?string $title = null;
 
     #[ORM\Column(length: 255)]
@@ -44,10 +47,10 @@ class Novel
         minMessage: 'Le nom de l\'auteur doit contenir au moins {{ limit }} caractères.',
         maxMessage: 'Le nom de l\'auteur ne peut pas dépasser {{ limit }} caractères.'
     )]
-    #[Assert\Regex(
-        pattern: '/^[a-zA-Z\s]+$/',
-        message: 'Le nom de l\'auteur ne peut contenir que des lettres et des espaces.'
-    )]
+    // #[Assert\Regex(
+    //     pattern: '/^[a-zA-Z\s]+$/',
+    //     message: 'Le nom de l\'auteur ne peut contenir que des lettres et des espaces.'
+    // )]
     private ?string $author = null;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -56,10 +59,10 @@ class Novel
         min: 10,
         minMessage: 'Le résumé doit contenir au moins {{ limit }} caractères.'
     )]
-    #[Assert\Regex(
-        pattern: '/^[A-Z].*\.$/',
-        message: 'Le résumé doit commencer par une majuscule et se terminer par un point.'
-    )]
+    // #[Assert\Regex(
+    //     pattern: '/^[A-Z].*\.$/',
+    //     message: 'Le résumé doit commencer par une majuscule et se terminer par un point.'
+    // )]
     private ?string $abstract = null;
 
     #[ORM\Column]
@@ -80,30 +83,23 @@ class Novel
     )]
     private ?\DateTimeImmutable $updated_at = null;
 
-    #[Assert\Image(
-        maxSize: '5M',
-        mimeTypes: ['image/jpeg', 'image/png'],
-        mimeTypesMessage: 'Veuillez télécharger une image valide (JPG ou PNG)',
-        groups: ['create', 'edit'],
-    )]
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $pic = null;
 
-    #[Assert\File(
-        maxSize: '10M',
-        mimeTypes: ['application/pdf'],
-        mimeTypesMessage: 'Veuillez télécharger un fichier PDF valide',
-        groups: ['create', 'edit'],
-    )]
+    #[UploadableField(mapping: 'novel_files', fileNameProperty: 'file')] //gere les uploads depuis un formulaire
+    private ?File $fileObject = null;
+  
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $file = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le slug est obligatoire.')]
-    #[Assert\Regex(
-        pattern: '/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
-        message: 'Le slug ne peut contenir que des lettres minuscules, des chiffres et des tirets.'
-    )]
+    // #[Assert\Regex(
+    //     pattern: '/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
+    //     message: 'Le slug ne peut contenir que des lettres minuscules, des chiffres et des tirets.'
+    // )]
     private ?string $slug = null;
 
     #[ORM\Column(length: 255)]
@@ -260,6 +256,22 @@ class Novel
         return $this;
     }
 
+      // Propriété pour la gestion de l'upload (non sauvegardée en base)
+
+    public function setFileObject(?File $fileObject = null): void
+    {
+        $this->fileObject = $fileObject;
+
+           // Si l'on modifie le fichier, on force la mise à jour de l'objet
+        if ($fileObject) {
+            $this->updated_at = new \DateTimeImmutable();
+        }
+    }
+
+    public function getFileObject(): ?File
+    {
+        return $this->fileObject;
+    }
     public function getFile(): ?string
     {
         return $this->file;
@@ -416,17 +428,3 @@ class Novel
         return $this;
     }
 }
-
-
-
-
-
-
-
-
-   
-
-
-
-
-
