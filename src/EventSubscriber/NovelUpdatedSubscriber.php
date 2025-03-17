@@ -4,6 +4,7 @@ namespace App\EventSubscriber;
 
 use Symfony\Component\Mime\Email;
 use App\EventListener\NovelUpdatedEvent;
+use App\Service\PendingNotificationService;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Notifier\NotifierInterface;
 use Symfony\Component\Notifier\Recipient\Recipient;
@@ -12,7 +13,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class NovelUpdatedSubscriber implements EventSubscriberInterface
 {
-  public function __construct(private MailerInterface $mailer, private NotifierInterface $notifier) {}
+  public function __construct(private MailerInterface $mailer, private NotifierInterface $notifier, private PendingNotificationService $pns) {}
 
   public static function getSubscribedEvents()
   {
@@ -24,10 +25,16 @@ class NovelUpdatedSubscriber implements EventSubscriberInterface
   public function onNovelUpdated(NovelUpdatedEvent $event)
   {
     $novel = $event->getNovel();
-    $favoriteUsers = $novel->getLikes(); // Supposons que cette méthode existe
+    $favoriteUsers = $novel->getLikes(); 
+
+    // Créer le message pour le flash 
+    $message = sprintf('Le novel "%s" a été mis à jour.', $novel->getTitle());
 
     foreach ($favoriteUsers as $user) {
-      // Envoyer une notification 
+      // Création de la notification addFlash
+      $this->pns->addNotification($user, $message);
+
+      // Envoyer une notification bureau
       $this->sendNotification($user, $novel);
 
       // Envoyer un email
