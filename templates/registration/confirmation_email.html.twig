@@ -1,16 +1,11 @@
-<h1 style="color: #333; font-family: Arial, sans-serif;">Bonjour, Merci de confirmer votre email</h1>
+<h1>Hi! Please confirm your email!</h1>
 
-<p style="font-size: 16px; color: #555; font-family: Arial, sans-serif;">
-    Merci de confirmer votre email en cliquant sur le lien suivant : <br><br>
-    <a href="{{ signedUrl|raw }}" 
-       style="display: inline-block; padding: 10px 15px; background-color: #007BFF; color: white; 
-              text-decoration: none; font-size: 16px; border-radius: 5px;">
-        Confirmer mon Email
-    </a>.
-    <br><br>
-    Ce lien expire dans <strong>{{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}</strong>.
+<p>
+    Please confirm your email address by clicking the following link: <br><br>
+    <a href="{{ signedUrl|raw }}">Confirm my Email</a>.
+    This link will expire in {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.
 </p>
 
-<p style="font-size: 14px; color: #666; font-family: Arial, sans-serif;">
-    Bonne journée !
+<p>
+    Cheers!
 </p>
