@@ -80,12 +80,24 @@ class Novel
     )]
     private ?\DateTimeImmutable $updated_at = null;
 
-    #[ORM\Column(length: 255)]
+    #[Assert\Image(
+        maxSize: '5M',
+        mimeTypes: ['image/jpeg', 'image/png'],
+        mimeTypesMessage: 'Veuillez télécharger une image valide (JPG ou PNG)',
+        groups: ['create', 'edit'],
+    )]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $pic = null;
 
-    #[ORM\Column(length: 255)]
+    #[Assert\File(
+        maxSize: '10M',
+        mimeTypes: ['application/pdf'],
+        mimeTypesMessage: 'Veuillez télécharger un fichier PDF valide',
+        groups: ['create', 'edit'],
+    )]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $file = null;
-    
+
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le slug est obligatoire.')]
     #[Assert\Regex(
@@ -102,7 +114,7 @@ class Novel
     #[Assert\NotNull(message: 'L\'indication adulte est obligatoire.')]
     private bool $is_for_adult = true;
 
-    #[ORM\ManyToMany(targetEntity: Tag::class, mappedBy: 'novels')]
+    #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'novels')]
     private Collection $tags;
 
 
@@ -131,13 +143,11 @@ class Novel
     private ?\DateTimeImmutable $created_at = null;
 
 
-    public function __construct(private SluggerInterface $slugger)
+    public function __construct()
     {
         $this->tags = new ArrayCollection();
         $this->likes = new ArrayCollection();
         $this->rentings = new ArrayCollection();
-        $this->slug = $this->slugger->slug($this->title)->lower();
-        $this->ref = $this->slug . uniqid();
     }
 
     #[ORM\PrePersist]
@@ -148,9 +158,10 @@ class Novel
 
     #[ORM\PrePersist]
     #[ORM\PreUpdate]
-    public function initializeSlugAndReference(SluggerInterface $slugger): void
+    public function initializeSlugAndReference(): void
     {
         if (empty($this->slug) && !empty($this->title)) {
+            $slugger = new \Symfony\Component\String\Slugger\AsciiSlugger();
             $this->slug = strtolower($slugger->slug($this->title)->toString());
         }
 
@@ -242,7 +253,7 @@ class Novel
         return $this->pic;
     }
 
-    public function setPic(string $pic): static
+    public function setPic(?string $pic): static
     {
         $this->pic = $pic;
 
@@ -254,7 +265,7 @@ class Novel
         return $this->file;
     }
 
-    public function setFile(string $file): static
+    public function setFile(?string $file): static
     {
         $this->file = $file;
 

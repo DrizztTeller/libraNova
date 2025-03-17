@@ -34,7 +34,7 @@ class Tag
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
-    
+
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank(message: "La description du tag est obligatoire.")]
     #[Assert\Length(
@@ -50,7 +50,7 @@ class Tag
     /**
      * @var Collection<int, Novel>
      */
-    #[ORM\ManyToMany(targetEntity: Novel::class, inversedBy: 'tags')]
+    #[ORM\ManyToMany(targetEntity: Novel::class, mappedBy: 'tags')]
     private Collection $novels;
 
     public function __construct()
@@ -58,6 +58,11 @@ class Tag
         $this->novels = new ArrayCollection();
     }
 
+    public function __toString(): string
+    {
+        return $this->getName() ?? 'Tag';
+    }
+    
     public function getId(): ?int
     {
         return $this->id;
@@ -93,7 +98,7 @@ class Tag
         return $this->novels;
     }
 
-    public function addNovel(Novel $novel): static
+    public function addNovel(Novel $novel): self
     {
         if (!$this->novels->contains($novel)) {
             $this->novels->add($novel);
@@ -101,9 +106,12 @@ class Tag
         return $this;
     }
 
-    public function removeNovel(Novel $novel): static
+    public function removeNovel(Novel $novel): self
     {
+        if ($this->novels->contains($novel)) {
         $this->novels->removeElement($novel);
+        }
+
         return $this;
     }
 }
