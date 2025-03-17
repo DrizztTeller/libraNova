@@ -41,7 +41,7 @@ class BookmarkedFilterType extends AbstractType
                 'choices' => [
                     'Alphabétique' => 'title',
                     'Auteur' => 'author',
-                    'Popularité' => 'popularity',
+                    'Popularité' => 'likes',
                     'Date de publication' => 'released_at',
                     'Date de disponibilité' => 'updated_at',
                     'Date d\'ajout' => 'created_at'
