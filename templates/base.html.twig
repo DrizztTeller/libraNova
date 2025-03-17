@@ -1,25 +1,51 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Bienvenue chez LibraNova{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        {% block stylesheets %}
-        {% endblock %}
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Bienvenue chez LibraNova{% endblock %}</title>
+    
+    {# Icône de la page (SVG en Base64) #}
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
+    
+    {# Importation de TailwindCSS (CDN ou via npm si installé) #}
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    {% block stylesheets %}{% endblock %}
+    {% block javascripts %}
+        {% block importmap %}{{ importmap('app') }}{% endblock %}
+    {% endblock %}
+</head>
 
-        {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
-        {% endblock %}
-    </head>
-    <body>
+<body class="bg-gray-100 text-gray-900">
+
+    {# Gestion des messages flashs (notifications) #}
+    <div class="fixed top-4 right-4 z-50 space-y-2">
         {% for label, messages in app.flashes %}
             {% for message in messages %}
-                {{ include('components/_partials/toast.html.twig', {
-                    'label': label,
-                    'message': message
-                }) }}
+                <div class="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md">
+                    {{ message }}
+                </div>
             {% endfor %}
         {% endfor %}
-        {% block body %}{% endblock %}
-    </body>
+    </div>
+
+    {# Contenu principal #}
+    <div class="min-h-screen flex flex-col">
+        <header class="bg-white shadow-md py-4">
+            <div class="container mx-auto px-4">
+                <h1 class="text-2xl font-bold">{% block title %}Bienvenue chez LibraNova{% endblock %}</h1>
+            </div>
+        </header>
+
+        <main class="flex-grow container mx-auto px-4 py-8">
+            {% block body %}{% endblock %}
+        </main>
+
+        <footer class="bg-gray-200 py-4 text-center text-sm text-gray-600">
+            © 2025 LibraNova. Tous droits réservés.
+        </footer>
+    </div>
+
+</body>
 </html>
