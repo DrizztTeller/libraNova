@@ -70,8 +70,6 @@ class BookFixture extends Fixture implements DependentFixtureInterface
             $book->setAbstract($faker->paragraphs(3, true));
             $book->setIsPublished(true);
             $book->setReleasedAt($faker->dateTimeThisDecade());
-            $book->setCreatedAt(new \DateTimeImmutable());
-
 
             // Images et fichiers fictifs
             
@@ -89,9 +87,10 @@ class BookFixture extends Fixture implements DependentFixtureInterface
             // Ajouter les tags au roman
             foreach ($selectedTags as $tag) {
                 $book->addTag($tag);
-            }
-            // TODO si is_for_adult true faut absolument tag adulte
-            
+                if ($book->isForAdult()) {
+                    $book->addTag("Adulte");
+                }
+            }            
             $manager->persist($book);
         }
         $manager->flush();
