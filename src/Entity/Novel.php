@@ -133,33 +133,30 @@ class Novel
     #[ORM\OneToMany(targetEntity: RentingHistory::class, mappedBy: 'novel')]
     private Collection $rentings;
 
-    public function __construct(private SluggerInterface $slugger)
-    {
-        $this->tags = new ArrayCollection();
-        $this->likes = new ArrayCollection();
-        $this->rentings = new ArrayCollection();
-    }
+    //...
 
-    #[ORM\PrePersist]
-    public function setCreatedAtValue(): void
-    {
-        $this->created_at = new \DateTimeImmutable();
-    }
+public function __construct()
+{
+    $this->tags = new ArrayCollection();
+    $this->likes = new ArrayCollection();
+    $this->rentings = new ArrayCollection();
+}
 
-    #[ORM\PrePersist]
-    #[ORM\PreUpdate]
-    public function initializeSlugAndReference(): void
-    {
-        if (!empty($this->title)) {
-            $newSlug = strtolower($this->slugger->slug($this->title)->toString());
-    
-            // Vérifie si le slug a changé
-            if ($this->slug !== $newSlug) {
-                $this->slug = $newSlug;
-                $this->ref = uniqid($this->slug . '_', true); // Génère une nouvelle ref
-            }
+//...
+#[ORM\PrePersist]
+#[ORM\PreUpdate]
+public function initializeSlugAndReference(): void
+{
+    if (!empty($this->title)) {
+        // Slug simple et sécurisé (sans injection)
+        $newSlug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $this->title)));
+
+        if ($this->slug !== $newSlug) {
+            $this->slug = $newSlug;
+            $this->ref = uniqid($this->slug . '_', true);
         }
     }
+}
 
     public function getId(): ?int
     {
