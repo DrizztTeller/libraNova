@@ -110,36 +110,47 @@ class SearchService
 
   private function applyExcludedTagsFilter(QueryBuilder $queryBuilder, array $criteria): void
   {
-      if (!empty($criteria['excludeTags'])) {
-          $excludeTagIds = $criteria['excludeTags'] instanceof Collection
-              ? array_map(fn($tag) => $tag->getId(), $criteria['excludeTags']->toArray())
-              : array_map(fn($tag) => $tag->getId(), (array) $criteria['excludeTags']);
-  
-          if (!empty($excludeTagIds)) {
-              $queryBuilder->andWhere($queryBuilder->expr()->not(
-                  $queryBuilder->expr()->exists(
-                      $this->entityManager->createQueryBuilder()
-                          ->select('1')
-                          ->from('App\Entity\Book', 'b')
-                          ->join('b.tags', 'et')
-                          ->where('b.id = e.id')
-                          ->andWhere('et.id IN (:excludeTags)')
-                          ->getDQL()
-                  )
-              ))
-              ->setParameter('excludeTags', $excludeTagIds);
-          }
+    if (!empty($criteria['excludeTags'])) {
+      $excludeTagIds = $criteria['excludeTags'] instanceof Collection
+        ? array_map(fn($tag) => $tag->getId(), $criteria['excludeTags']->toArray())
+        : array_map(fn($tag) => $tag->getId(), (array) $criteria['excludeTags']);
+
+      if (!empty($excludeTagIds)) {
+        $queryBuilder->andWhere($queryBuilder->expr()->not(
+          $queryBuilder->expr()->exists(
+            $this->entityManager->createQueryBuilder()
+              ->select('1')
+              ->from('App\Entity\Book', 'b')
+              ->join('b.tags', 'et')
+              ->where('b.id = e.id')
+              ->andWhere('et.id IN (:excludeTags)')
+              ->getDQL()
+          )
+        ))
+          ->setParameter('excludeTags', $excludeTagIds);
       }
+    }
   }
-  
+
 
   private function applyLikesFilter(QueryBuilder $queryBuilder, array $criteria): void
   {
-    if (!empty($criteria['likes']) && is_numeric($criteria['likes'])) {
-      $queryBuilder->leftJoin('e.likes', 'u')
-        ->groupBy('e.id')
-        ->having('COALESCE(COUNT(u.id), 0) >= :likes')
-        ->setParameter('likes', $criteria['likes']);
+    if (isset($criteria['likes'])) {
+      // Si 'likes' est égal à true, on filtre pour les livres ayant plus de 10 likes
+      if ($criteria['likes'] === true) {
+        $queryBuilder->leftJoin('e.likes', 'u')
+          ->groupBy('e.id')
+          ->having('COALESCE(COUNT(u.id), 0) >= :likes')
+          ->setParameter('likes', 10);
+      }
+      // Si 'likes' est égal à false, on filtre pour les livres ayant moins de 10 likes
+      elseif ($criteria['likes'] === false) {
+        $queryBuilder->leftJoin('e.likes', 'u')
+          ->groupBy('e.id')
+          ->having('COALESCE(COUNT(u.id), 0) < :likes')
+          ->setParameter('likes', 10);
+      }
+      // Si 'likes' est null (Tous), il n'y a pas de filtrage sur les likes
     }
   }
 

@@ -10,7 +10,6 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -30,9 +29,9 @@ class BookSearchType extends AbstractType
         'autocomplete' => true,
         'required' => false,
         'attr' => ['placeholder' => 'Rechercher par titre'],
-        'query_builder' => function (BookRepository $br) use ($user, $isAdult) {
+        'query_builder' => function (BookRepository $br) use ($isAdult) {
           $qb = $br->createQueryBuilder('b');
-          if (!$user || !$isAdult) { // Exclure des titres de livres adultes si l'user non co ou n'est pas un adulte
+          if (!$isAdult) { // Exclure des titres de livres adultes si l'user non co ou n'est pas un adulte
             $qb->where('b.is_for_adult = false');
           }
           return $qb;
@@ -44,9 +43,9 @@ class BookSearchType extends AbstractType
         'autocomplete' => true,
         'required' => false,
         'attr' => ['placeholder' => 'Nom de l\'auteur'],
-        'query_builder' => function (BookRepository $br) use ($user, $isAdult) {
+        'query_builder' => function (BookRepository $br) use ($isAdult) {
           $qb = $br->createQueryBuilder('bk');
-          if (!$user || !$isAdult) { // Exclure des auteurs qui n'écrivent que des livres adultes si l'user non co ou n'est pas un adulte
+          if (!$isAdult) { // Exclure des auteurs qui n'écrivent que des livres adultes si l'user non co ou n'est pas un adulte
             $qb->where('bk.is_for_adult = false');
           }
           return $qb;
@@ -74,11 +73,11 @@ class BookSearchType extends AbstractType
         'expanded' => true,
         'required' => false,
         'label' => 'Tags',
-        'query_builder' => function (TagRepository $tr) use ($user, $isAdult) {
+        'query_builder' => function (TagRepository $tr) use ($isAdult) {
           $qb = $tr->createQueryBuilder('t');
-          if (!$user || !$isAdult) { // Exclure tag Adulte si l'user non co ou n'est pas un adulte
+          if (!$isAdult) { // Exclure tag Adulte si l'user non co ou n'est pas un adulte
             $qb->where('t.name NOT LIKE :adulte')
-               ->setParameter('adulte', 'Adulte');
+              ->setParameter('adulte', 'Adulte');
           }
           return $qb;
         },
@@ -96,42 +95,47 @@ class BookSearchType extends AbstractType
         'multiple' => true,
         'expanded' => true,
         'required' => false,
-          'query_builder' => function (TagRepository $tr) use ($user, $isAdult) {
-            $qb = $tr->createQueryBuilder('et');
-            if (!$user || !$isAdult) { // Exclure tag Adulte si l'user non co ou n'est pas un adulte
-                $qb->where('et.name NOT LIKE :adulte')
-                   ->setParameter('adulte', 'Adulte');
-            }
-            return $qb;
+        'query_builder' => function (TagRepository $tr) use ($isAdult) {
+          $qb = $tr->createQueryBuilder('et');
+          if (!$isAdult) { // Exclure tag Adulte si l'user non co ou n'est pas un adulte
+            $qb->where('et.name NOT LIKE :adulte')
+              ->setParameter('adulte', 'Adulte');
+          }
+          return $qb;
         },
       ])
-      ->add('likes', IntegerType::class, [
-        'label' => 'Nombre minimum de likes',
+      ->add('likes', ChoiceType::class, [
+        'label' => 'Populaire',
         'required' => false,
-        'attr' => ['min' => 0, 'placeholder' => 'Ex: 10'],
+        'choices' => ['Tous' => null, 'Oui' => true, 'Non' => false],
       ])
       ->add('is_published', ChoiceType::class, [
         'label' => 'Publié ?',
         'required' => false,
         'choices' => ['Tous' => null, 'Oui' => true, 'Non' => false],
-      ])
-      ->add('is_for_adult', ChoiceType::class, [
+      ]);
+
+    // Ajouter le champ 'is_for_adult' seulement si l'utilisateur est connecté et a le rôle 'ROLE_ADULT'
+    if ($isAdult) {
+      $builder->add('is_for_adult', ChoiceType::class, [
         'label' => 'Pour adulte ?',
         'required' => false,
         'choices' => ['Tous' => null, 'Oui' => true, 'Non' => false],
-      ])
-      ->add('orderBy', ChoiceType::class, [
-        'label' => 'Trier par',
-        'required' => false,
-        'choices' => [
-          'Date de création' => 'created_at',
-          'Date de publication' => 'released_at',
-          'Dernière mise à jour' => 'updated_at',
-          'Popularité' => 'likes',
-          'Alphabétique' => 'title',
-          'Auteur' => 'author',
-        ],
-      ])
+      ]);
+    }
+    
+    $builder->add('orderBy', ChoiceType::class, [
+      'label' => 'Trier par',
+      'required' => false,
+      'choices' => [
+        'Date de création' => 'created_at',
+        'Date de publication' => 'released_at',
+        'Dernière mise à jour' => 'updated_at',
+        'Popularité' => 'likes',
+        'Alphabétique' => 'title',
+        'Auteur' => 'author',
+      ],
+    ])
       ->add('orderDirection', ChoiceType::class, [
         'label' => 'Ordre',
         'required' => false,
