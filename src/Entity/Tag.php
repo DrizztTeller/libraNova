@@ -26,25 +26,25 @@ class Tag
         maxMessage: "Le nom du tag ne peut pas dépasser 255 caractères."
     )]
     #[Assert\Regex(
-        pattern: '/^[a-zA-Z]+$/',
-        message: 'Le nom du tag ne doit contenir que des lettres alphabétiques.'
+        pattern: '/^[a-zA-Z\s\-]+$/',
+        message: 'Le nom du tag ne doit contenir que des lettres alphabétiques, des espaces et des tirets.'
     )]
     private ?string $name = null;
 
-    #[ORM\Column(type: Types::TEXT)]
-    private ?string $description = null;
 
-
+    
+    
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank(message: "La description du tag est obligatoire.")]
     #[Assert\Length(
         min: 12,
         minMessage: "La description doit contenir au moins 12 caractères."
-    )]
-    #[Assert\Regex(
-        pattern: '/^[\p{L}\p{N}\p{P}\p{Zs}]+$/u',
-        message: 'La description ne peut contenir que des lettres, des chiffres, des espaces et des signes de ponctuation.'
-    )]
+        )]
+        // #[Assert\Regex(
+        //     pattern: '/^[\p{L}\p{N}\p{P}\p{Zs}]+$/u',
+        //     message: 'La description ne peut contenir que des lettres, des chiffres, des espaces et des signes de ponctuation.'
+        //     )]
+            private ?string $description = null;
     
 
     /**
@@ -100,6 +100,10 @@ class Tag
 
     public function addNovel(Novel $novel): self
     {
+        if ($this->novels === null) {
+            $this->novels = new ArrayCollection();
+        }
+
         if (!$this->novels->contains($novel)) {
             $this->novels->add($novel);
         }
@@ -108,8 +112,8 @@ class Tag
 
     public function removeNovel(Novel $novel): self
     {
-        if ($this->novels->contains($novel)) {
-        $this->novels->removeElement($novel);
+        if ($this->novels->removeElement($novel)) {
+        $novel->removeTag($this);
         }
 
         return $this;
