@@ -6,7 +6,8 @@
     <div class="container mt-5">
         <h1 class="text-center">Contactez-nous</h1>
         
-        <form method="post" class="mt-4">
+        <form action="https://api.web3forms.com/submit" method="POST" class="mt-4">
+            {# <input type="hidden" name="access_key" value="YOUR_ACCESS_KEY_HERE"> #}
             <div class="mb-3">
                 <label for="name" class="form-label">Nom</label>
                 <input type="text" class="form-control" id="name" name="name" required>
@@ -17,6 +18,10 @@
                 <input type="email" class="form-control" id="email" name="email" required>
             </div>
 
+            <div class="mb-3">
+                <label for="subject" class="form-label">Sujet</label>
+                <input type="text" class="form-control" id="subject" name="subject" required>
+            </div>
             <div class="mb-3">
                 <label for="message" class="form-label">Message</label>
                 <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
