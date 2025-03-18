@@ -32,18 +32,13 @@
     </button>
   </form>
   {% else %}
-  <form class="likes" action="{{ path('app__return', {'ref': book.getRef()}) }}" method="POST">
+  <form class="likes" action="{{ path('app_book_return', {'ref': book.getRef()}) }}" method="POST">
     <button type="submit" class="heart-button unlike-button">
       {# TODO icone pour retourner un livre #}
       Rendre le livre
     </button>
   </form>
-  <form class="likes" action="{{ path('app_book_pdf', {'file': book.getFile()}) }}" method="POST">
-    <button type="submit" class="heart-button like-button">
-       {# TODO  icone oeil#}
-      Lire
-    </button>
-  </form>
+  <a href="{{ path('app_book_pdf', {'ref': book.ref}) }}" target="_blank">Lire v2</a>
 {% endif %}
 
 </div>
