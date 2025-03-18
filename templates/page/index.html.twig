@@ -24,7 +24,7 @@ e-bibliothèque de France{% endblock %} {% block stylesheets %}
 >
   <div class="container mx-auto px-4 text-center text-white">
     <h1 class="text-5xl font-bold mb-6">Bienvenue sur LibraNova</h1>
-    <p class="text-xl mb-10 max-w-3xl mx-auto">
+    <p class="text-xl mb-10 max-w-3xl mx-auto" style="line-height: 1">
       Découvrez un monde de littérature, partagez vos passions et explorez de
       nouveaux horizons.
     </p>
@@ -110,16 +110,51 @@ e-bibliothèque de France{% endblock %} {% block stylesheets %}
               </div>
               {% endif %} {% if book.isForAdult %}
               <div
-                class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded"
+                class="absolute top-1 left-1 bg-red-500 text-white text-xs px-2 py-1 rounded"
               >
                 18+
               </div>
               {% endif %}
+              <span class="flex items-center text-sm absolute top-1 right-1">
+                  {% if not book.likes.contains(app.user) %}
+                  <form
+                    class="likes"
+                    action="{{ path('app_book_like', { ref: book.getRef() }) }}"
+                    method="POST"
+                  >
+                    <button
+                      type="submit"
+                      class="flex items-center space-x-2 text-white rounded"
+                    >
+                    {{
+                      ux_icon("mdi:heart-broken", {
+                        class: "h-2 heart-broken-icon"
+                      })
+                    }}
+                    </button>
+                  </form>
+                  {% else %}
+                  <form
+                    class="likes"
+                    action="{{
+                      path('app_book_unlike', { ref: book.getRef() })
+                    }}"
+                    method="POST"
+                  >
+                    <button
+                      type="submit"
+                      class="flex items-center space-x-2 text-white rounded"
+                    >
+                      {{ ux_icon("mdi:heart", { class: "h-2 heart-icon" }) }}
+                    </button>
+                  </form>
+                  {% endif %}
+                </span>
             </div>
             <div class="p-4 flex-grow flex flex-col">
-              <h3 class="font-semibold text-lg mb-1 line-clamp-1">
+              <a href="{{ path('app_book_show', {'ref': book.ref })}}"> <h3 class="font-semibold text-lg mb-1 line-clamp-1">
                 {{ book.title }}
-              </h3>
+              </h3></a>
               <p class="text-sm text-gray-500 mb-2">Par {{ book.author }}</p>
               <p class="text-sm text-gray-600 mb-3 line-clamp-2">
                 {{ book.abstract|default('Aucun résumé disponible.') }}
@@ -129,20 +164,7 @@ e-bibliothèque de France{% endblock %} {% block stylesheets %}
                   class="text-sm text-gray-500"
                   >{{ book.releasedAt|date('d/m/Y') }}</span
                 >
-                <span class="flex items-center text-sm">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4 text-red-500 mr-1"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                </span>
+                
               </div>
             </div>
           </div>
@@ -227,16 +249,51 @@ e-bibliothèque de France{% endblock %} {% block stylesheets %}
               </div>
               {% endif %} {% if book.isForAdult %}
               <div
-                class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded"
+                class="absolute top-1 left-1 bg-red-500 text-white text-xs px-2 py-1 rounded"
               >
                 18+
               </div>
               {% endif %}
+              <span class="flex items-center text-sm absolute top-1 right-1">
+                  {% if not book.likes.contains(app.user) %}
+                  <form
+                    class="likes"
+                    action="{{ path('app_book_like', { ref: book.getRef() }) }}"
+                    method="POST"
+                  >
+                    <button
+                      type="submit"
+                      class="flex items-center space-x-2 text-white rounded"
+                    >
+                    {{
+                      ux_icon("mdi:heart-broken", {
+                        class: "h-2 heart-broken-icon"
+                      })
+                    }}
+                    </button>
+                  </form>
+                  {% else %}
+                  <form
+                    class="likes"
+                    action="{{
+                      path('app_book_unlike', { ref: book.getRef() })
+                    }}"
+                    method="POST"
+                  >
+                    <button
+                      type="submit"
+                      class="flex items-center space-x-2 text-white rounded"
+                    >
+                      {{ ux_icon("mdi:heart", { class: "h-2 heart-icon" }) }}
+                    </button>
+                  </form>
+                  {% endif %}
+                </span>
             </div>
             <div class="p-4 flex-grow flex flex-col">
-              <h3 class="font-semibold text-lg mb-1 line-clamp-1">
+              <a href="{{ path('app_book_show', {'ref': book.ref })}}"> <h3 class="font-semibold text-lg mb-1 line-clamp-1">
                 {{ book.title }}
-              </h3>
+              </h3></a>
               <p class="text-sm text-gray-500 mb-2">Par {{ book.author }}</p>
               <p class="text-sm text-gray-600 mb-3 line-clamp-2">
                 {{ book.abstract|default('Aucun résumé disponible.') }}
@@ -246,20 +303,6 @@ e-bibliothèque de France{% endblock %} {% block stylesheets %}
                   class="text-sm text-gray-500"
                   >{{ book.createdAt|date('d/m/Y') }}</span
                 >
-                <span class="flex items-center text-sm">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4 text-red-500 mr-1"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                </span>
               </div>
             </div>
           </div>
@@ -344,21 +387,61 @@ e-bibliothèque de France{% endblock %} {% block stylesheets %}
               </div>
               {% endif %} {% if book.isForAdult %}
               <div
-                class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded"
+                class="absolute top-1 left-1 bg-red-500 text-white text-xs px-2 py-1 rounded"
               >
                 18+
               </div>
               {% endif %}
+              <span class="flex items-center text-sm absolute top-1 right-1">
+                  {% if not book.likes.contains(app.user) %}
+                  <form
+                    class="likes"
+                    action="{{ path('app_book_like', { ref: book.getRef() }) }}"
+                    method="POST"
+                  >
+                    <button
+                      type="submit"
+                      class="flex items-center space-x-2 text-white rounded"
+                    >
+                    {{
+                      ux_icon("mdi:heart-broken", {
+                        class: "h-2 heart-broken-icon"
+                      })
+                    }}
+                    </button>
+                  </form>
+                  {% else %}
+                  <form
+                    class="likes"
+                    action="{{
+                      path('app_book_unlike', { ref: book.getRef() })
+                    }}"
+                    method="POST"
+                  >
+                    <button
+                      type="submit"
+                      class="flex items-center space-x-2 text-white rounded"
+                    >
+                      {{ ux_icon("mdi:heart", { class: "h-2 heart-icon" }) }}
+                    </button>
+                  </form>
+                  {% endif %}
+                </span>
             </div>
             <div class="p-4 flex-grow flex flex-col">
-              <h3 class="font-semibold text-lg mb-1 line-clamp-1">
+              <a href="{{ path('app_book_show', {'ref': book.ref })}}"> <h3 class="font-semibold text-lg mb-1 line-clamp-1">
                 {{ book.title }}
-              </h3>
+              </h3></a>
               <p class="text-sm text-gray-500 mb-2">Par {{ book.author }}</p>
               <p class="text-sm text-gray-600 mb-3 line-clamp-2">
                 {{ book.abstract|default('Aucun résumé disponible.') }}
               </p>
-              <div class="mt-auto flex items-center justify-between"></div>
+              <div class="mt-auto flex items-center justify-between">
+                <span
+                  class="text-sm text-gray-500"
+                  >{{ book.createdAt|date('d/m/Y') }}</span
+                >
+              </div>
             </div>
           </div>
         </div>
@@ -377,7 +460,7 @@ e-bibliothèque de France{% endblock %} {% block stylesheets %}
       <h2 class="text-3xl font-bold mb-4">
         Prêt à commencer votre voyage littéraire?
       </h2>
-      <p class="text-xl mb-8 max-w-3xl mx-auto">
+      <p class="text-xl mb-8 max-w-3xl mx-auto" style="line-height: 1">
         Rejoignez notre communauté de passionnés de littérature dès aujourd'hui.
       </p>
       {% if app.user %} {% else %}

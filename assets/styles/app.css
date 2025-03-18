@@ -339,3 +339,11 @@ ul {
 .underline {
   text-decoration: underline;
 }
+
+.heart-icon {
+  color: #ff0000; 
+}
+
+.heart-broken-icon {
+  color: #8B0000; /* Rouge sombre/terne */
+}
