@@ -5,7 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Tag;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class TagCrudController extends AbstractCrudController
@@ -13,6 +13,15 @@ class TagCrudController extends AbstractCrudController
     public static function getEntityFqcn(): string
     {
         return Tag::class;
+    }
+
+    public function configureFields(string $pageName): iterable
+    {
+        yield IdField::new('id')->hideOnForm();
+        yield TextField::new('name', 'Nom');
+        // Optionnel: afficher les romans associés
+        // yield AssociationField::new('novels', 'Romans')->onlyOnDetail();
+        //!!!!!!!!!!!!!!!!SI CA NE FONCTIONNE PLUS DECOMMENTER LA LIGNE AU DESSUS!!!!!!!!!!!!!!
     }
 
     /*
