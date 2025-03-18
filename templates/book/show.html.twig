@@ -5,7 +5,7 @@
 {% block body %}
 <div class="max-w-md mx-auto p-6 bg-white rounded-xl shadow-md space-y-4 font-sans">
   <h1 class="text-2xl font-bold text-gray-800">{{ book.title }}</h1>
-  <a href="{{ path('app_book_index') }}" class='a' aria-label='Go to {{element.type|capitalize}} index'>back to list</a>
+  <a href="{{ path('app_book_index') }}" class='a' aria-label='Retourner sur le catalogue des livres'>Retour dans le catalogue</a>
 
   {% if not isLiked %}
   <form class="likes" action="{{ path('app_book_like', {'ref': book.getRef()}) }}" method="POST">
