@@ -27,12 +27,14 @@ class BookController extends AbstractController
         $user = $this->getUser();
 
         if ($user && in_array('ROLE_ADULT', $user->getRoles())) {
-            $books = $this->br->findAll();
+            $books = $this->br->findAll() ?? [];;
         } else {
-            $books = $this->br->findBy(["is_for_adult" => false]);
+            $books = $this->br->findBy(["is_for_adult" => false]) ?? [];;
         }
 
-        $form = $this->createForm(BookSearchType::class);
+        $form = $this->createForm(BookSearchType::class, null, [
+            'user' => $user ?: null
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -41,15 +43,16 @@ class BookController extends AbstractController
             // Récupérer les tags sélectionnés et les tags à exclure
             $tags = $criteria['tags'] ?? [];  // Ce sont des objets Tag ou IDs (selon le formulaire)
             $excludeTags = $criteria['excludeTags'] ?? [];  // Ce sont des IDs de tags à exclure
+            // dd($criteria['excludeTags']);
 
             // Pour être sûr que excludeTags est bien un tableau d'IDs
             if (!empty($excludeTags) && is_string($excludeTags)) {
                 $excludeTags = explode(',', $excludeTags);  // Si les tags sont sous forme de chaîne séparée par des virgules
             }
 
-            $title = $criteria['title'] instanceof Book ? $criteria['title']->getTitle() : null;  
-            $author = $criteria['author'] instanceof Book ? $criteria['author']->getAuthor() : null;  
-        
+            $title = $criteria['title'] instanceof Book ? $criteria['title']->getTitle() : null;
+            $author = $criteria['author'] instanceof Book ? $criteria['author']->getAuthor() : null;
+
             // Préparer les critères pour la recherche
             $criteria['tags'] = $tags;
             $criteria['excludeTags'] = $excludeTags;

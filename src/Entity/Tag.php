@@ -26,7 +26,7 @@ class Tag
         maxMessage: "Le nom du tag ne peut pas dépasser 255 caractères."
     )]
     #[Assert\Regex(
-        pattern: '/^[a-zA-Z]+$/',
+        pattern: '/^[a-zA-Z0-9\-\'\"\s]+$/',
         message: 'Le nom du tag ne doit contenir que des lettres alphabétiques.'
     )]
     private ?string $name = null;

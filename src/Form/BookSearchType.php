@@ -2,8 +2,10 @@
 
 namespace App\Form;
 
-use App\Entity\Book;
 use App\Entity\Tag;
+use App\Entity\Book;
+use App\Repository\TagRepository;
+use App\Repository\BookRepository;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -17,6 +19,10 @@ class BookSearchType extends AbstractType
 {
   public function buildForm(FormBuilderInterface $builder, array $options): void
   {
+
+    $user = $options['user']; // Récupération de l'user
+    $isAdult = $user && in_array('ROLE_ADULT', $user->getRoles());
+
     $builder
       ->add('title', EntityType::class, [
         'class' => Book::class,
@@ -24,6 +30,13 @@ class BookSearchType extends AbstractType
         'autocomplete' => true,
         'required' => false,
         'attr' => ['placeholder' => 'Rechercher par titre'],
+        'query_builder' => function (BookRepository $br) use ($user, $isAdult) {
+          $qb = $br->createQueryBuilder('b');
+          if (!$user || !$isAdult) { // Exclure des titres de livres adultes si l'user non co ou n'est pas un adulte
+            $qb->where('b.is_for_adult = false');
+          }
+          return $qb;
+        },
       ])
       ->add('author', EntityType::class, [
         'class' => Book::class,
@@ -31,6 +44,13 @@ class BookSearchType extends AbstractType
         'autocomplete' => true,
         'required' => false,
         'attr' => ['placeholder' => 'Nom de l\'auteur'],
+        'query_builder' => function (BookRepository $br) use ($user, $isAdult) {
+          $qb = $br->createQueryBuilder('b');
+          if (!$user || !$isAdult) { // Exclure des auteurs qui n'écrivent que des livres adultes si l'user non co ou n'est pas un adulte
+            $qb->where('b.is_for_adult = false');
+          }
+          return $qb;
+        },
       ])
       ->add('created_within_week', ChoiceType::class, [
         'label' => 'Créé cette semaine ?',
@@ -53,17 +73,37 @@ class BookSearchType extends AbstractType
         'multiple' => true,
         'expanded' => true,
         'required' => false,
-        'label' => 'Tags'
+        'label' => 'Tags',
+        'query_builder' => function (TagRepository $tr) use ($user, $isAdult) {
+          $qb = $tr->createQueryBuilder('t');
+          if (!$user || !$isAdult) { // Exclure tag Adulte si l'user non co ou n'est pas un adulte
+            $qb->where('t.name NOT LIKE :adulte')
+               ->setParameter('adulte', 'Adulte');
+          }
+          return $qb;
+        },
+
       ])
       ->add('matchType', ChoiceType::class, [
         'label' => 'Correspondance des tags',
         'required' => false,
         'choices' => ['Au moins un' => 'any', 'Tous' => 'all'],
       ])
-      ->add('excludeTags', TextType::class, [
-        'label' => 'Tags à exclure (séparés par des virgules)',
+      ->add('excludeTags', EntityType::class, [
+        'class' => Tag::class,
+        'choice_label' => 'name',
+        'label' => 'Tags à exclure',
+        'multiple' => true,
+        'expanded' => true,
         'required' => false,
-        'attr' => ['placeholder' => 'Ex: horreur, drame'],
+          'query_builder' => function (TagRepository $tr) use ($user, $isAdult) {
+            $qb = $tr->createQueryBuilder('t');
+            if (!$user || !$isAdult) { // Exclure tag Adulte si l'user non co ou n'est pas un adulte
+                $qb->where('t.name NOT LIKE :adulte')
+                   ->setParameter('adulte', 'Adulte');
+            }
+            return $qb;
+        },
       ])
       ->add('likes', IntegerType::class, [
         'label' => 'Nombre minimum de likes',
@@ -112,6 +152,7 @@ class BookSearchType extends AbstractType
   {
     $resolver->setDefaults([
       'method' => 'GET',
+      'user' => null, // user par défaut null
     ]);
   }
 }
