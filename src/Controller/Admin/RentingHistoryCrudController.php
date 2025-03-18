@@ -37,11 +37,11 @@ class RentingHistoryCrudController extends AbstractCrudController
                 }
             ]);
 
-        // Novel - Configuration spécifique pour le formulaire
-        yield AssociationField::new('novel')
+        // Book - Configuration spécifique pour le formulaire
+        yield AssociationField::new('book')
             ->setFormTypeOptions([
-                'choice_label' => function ($novel) {
-                    return $novel->getTitle(); // ou toute autre propriété d'affichage
+                'choice_label' => function ($book) {
+                    return $book->getTitle(); // ou toute autre propriété d'affichage
                 }
             ]);
 

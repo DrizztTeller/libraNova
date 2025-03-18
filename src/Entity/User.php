@@ -37,7 +37,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private array $roles = [];
 
-     /**
+    /**
      * @var string The hashed password
      */
     #[ORM\Column]
@@ -67,7 +67,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $username = null;
 
     #[ORM\Column(type: Types::SMALLINT)]
-    #[Assert\PositiveOrZero(message: "Le nombre de romans empruntés ne peut pas être négatif.")]
+    #[Assert\PositiveOrZero(message: "Le nombre de livres empruntés ne peut pas être négatif.")]
     private int $rented_books_count = 0;
 
     #[ORM\Column]
@@ -112,7 +112,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->books = new ArrayCollection();
         $this->rentings = new ArrayCollection();
         $this->loginHistories = new ArrayCollection();
-        $this->ref = 'USER-'.uniqid();
+        $this->ref = 'USER-' . uniqid();
     }
 
     #[ORM\PrePersist]

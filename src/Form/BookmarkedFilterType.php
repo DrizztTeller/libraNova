@@ -18,7 +18,7 @@ class BookmarkedFilterType extends AbstractType
             ->add('publication_status', ChoiceType::class, [
                 'label' => 'Statut de publication',
                 'choices' => [
-                    'Tous les romans' => 'all',
+                    'Tous les livres' => 'all',
                     'Disponibles' => 'published',
                     'Indisponibles' => 'unpublished',
                     'Nouveautés disponibles' => 'newly_available'

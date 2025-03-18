@@ -11,29 +11,28 @@ class TagFixture extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-            $faker = Factory::create('fr_FR'); // Chargement de Faker
-            
-            $tagNames = [
-                'Roman',
-                'Science-Fiction',
-                'Biographie',
-                'Histoire',
-                'Jeunesse',
-                'Technique',
-                'Manga',
-                'Adulte',
-            ];
+        $faker = Factory::create('fr_FR'); // Chargement de Faker
 
-            foreach ($tagNames as $index => $name) {
-                $tag = new Tag();
-                $tag->setName($name);
-                $tag->setDescription($faker->paragraph());
-                $manager->persist($tag);
+        $tagNames = [
+            'Roman',
+            'Science-Fiction',
+            'Biographie',
+            'Histoire',
+            'Jeunesse',
+            'Technique',
+            'Manga',
+            'Adulte',
+        ];
 
-                // Définir une référence pour pouvoir l'utiliser dans d'autres fixtures
-                $this->addReference('tag_' . $index, $tag);
+        foreach ($tagNames as $index => $name) {
+            $tag = new Tag();
+            $tag->setName($name);
+            $tag->setDescription($faker->paragraph());
+            $manager->persist($tag);
 
-            }
+            // Définir une référence pour pouvoir l'utiliser dans d'autres fixtures
+            $this->addReference('tag_' . $index, $tag);
+        }
 
         $manager->flush();
     }

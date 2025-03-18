@@ -16,7 +16,7 @@ class RentingHistoryFixture extends Fixture implements DependentFixtureInterface
     {
         $faker = Factory::create('fr_FR');
 
-        // Récupérer tous les utilisateurs et romans
+        // Récupérer tous les utilisateurs et livres
         $userRepo = $manager->getRepository(User::class);
         $users = $userRepo->findAll();
 
@@ -34,7 +34,7 @@ class RentingHistoryFixture extends Fixture implements DependentFixtureInterface
                 // Attribuer un utilisateur
                 $renting->setUser($user);
 
-                // Attribuer un roman aléatoire
+                // Attribuer un livre aléatoire
                 $book = $faker->randomElement($books);
                 $renting->setBook($book);
 

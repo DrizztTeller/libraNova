@@ -1,60 +1,86 @@
-{% extends 'base.html.twig' %}
-
-{% block title %}Le catalogue de livres de LibraNova{% endblock %}
-
-{% block body %}
+{% extends 'base.html.twig' %} {% block title %}Le catalogue de livres de
+LibraNova{% endblock %} {% block body %}
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-8">Notre catalogue</h1>
+  <h1 class="text-3xl font-bold mb-8">Notre catalogue</h1>
 
-    <div class="flex flex-col md:flex-row gap-8">
-        {# Formulaire de tri à gauche #}
-        <div class="bg-white shadow-md rounded-lg p-6">
-          <h2 class="text-xl font-semibold mb-6">Filtres et Tri</h2>
-          {{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
-          {{ form_end(form) }}
-      </div>
+  <div class="flex flex-col md:flex-row gap-8">
+    {# Formulaire de tri à gauche #}
+    <div class="bg-white shadow-md rounded-lg p-6">
+      <h2 class="text-xl font-semibold mb-6">Filtres et Tri</h2>
+      {{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
+      {{ form_end(form) }}
+    </div>
 
-      {# Liste des livres #}
-      <div class="w-full md:w-2/3">
-        <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Liste des Romans Disponibles</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for item in books %}
-                <div class="bg-white shadow-md rounded-lg overflow-hidden">
-                    <img src="{{ item.pic }}" alt="{{ item.title }}" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <a href="{{ path('app_book_show', {'ref': item.ref}) }}" class="text-lg font-semibold text-indigo-600 hover:text-indigo-800">
-                            <h3 class="text-lg font-semibold mb-2">{{ item.title }}</h3>  
-                        </a>
-                        <p class="text-sm text-gray-600 mb-2">{{ item.author }}</p>
-                        <p class="text-xs text-gray-500">Publié le {{ item.releasedAt|date('d/m/Y') }}</p>
-                        <div class="mt-4 flex justify-between items-center">
-                            <span class="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full">
-                                {{ item.isPublished ? 'Disponible' : 'Non disponible' }}
-                            </span>
-                            <a href="#" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">Voir plus</a>
-                        </div>
-                        {# <form class="likes" action="{{ path('app_book_pdf', {'ref': item.getRef()}) }}" method="POST">
-                            <button type="submit" class="heart-button like-button"> #}
-                                {# TODO  icone oeil#}
-                                {# Lire
-                            </button>
-                        </form>  #}
-                        
-                        {# <a href="{{ path('app_book_pdf', {'file': item.getFile()}) }}" method="POST" target="_blank">Lire v2</a> #}
-                        <a href="{{ path('app_book_pdf', {'ref': item.ref}) }}" method="POST" target="_blank">Lire v2</a>
-                    </div>
-                </div>
-            {% else %}
-                <div class="col-span-full text-center py-8">
-                    <p class="text-gray-500">Aucun livre trouvé.</p>
-                </div>
-            {% endfor %}
+    {# Liste des livres #}
+    <div class="w-full md:w-2/3">
+      <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">
+        Liste des livres Disponibles
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for item in books %}
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+          <img
+            src="{{ item.pic }}"
+            alt="{{ item.title }}"
+            class="w-full h-48 object-cover"
+          />
+          <div class="p-4">
+            <a
+              href="{{ path('app_book_show', { ref: item.ref }) }}"
+              class="text-lg font-semibold text-indigo-600 hover:text-indigo-800"
+            >
+              <h3 class="text-lg font-semibold mb-2">{{ item.title }}</h3>
+            </a>
+            <p class="text-sm text-gray-600 mb-2">{{ item.author }}</p>
+            <p class="text-xs text-gray-500">
+              Publié le {{ item.releasedAt|date('d/m/Y') }}
+            </p>
+            <div class="mt-4 flex justify-between items-center">
+              <span
+                class="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full"
+              >
+                {{ item.isPublished ? "Disponible" : "Non disponible" }}
+              </span>
+              <a
+                href="#"
+                class="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+                >Voir plus</a
+              >
+            </div>
+            {#
+            <form
+              class="likes"
+              action="{{ path('app_book_pdf', { ref: item.getRef() }) }}"
+              method="POST"
+            >
+              <button type="submit" class="heart-button like-button">
+                #} {# TODO icone oeil#} {# Lire
+              </button>
+            </form>
+            #} {#
+            <a
+              href="{{ path('app_book_pdf', { file: item.getFile() }) }}"
+              method="POST"
+              target="_blank"
+              >Lire v2</a
+            >
+            #}
+            <a
+              href="{{ path('app_book_pdf', { ref: item.ref }) }}"
+              method="POST"
+              target="_blank"
+              >Lire v2</a
+            >
+          </div>
         </div>
+        {% else %}
+        <div class="col-span-full text-center py-8">
+          <p class="text-gray-500">Aucun livre trouvé.</p>
+        </div>
+        {% endfor %}
+      </div>
     </div>
-
-
-    </div>
-
+  </div>
 </div>
 
 {% endblock %}

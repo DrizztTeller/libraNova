@@ -56,7 +56,7 @@
                     <div class="bg-white shadow-md rounded-lg overflow-hidden">
                         <img src="{{ item.pic }}" alt="{{ item.title }}" class="w-full h-48 object-cover">
                         <div class="p-4">
-                            <a href="{{ path('app_novel_show', {'ref': item.ref}) }}" class="text-lg font-semibold text-indigo-600 hover:text-indigo-800">
+                            <a href="{{ path('app_book_show', {'ref': item.ref}) }}" class="text-lg font-semibold text-indigo-600 hover:text-indigo-800">
                                 <h3 class="text-lg font-semibold mb-2">{{ item.title }}</h3>  
                             </a>
                             <p class="text-sm text-gray-600 mb-2">{{ item.author }}</p>

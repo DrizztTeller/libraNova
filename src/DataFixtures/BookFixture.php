@@ -29,7 +29,7 @@ class BookFixture extends Fixture implements DependentFixtureInterface
     public function load(ObjectManager $manager): void
     {
         $faker = Factory::create('fr_FR'); // Chargement de Faker
-        
+
         $authors = [
             'J.K. Rowling',
             'Stephen King',
@@ -55,10 +55,20 @@ class BookFixture extends Fixture implements DependentFixtureInterface
             'Adulte' => '50 shades of'
         ];
 
-        $allTags = $this->tr->findAll();
+        $allTags = [];
         $adultTag = $this->tr->findOneBy(['name' => 'Adulte']);
-        
-             // Créer 50 livres
+
+        for ($i = 0; $i < 8; $i++) { // Pour 8 tags
+            try {
+                $tag = $this->getReference('tag_' . $i, Tag::class);
+                $allTags[] = $tag;
+            } catch (\Exception $e) {
+                // Gérer l'exception ou l'ignorer silencieusement
+                dump("Tag référence 'tag_" . $i . "' non trouvé");
+            }
+        }
+
+        // Créer 50 livres
         for ($i = 0; $i < 20; $i++) {
             $book = new Book($this->slugger);
 
@@ -80,29 +90,25 @@ class BookFixture extends Fixture implements DependentFixtureInterface
             $book->setReleasedAt($faker->dateTimeThisDecade());
 
             // Images et fichiers fictifs
-            
+
             // Images avec des IDs fixes (choisies pour ressembler à des couvertures de livres)
             $bookCoverIds = [20, 24, 42, 67, 101, 180, 240, 251, 292, 331, 373, 384];
             $randomBookCoverId = $bookCoverIds[array_rand($bookCoverIds)];
             $book->setPicUrl('https://picsum.photos/id/' . $randomBookCoverId . '/800/600');
-            
+
             // Slug et référence
             $slug = $this->slugger->slug($title)->lower();
             $book->setSlug($slug);
             $book->setRef($slug . '-' . $faker->unique()->numerify('######'));
             $book->setIsbn($faker->isbn13());
             $book->setIsForAdult($faker->boolean(20));
-            // Ajouter les tags au roman
+            // Ajouter les tags au livre
             foreach ($selectedTags as $tag) {
                 $book->addTag($tag);
-                if ($book->isForAdult()) {
-                    $book->addTag($adultTag);
-                }
-            }            
+            }
+
             $manager->persist($book);
         }
         $manager->flush();
-        
-        }
-
+    }
 }

@@ -22,7 +22,7 @@ class RentingHistory
 
     #[ORM\ManyToOne(inversedBy: 'rentings')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Assert\NotNull(message: "Le roman est obligatoire.")]
+    #[Assert\NotNull(message: "Le livre est obligatoire.")]
     private ?Book $book = null;
 
     #[ORM\Column]

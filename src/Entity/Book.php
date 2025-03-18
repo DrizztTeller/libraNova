@@ -102,7 +102,7 @@ class Book
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $picUrl = null; // URL externe éventuelle lors des fixtures (non stockée en BDD)
 
-    #[UploadableField(mapping: 'novel_files', fileNameProperty: 'file')] //gere les uploads depuis un formulaire
+    #[UploadableField(mapping: 'book_files', fileNameProperty: 'file')] //gere les uploads depuis un formulaire
     private ?File $fileObject = null;
 
     #[ORM\Column(length: 255)]

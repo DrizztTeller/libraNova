@@ -60,7 +60,7 @@ final class UserController extends AbstractController
             return $this->redirectToRoute('home');
         }
 
-        // TODO faire une seule fonction de recherche complète avec un seul form qui sera réutilisé partout pour filtrer directement dans le tableau des romans (allromans ou que romans liké ou que romans empruntés)
+        // TODO faire une seule fonction de recherche complète avec un seul form qui sera réutilisé partout pour filtrer directement dans le tableau des livres (all livres ou que livres liké ou que livres empruntés)
 
         $form = $this->createForm(BookmarkedFilterType::class);
         $form->handleRequest($request);
@@ -117,7 +117,7 @@ final class UserController extends AbstractController
             return $this->redirectToRoute('home');
         }
 
-        // TODO faire une seule fonction de recherche complète avec un seul form qui sera réutilisé partout pour filtrer directement dans le tableau des romans (allromans ou que romans liké ou que romans empruntés)
+        // TODO faire une seule fonction de recherche complète avec un seul form qui sera réutilisé partout pour filtrer directement dans le tableau des s (all livres ou que livres liké ou que livres empruntés)
 
         $currentRentals = $rhr->findCurrentRentalsForUser($user);
 
@@ -138,7 +138,7 @@ final class UserController extends AbstractController
             return $this->redirectToRoute('home');
         }
 
-        // TODO faire une seule fonction de recherche complète avec un seul form qui sera réutilisé partout pour filtrer directement dans le tableau des romans (allromans ou que romans liké ou que romans empruntés)
+        // TODO faire une seule fonction de recherche complète avec un seul form qui sera réutilisé partout pour filtrer directement dans le tableau des livres (all livres ou que livres liké ou que livres empruntés)
 
         $allRenting = $rhr->findBy(['user' => $user]);
 
