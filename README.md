@@ -497,11 +497,16 @@ symfony console cache:clear
 ```
 Puis on rappel les entité lié au CRUD Controller en les appelant grâce au " MenuItem::LinkToDashboard "
 
-Personnalisation de chaque edit grâce au CrudController
+ - Personalisation de Entité affiché
+Personnalisation de chaque edit grâce au CrudController et aux Entités
 
  - Ajout de VichUploader pour la gestion des pdf
+Modification du fichier vich_uploader.yaml pour créer le mapping
+
  - Création de la possibilité d'ajouter des images
  Il a fallu créer une une gestion pour afficher d'abord le fichier téléchargé
+
+ - Ajout du suivi de location
 
 ## 🧰 Technologies Utilisées
 
