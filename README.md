@@ -499,6 +499,10 @@ Puis on rappel les entité lié au CRUD Controller en les appelant grâce au " M
 
  - Personalisation de Entité affiché
 Personnalisation de chaque edit grâce au CrudController et aux Entités
+  Dans le CrudController on personnalise grâce a:
+    .function configureCrud(Crud $crud): Crud  ---> Personnalise l'affichage
+    .function configureFields(string $pageName): iterable  ---> Configure la structure et les fonctionnements
+    .function configureActions(Actions $actions): Actions  ---> Represente le petit menu au bout de la ligen qui permet l'edit
 
  - Ajout de VichUploader pour la gestion des pdf
 Modification du fichier vich_uploader.yaml pour créer le mapping
