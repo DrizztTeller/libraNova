@@ -54,7 +54,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {% for item in books %}
                     <div class="bg-white shadow-md rounded-lg overflow-hidden">
-                        <img src="{{ item.pic }}" alt="{{ item.title }}" class="w-full h-48 object-cover">
+                        <img src="{{ item.imageUrl }}" alt="{{ item.title }}" class="w-full h-48 object-cover">
                         <div class="p-4">
                             <a href="{{ path('app_book_show', {'ref': item.ref}) }}" class="text-lg font-semibold text-indigo-600 hover:text-indigo-800">
                                 <h3 class="text-lg font-semibold mb-2">{{ item.title }}</h3>  
