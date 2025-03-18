@@ -54,6 +54,11 @@ class Tag
         $this->books = new ArrayCollection();
     }
 
+    public function __toString(): string
+    {
+        return $this->getName() ?? 'Tag';
+    }
+
     public function getId(): ?int
     {
         return $this->id;
