@@ -13,7 +13,7 @@
             </div>
         </div>
     </section>
-
+    
     <!-- Featured Novels Section -->
     <section class="container mx-auto px-4 py-16">
         <h2 class="text-3xl font-bold mb-8 relative pb-3 after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-1 after:w-20 after:bg-blue-600">Romans à découvrir</h2>
@@ -21,7 +21,9 @@
             {% for novel in novelsLatest %}
                 <div class="transform transition duration-300 hover:-translate-y-2">
                     <div class="bg-white rounded-lg overflow-hidden shadow-md h-full">
-                        <img src="{{ novel.pic }}" alt="{{ novel.title }}" class="w-full h-56 object-cover">
+                        <img src="{{ novel.getImageUrl}}" 
+                            alt="{{ novel.title }}" 
+                            class="w-full h-56 object-cover">
                         <div class="p-6">
                             <h5 class="font-bold text-xl mb-2">{{ novel.title }}</h5>
                             <p class="text-gray-600 mb-2">{{ novel.author }}</p>
