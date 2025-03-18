@@ -5,46 +5,51 @@
 {% block body %}
 <div class="max-w-md mx-auto p-6 bg-white rounded-xl shadow-md space-y-4 font-sans">
   <h1 class="text-2xl font-bold text-gray-800">{{ book.title }}</h1>
-  <a href="{{ path('app_book_index') }}" class='a' aria-label='Go to {{element.type|capitalize}} index'>back to list</a>
+  
+  <a href="{{ path('app_book_index') }}" class="text-blue-500 underline">
+    ⬅️ Retour à la liste
+  </a>
 
+  {# Bouton Like / Unlike #}
   {% if not isLiked %}
-  <form class="likes" action="{{ path('app_book_like', {'ref': book.getRef()}) }}" method="POST">
-    <button type="submit" class="heart-button like-button">
-      {# TODO icone pour liké un livre : coeur rouge sombre qui bat#}
-    </button>
-  </form>
-{% else %}
-  <form class="likes" action="{{ path('app__unlike', {'ref': book.getRef()}) }}" method="POST">
-    <button type="submit" class="heart-button unlike-button">
-      {# TODO icone pour unliké un livre : coeur rouge vif qui bat#}
-    </button>
-  </form>
-{% endif %}
-
-{# TODO suite des infos du livre #}
-
-
-  {% if not isRented %}
-  <form class="likes" action="{{ path('app_book_borrow', {'ref': book.getRef()}) }}" method="POST">
-    <button type="submit" class="heart-button like-button">
-      {# TODO icone pour emprunter un livre #}
-      Emprunter le livre
+  <form class="likes mt-4" action="{{ path('app_book_like', {'ref': book.getRef()}) }}" method="POST">
+    <button type="submit" class="flex items-center space-x-2 px-4 py-2 bg-red-500 text-white rounded">
+      ❤️ <span>Ajouter aux favoris</span>
     </button>
   </form>
   {% else %}
-  <form class="likes" action="{{ path('app__return', {'ref': book.getRef()}) }}" method="POST">
-    <button type="submit" class="heart-button unlike-button">
-      {# TODO icone pour retourner un livre #}
-      Rendre le livre
+  <form class="likes mt-4" action="{{ path('app_book_unlike', {'ref': book.getRef()}) }}" method="POST">
+    <button type="submit" class="flex items-center space-x-2 px-4 py-2 bg-gray-500 text-white rounded">
+      💔 <span>Retirer des favoris</span>
     </button>
   </form>
-  <form class="likes" action="{{ path('app_book_pdf', {'file': book.getFile()}) }}" method="POST">
-    <button type="submit" class="heart-button like-button">
-       {# TODO  icone oeil#}
-      Lire
-    </button>
-  </form>
-{% endif %}
+  {% endif %}
 
+  {# Infos sur le livre #}
+  <div class="border-t border-gray-300 pt-4">
+    <p><strong>Auteur :</strong> {{ book.author }}</p>
+    <p><strong>Date de publication :</strong> {{ book.publicationDate|date("d/m/Y") }}</p>
+    <p><strong>Résumé :</strong> {{ book.summary }}</p>
+  </div>
+
+  {# Section Emprunt #}
+  {% if not isRented %}
+  <form class="likes mt-4" action="{{ path('app_book_borrow', {'ref': book.getRef()}) }}" method="POST">
+    <button type="submit" class="flex items-center space-x-2 px-4 py-2 bg-green-500 text-white rounded">
+      📖 <span>Emprunter le livre</span>
+    </button>
+  </form>
+  {% else %}
+  <form class="likes mt-4" action="{{ path('app_book_return', {'ref': book.getRef()}) }}" method="POST">
+    <button type="submit" class="flex items-center space-x-2 px-4 py-2 bg-red-500 text-white rounded">
+      🔄 <span>Rendre le livre</span>
+    </button>
+  </form>
+  <form class="likes mt-4" action="{{ path('app_book_pdf', {'file': book.getFile()}) }}" method="POST">
+    <button type="submit" class="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded">
+      👁️ <span>Lire</span>
+    </button>
+  </form>
+  {% endif %}
 </div>
 {% endblock %}

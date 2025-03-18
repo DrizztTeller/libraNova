@@ -9,7 +9,7 @@
         "ext-iconv": "*",
         "doctrine/dbal": "^3.9.4",
         "doctrine/doctrine-bundle": "^2.13.2",
-        "doctrine/doctrine-migrations-bundle": "^3.4.1",
+        "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.3.2",
         "easycorp/easyadmin-bundle": "^4.24",
         "knplabs/knp-paginator-bundle": "^6.7",
