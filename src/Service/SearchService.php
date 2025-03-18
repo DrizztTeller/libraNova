@@ -51,7 +51,6 @@ class SearchService
     }
   }
 
-
   private function applyTitleFilter(QueryBuilder $queryBuilder, array $criteria): void
   {
     if (!empty($criteria['title'])) {
@@ -96,14 +95,14 @@ class SearchService
         : array_map(fn($tag) => $tag->getId(), (array) $criteria['tags']);
 
       if (!empty($tagIds)) {
-        $queryBuilder->join('e.tags', 't')
-          ->andWhere('t.id IN (:tags)')
+        $queryBuilder->join('e.tags', 'tag')
+          ->andWhere('tag.id IN (:tags)')
           ->setParameter('tags', $tagIds);
       }
 
       if (!empty($criteria['matchType']) && $criteria['matchType'] === 'all') {
         $queryBuilder->groupBy('e.id')
-          ->having('COUNT(DISTINCT t.id) = :tagCount')
+          ->having('COUNT(DISTINCT tag.id) = :tagCount')
           ->setParameter('tagCount', count($tagIds));
       }
     }
@@ -111,18 +110,28 @@ class SearchService
 
   private function applyExcludedTagsFilter(QueryBuilder $queryBuilder, array $criteria): void
   {
-    if (!empty($criteria['excludeTags'])) {
-      $excludeTagIds = $criteria['excludeTags'] instanceof Collection
-        ? array_map(fn($tag) => $tag->getId(), $criteria['excludeTags']->toArray())
-        : array_map(fn($tag) => $tag->getId(), (array) $criteria['excludeTags']);
-
-      if (!empty($excludeTagIds)) {
-        $queryBuilder->join('e.tags', 'st')
-          ->andWhere('st.id NOT IN (:excludeTags)')
-          ->setParameter('excludeTags', $excludeTagIds);
+      if (!empty($criteria['excludeTags'])) {
+          $excludeTagIds = $criteria['excludeTags'] instanceof Collection
+              ? array_map(fn($tag) => $tag->getId(), $criteria['excludeTags']->toArray())
+              : array_map(fn($tag) => $tag->getId(), (array) $criteria['excludeTags']);
+  
+          if (!empty($excludeTagIds)) {
+              $queryBuilder->andWhere($queryBuilder->expr()->not(
+                  $queryBuilder->expr()->exists(
+                      $this->entityManager->createQueryBuilder()
+                          ->select('1')
+                          ->from('App\Entity\Book', 'b')
+                          ->join('b.tags', 'et')
+                          ->where('b.id = e.id')
+                          ->andWhere('et.id IN (:excludeTags)')
+                          ->getDQL()
+                  )
+              ))
+              ->setParameter('excludeTags', $excludeTagIds);
+          }
       }
-    }
   }
+  
 
   private function applyLikesFilter(QueryBuilder $queryBuilder, array $criteria): void
   {

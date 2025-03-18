@@ -45,9 +45,9 @@ class BookSearchType extends AbstractType
         'required' => false,
         'attr' => ['placeholder' => 'Nom de l\'auteur'],
         'query_builder' => function (BookRepository $br) use ($user, $isAdult) {
-          $qb = $br->createQueryBuilder('b');
+          $qb = $br->createQueryBuilder('bk');
           if (!$user || !$isAdult) { // Exclure des auteurs qui n'écrivent que des livres adultes si l'user non co ou n'est pas un adulte
-            $qb->where('b.is_for_adult = false');
+            $qb->where('bk.is_for_adult = false');
           }
           return $qb;
         },
@@ -97,9 +97,9 @@ class BookSearchType extends AbstractType
         'expanded' => true,
         'required' => false,
           'query_builder' => function (TagRepository $tr) use ($user, $isAdult) {
-            $qb = $tr->createQueryBuilder('t');
+            $qb = $tr->createQueryBuilder('et');
             if (!$user || !$isAdult) { // Exclure tag Adulte si l'user non co ou n'est pas un adulte
-                $qb->where('t.name NOT LIKE :adulte')
+                $qb->where('et.name NOT LIKE :adulte')
                    ->setParameter('adulte', 'Adulte');
             }
             return $qb;
