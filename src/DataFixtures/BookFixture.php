@@ -13,6 +13,13 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 
 class BookFixture extends Fixture implements DependentFixtureInterface
 {
+    public function getDependencies(): array
+    {
+        return [
+            TagFixture::class,
+            UserFixture::class,
+        ];
+    }
     private SluggerInterface $slugger;
 
     public function __construct(SluggerInterface $slugger, private TagRepository $tr)
@@ -45,12 +52,9 @@ class BookFixture extends Fixture implements DependentFixtureInterface
             'Jeunesse' => 'Les Aventures de ',
             'Technique' => 'Guide de ',
             'Manga' => 'One Piece - ',
-            'Adulte'
+            'Adulte' => '50 shades of'
         ];
 
-        // Récupérer tous les tags
-        // $tagRepo = $manager->getRepository(Tag::class);
-        // $allTags = $tagRepo->findAll();
         $allTags = $this->tr->findAll();
         $adultTag = $this->tr->findOneBy(['name' => 'Adulte']);
         
@@ -72,7 +76,7 @@ class BookFixture extends Fixture implements DependentFixtureInterface
             $book->setTitle($title);
             $book->setAuthor($faker->randomElement($authors));  // Attribuer un auteur aléatoire
             $book->setAbstract($faker->paragraphs(3, true));
-            $book->setIsPublished(true);
+            $book->setIsPublished($faker->boolean(70));
             $book->setReleasedAt($faker->dateTimeThisDecade());
 
             // Images et fichiers fictifs
@@ -80,7 +84,7 @@ class BookFixture extends Fixture implements DependentFixtureInterface
             // Images avec des IDs fixes (choisies pour ressembler à des couvertures de livres)
             $bookCoverIds = [20, 24, 42, 67, 101, 180, 240, 251, 292, 331, 373, 384];
             $randomBookCoverId = $bookCoverIds[array_rand($bookCoverIds)];
-            $book->setPic('https://picsum.photos/id/' . $randomBookCoverId . '/800/600');
+            $book->setPicUrl('https://picsum.photos/id/' . $randomBookCoverId . '/800/600');
             
             // Slug et référence
             $slug = $this->slugger->slug($title)->lower();
@@ -100,21 +104,5 @@ class BookFixture extends Fixture implements DependentFixtureInterface
         $manager->flush();
         
         }
-    public function getDependencies(): array
-    {
-        return [
-            TagFixture::class,
-            UserFixture::class,
-        ];
-    }
-}
-            // $authorIndex = $faker->numberBetween(0, 9);
-            // $book->setAuthor($this->getReference('author_' . $authorIndex));
 
-            // Ajouter entre 1 et 3 tags aléatoires
-            // $tagCount = $faker->numberBetween(1, 3);
-            // $tagIndexes = $faker->randomElements(range(0, 7), $tagCount);
-            
-            // foreach ($tagIndexes as $tagIndex) {
-            //     $book->addTag($this->getReference('tag_' . $tagIndex));
-            // }
+}
