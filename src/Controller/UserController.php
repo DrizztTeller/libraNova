@@ -3,16 +3,21 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Form\UserType;
+use App\Security\EmailVerifier;
 use App\Form\BookmarkedFilterType;
-use App\Repository\LoginHistoryRepository;
 use App\Repository\BookRepository;
-use App\Repository\RentingHistoryRepository;
+use Symfony\Component\Mime\Address;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\LoginHistoryRepository;
+use App\Repository\RentingHistoryRepository;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 #[Route('/profil', name: 'app_user_')]
 final class UserController extends AbstractController
@@ -20,12 +25,13 @@ final class UserController extends AbstractController
 
     public function __construct(private EntityManagerInterface $em) {}
 
+    #[IsGranted('ROLE_USER')]
     #[Route('/', name: 'profile', methods: ['GET'])]
-    public function profile(): Response
+    public function profile(Request $request, UserPasswordHasherInterface $uphi, EmailVerifier $emailVerifier): Response
     {
         $user = $this->getUser();
         if (!$user) {
-            $this->addFlash('danger', 'Veuillez vous connecter pour voir vos favoris.');
+            $this->addFlash('danger', 'Veuillez vous connecter pour voir votre profil.');
             return $this->redirectToRoute('home');
         }
 
@@ -33,8 +39,57 @@ final class UserController extends AbstractController
             $this->addFlash('warning', 'Merci de validez votre email');
         }
 
-        // TODO faire le template
+        $form = $this->createForm(UserType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $submittedPassword = $form->get('password')->getData();
+            if (!$submittedPassword) {
+                $this->addFlash('error', 'Veuillez taper votre mot de passe actuel');
+                return $this->redirectToRoute('app_user_profil');
+            }
+            $pwd = $uphi->isPasswordValid($user, $submittedPassword);
+            if ($pwd) {
+                if ($form->get('email')->getData() !== $user->getEmail()) {
+                    $user->setEmail($form->get('email')->getData());
+                    $user->setIsVerified(false);
+
+                    $emailVerifier->sendEmailConfirmation(
+                        'app_verify_email',
+                        $user,
+                        (new TemplatedEmail())
+                            ->from(new Address('modification@libranova.com', 'LibraNova Inc'))
+                            ->to((string) $user->getEmail())
+                            ->subject('Merci de confirmer votre email')
+                            ->htmlTemplate('registration/confirmation_email.html.twig')
+                    );
+                }
+
+                $plainPassword = $form->get('plainPassword')->getData();
+                if (!empty($plainPassword)) {
+                    $user->setPassword($uphi->hashPassword($user, $plainPassword));
+                }
+
+                if ($form->get('username')->getData() !== $user->getUsername()) {
+                    $username = $form->get('username')->getData();
+                    // encode the plain password
+                    $user->setUsername($username);
+                }
+
+                $this->em->persist($user);
+                $this->em->flush();
+
+                // Redirection avec flash message
+                $this->addFlash('success', 'Votre profil à été mis à jour');
+            } else {
+                $this->addFlash('error', 'Vos identifiants sont incorrects');
+            }
+
+            return $this->redirectToRoute('app_user_profil');
+        }
+
         return $this->render('user/profile.html.twig', [
+            'userForm' => $form,
             'user' => $user,
         ]);
     }
