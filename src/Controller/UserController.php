@@ -121,6 +121,7 @@ final class UserController extends AbstractController
 
         $currentRentals = $rhr->findCurrentRentalsForUser($user);
 
+        // dd($currentRentals);
         return $this->render('user/renting_list.html.twig', [
             'user' => $user,
             'rentings' => $currentRentals
