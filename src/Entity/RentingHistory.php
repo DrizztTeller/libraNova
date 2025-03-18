@@ -125,4 +125,11 @@ class RentingHistory
         $this->updated_at = $updated_at;
         return $this;
     }
+
+    //Fonction ajouté pour calculer la date actuelle concernant l'emprunt
+    public function isCurrentlyActive(): bool
+    {
+        $now = new \DateTimeImmutable();
+        return $now >= $this->start && $now <= $this->end;
+    }
 }
