@@ -5,23 +5,23 @@ namespace App\Controller;
 use App\Entity\Book;
 use App\Form\BookSearchType;
 use App\Entity\RentingHistory;
+use App\Form\RentingHistoryType;
 use App\Repository\BookRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\RentingHistoryRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 
-#[Route(name: 'app_book_')]
+#[Route('/livres', 'app_book_')]
 class BookController extends AbstractController
 {
     public function __construct(private EntityManagerInterface $em, private BookRepository $br, private RentingHistoryRepository $rhr) {}
 
-    #[Route('/livres/', name: 'index', methods: ['GET'])]
+    #[Route('/', name: 'index', methods: ['GET'])]
     public function index(Request $request): Response
     {
         $user = $this->getUser();
@@ -76,13 +76,13 @@ class BookController extends AbstractController
         ]);
     }
 
-    #[Route('/livres/{ref}', name: 'show', methods: ['GET'])]
+    #[Route('/{ref}', name: 'show', methods: ['GET'])]
     public function show(string $ref): Response
     {
         $book = $this->br->findOneBy(['ref' => $ref]);
 
         if (!$book) {
-            $this->addFlash('danger', 'Roman non trouvé.');
+            $this->addFlash('danger', 'Livre non trouvé.');
             return $this->redirectToRoute('app_book_index');
         }
 
@@ -133,13 +133,13 @@ class BookController extends AbstractController
     }
 
     #[IsGranted('ROLE_VERIFIED')]
-    #[Route('/livres/{ref}/borrow', 'borrow', methods: ['POST'])]
+    #[Route('/{ref}/borrow', 'borrow', methods: ['POST'])]
     public function borrow(string $ref, Request $request): Response
     {
         $book = $this->br->findOneBy(['ref' => $ref]);
 
         if (!$book) {
-            $this->addFlash('danger', 'Roman non trouvé.');
+            $this->addFlash('danger', 'Livre non trouvé.');
             return $this->redirectToRoute('app_book_index');
         }
 
@@ -188,20 +188,20 @@ class BookController extends AbstractController
     }
 
     #[IsGranted('ROLE_VERIFIED')]
-    #[Route('/livres/{ref}/return', 'return', methods: ['POST'])]
+    #[Route('/{ref}/return', 'return', methods: ['POST'])]
     public function return(string $ref, Request $request): Response
     {
         $book = $this->br->findOneBy(['ref' => $ref]);
 
         if (!$book) {
-            $this->addFlash('danger', 'Roman non trouvé.');
+            $this->addFlash('danger', 'Livre non trouvé.');
             return $this->redirectToRoute('app_book_index');
         }
 
         $user = $this->getUser();
 
         if (!$book) {
-            $this->addFlash('danger', 'Roman non trouvé.');
+            $this->addFlash('danger', 'Livre non trouvé.');
             return $this->redirectToRoute('app_book_index');
         }
 
@@ -242,13 +242,13 @@ class BookController extends AbstractController
     }
 
     #[IsGranted('ROLE_VERIFIED')]
-    #[Route('/livres/{ref}/like', 'like', methods: ['POST'])]
+    #[Route('/{ref}/like', 'like', methods: ['POST'])]
     public function like(string $ref, Request $request): Response
     {
         $book = $this->br->findOneBy(['ref' => $ref]);
 
         if (!$book) {
-            $this->addFlash('danger', 'Roman non trouvé.');
+            $this->addFlash('danger', 'Livre non trouvé.');
             return $this->redirectToRoute('app_book_index');
         }
 
@@ -283,13 +283,13 @@ class BookController extends AbstractController
     }
 
     #[IsGranted('ROLE_VERIFIED')]
-    #[Route('/livres/{ref}/unlike', 'unlike', methods: ['POST'])]
+    #[Route('/{ref}/unlike', 'unlike', methods: ['POST'])]
     public function unlike(string $ref, Request $request): Response
     {
         $book = $this->br->findOneBy(['ref' => $ref]);
 
         if (!$book) {
-            $this->addFlash('danger', 'Roman non trouvé.');
+            $this->addFlash('danger', 'Livre non trouvé.');
             return $this->redirectToRoute('app_book_index');
         }
 
@@ -316,19 +316,13 @@ class BookController extends AbstractController
     }
 
     #[IsGranted('ROLE_VERIFIED')]
-    #[Route('/{ref}/pdf', 'pdf', methods: ['GET'])]
-    public function viewPdf(string $ref): Response
+    #[Route('/{ref}/pdf', 'pdf', methods: ['GET', 'POST'])]
+    public function viewPdf(string $ref, Request $request): Response
     {
-        //TODO faire template pour vérification
         $book = $this->br->findOneBy(['ref' => $ref]);
 
         if (!$book) {
-            $this->addFlash('danger', 'Roman non trouvé.');
-            return $this->redirectToRoute('app_book_index');
-        }
-
-        if (!$book) {
-            $this->addFlash('danger', 'Roman non trouvé.');
+            $this->addFlash('danger', 'Livre non trouvé.');
             return $this->redirectToRoute('app_book_index');
         }
 
@@ -342,7 +336,7 @@ class BookController extends AbstractController
         }
 
         if (!$book->getFile() || !$book->isPublished()) {
-            $this->addFlash('danger', 'PDF non disponible pour ce roman.');
+            $this->addFlash('danger', 'PDF non disponible pour ce Livre.');
             return $this->redirectToRoute('app_book_show', ['ref' => $book->getRef()], Response::HTTP_SEE_OTHER);
         }
 
@@ -358,10 +352,23 @@ class BookController extends AbstractController
             ->getOneOrNullResult();
 
         if ($existingRental) {
-            // TODO : A tester Pb marche pas
-            // TODO : bloquer clic droit et menu pr ddl et ouvir dans un nouvel onglet
-            $pdfPath = $this->getParameter('kernel.project_dir') . '/public/uploads/pdf' . $book->getFile();
-            return new BinaryFileResponse($pdfPath);
+            $form = $this->createForm(RentingHistoryType::class);
+            $form->handleRequest($request);
+            if ($form->isSubmitted() && $form->isValid()) { 
+                $lastPage = $form->get('last_page')->getData();
+                
+                $existingRental->setLastPage($lastPage);
+                $existingRental->setUpdatedAt(new \DateTimeImmutable());
+                $this->em->flush();
+            }
+            // Retourne l'URL publique du fichier
+            $bookPath = $this->generateUrl('public_pdf', ['fileName' => $book->getFile()]);
+            return $this->render('book/view_pdf.html.twig', [
+                'book' => $book,
+                'bookPath' => $bookPath,
+                "form" => $form,
+                'rent' => $existingRental
+            ]);
         } else {
             $this->addFlash('danger', "Vous n'avez pas emprunter ce livre ou votre emprunt n'est plus valide !");
             return $this->redirectToRoute('app_book_show', ['ref' => $book->getRef()], Response::HTTP_SEE_OTHER);
