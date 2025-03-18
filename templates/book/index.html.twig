@@ -20,7 +20,7 @@ LibraNova{% endblock %} {% block body %}
         {% for item in books %}
         <div class="bg-white shadow-md rounded-lg overflow-hidden">
           <img
-            src="{{ item.pic }}"
+            src="{{ item.imageUrl }}"
             alt="{{ item.title }}"
             class="w-full h-48 object-cover"
           />
@@ -42,35 +42,11 @@ LibraNova{% endblock %} {% block body %}
                 {{ item.isPublished ? "Disponible" : "Non disponible" }}
               </span>
               <a
-                href="#"
+                href="{{ path('app_book_show', { ref: item.ref }) }}"
                 class="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
                 >Voir plus</a
               >
             </div>
-            {#
-            <form
-              class="likes"
-              action="{{ path('app_book_pdf', { ref: item.getRef() }) }}"
-              method="POST"
-            >
-              <button type="submit" class="heart-button like-button">
-                #} {# TODO icone oeil#} {# Lire
-              </button>
-            </form>
-            #} {#
-            <a
-              href="{{ path('app_book_pdf', { file: item.getFile() }) }}"
-              method="POST"
-              target="_blank"
-              >Lire v2</a
-            >
-            #}
-            <a
-              href="{{ path('app_book_pdf', { ref: item.ref }) }}"
-              method="POST"
-              target="_blank"
-              >Lire v2</a
-            >
           </div>
         </div>
         {% else %}

@@ -77,7 +77,7 @@ class UserType extends AbstractType
         ])
         ->add('submit', SubmitType::class, [
             'label' => 'Modifier mon profil',
-            'attr' => ['class' => 'btn btn-primary'],
+            'attr' => ['class' => 'mt-2 bg-custom-blue text-white py-2 px-4 rounded'],
         ])
 //             ->add('books', EntityType::class, [
 //                 'class' => Book::class,

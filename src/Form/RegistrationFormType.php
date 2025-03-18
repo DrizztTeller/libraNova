@@ -118,7 +118,7 @@ class RegistrationFormType extends AbstractType
             ->add('submit', SubmitType::class, [
                 'label' => "S'inscrire",
                 'attr' => [
-                    'class' => 'btn btn-primary',
+                    'class' => 'mt-2 bg-custom-blue text-white py-2 px-4 rounded'
                 ],
             ]);
     }

@@ -1,7 +1,38 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}LibraNova | Conditions Générales d'Utilisation {% endblock %}
+{% block title %}LibraNova | Conditions Générales d'Utilisation{% endblock %}
 
 {% block body %}
+    <div class="container mt-5">
+        <h1 class="text-center">Conditions Générales d'Utilisation</h1>
+        
+        <section class="mt-4">
+            <h2>1. Introduction</h2>
+            <p>Bienvenue sur LibraNova ! En accédant à notre site et en l'utilisant, vous acceptez les présentes Conditions Générales d'Utilisation (CGU).</p>
+        </section>
 
+        <section class="mt-4">
+            <h2>2. Accès au Service</h2>
+            <p>Notre plateforme est accessible à toute personne disposant d'une connexion Internet. Toutefois, nous nous réservons le droit de restreindre l'accès à certains utilisateurs.</p>
+        </section>
+
+        <section class="mt-4">
+            <h2>3. Utilisation du Site</h2>
+            <p>Vous vous engagez à utiliser notre site conformément aux lois en vigueur et à ne pas en faire un usage abusif.</p>
+        </section>
+
+        <section class="mt-4">
+            <h2>4. Protection des Données</h2>
+            <p>Nous nous engageons à protéger vos données personnelles conformément à notre politique de confidentialité.</p>
+        </section>
+
+        <section class="mt-4">
+            <h2>5. Modification des CGU</h2>
+            <p>Nous nous réservons le droit de modifier ces conditions à tout moment. Les utilisateurs seront informés des mises à jour via le site.</p>
+        </section>
+
+        <section class="mt-4 text-center">
+            <p>Dernière mise à jour : {{ "now"|date("d/m/Y") }}</p>
+        </section>
+    </div>
 {% endblock %}

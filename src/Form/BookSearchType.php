@@ -148,7 +148,7 @@ class BookSearchType extends AbstractType
       ])
       ->add('submit', SubmitType::class, [
         'label' => 'Rechercher',
-        'attr' => ['class' => 'btn btn-primary'],
+        'attr' => ['class' => 'mt-2 bg-custom-blue text-white py-2 px-4 rounded'],
       ]);
   }
 

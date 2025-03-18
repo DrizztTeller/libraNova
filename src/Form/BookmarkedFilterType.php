@@ -59,7 +59,7 @@ class BookmarkedFilterType extends AbstractType
             ])
             ->add('submit', SubmitType::class, [
                 'label' => 'Filtrer',
-                'attr' => ['class' => 'btn btn-primary']
+                'attr' => ['class' => 'mt-2 bg-custom-blue text-white py-2 px-4 rounded']
             ]);
     }
 }
