@@ -60,10 +60,10 @@ class Book
         min: 10,
         minMessage: 'Le résumé doit contenir au moins {{ limit }} caractères.'
     )]
-    #[Assert\Regex(
-        pattern: '/^[a-zA-Z0-9_\s\-éèêëàâäîïôöùûüçñÑ&µ@$£€*%!?,;:\'".^°()#+\/]{10,}\.$/',
-        message: "Le résumé doit commencer par une majuscule, se doit d'avoir au moins 10 caractères et doit se terminer par un point."
-    )]
+    // #[Assert\Regex(
+    //     pattern: '/^[a-zA-Z0-9_\s\-éèêëàâäîïôöùûüçñÑ&µ@$£€*%!?,;:\'".^°()#+\/\n]{10,}$/',
+    //     message: "Le résumé doit commencer par une majuscule, se doit d'avoir au moins 10 caractères et doit se terminer par un point."
+    // )]
     private ?string $abstract = null;
 
     #[ORM\Column]
@@ -164,6 +164,10 @@ class Book
     #[ORM\PreUpdate]
     public function initializeSlugAndReference(): void
     {
+        if (!isset($this->slugger)) {
+            return; // Empêche l'erreur si l'entité a été instanciée par Doctrine sans constructeur
+        }
+        
         if (!empty($this->title)) {
             $newSlug = strtolower($this->slugger->slug($this->title)->toString());
     
