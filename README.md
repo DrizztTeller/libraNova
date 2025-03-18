@@ -404,7 +404,20 @@ Puis dans le dossier templates/page, créer les fichiers twig pour la page conta
 
 ### Création service de recherche
 - Créer un dossier Service dans le dossier src, puis un fichier SearchService.php
-- Activer le service dans le fichier services.yaml
+- Activer le service dans le fichier services.yaml : 
+   ```bash
+    App\Service\SearchService:
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'
+
+    App\Repository\BookRepository:
+        arguments:
+            $searchService: '@App\Service\SearchService'
+
+    App\Controller\PageController:
+        arguments:
+            $searchService: '@App\Service\SearchService'
+   ```
 - Importer le service dans le BookRepository
 
 ### Création Controller et template pour les livres
@@ -418,7 +431,16 @@ Puis dans le dossier templates/page, créer les fichiers twig pour la page conta
   - rendre un livre,
   - mettre en favoris un livre,
   - retirer le favoris d'un livre, 
-  - afficher le pdf d'un livre
+  - afficher le pdf d'un livre : 
+    - Il faut posséder une route public pour que le navigateur accepte de récupérer le fichier pdf local donc dans le routes.yaml rajouter : 
+  ```bash
+  public_pdf:
+    path: /uploads/pdf/{fileName}
+    controller: Symfony\Component\HttpFoundation\Response::class
+    methods: [GET]
+    defaults:
+        filePath: '%kernel.project_dir%/public/uploads/pdf/{fileName}'
+  ```
 
 ### Création Controller et template pour les users
 ```bash
@@ -497,7 +519,20 @@ symfony console cache:clear
 ```
 Puis on rappel les entité lié au CRUD Controller en les appelant grâce au " MenuItem::LinkToDashboard "
 
+- Personalisation de Entité affiché
+Personnalisation de chaque edit grâce au CrudController et aux Entités
+  Dans le CrudController on personnalise grâce a:
+    .function configureCrud(Crud $crud): Crud  ---> Personnalise l'affichage
+    .function configureFields(string $pageName): iterable  ---> Configure la structure et les fonctionnements
+    .function configureActions(Actions $actions): Actions  ---> Represente le petit menu au bout de la ligen qui permet l'edit
 
+ - Ajout de VichUploader pour la gestion des pdf
+Modification du fichier vich_uploader.yaml pour créer le mapping
+
+ - Création de la possibilité d'ajouter des images
+ Il a fallu créer une une gestion pour afficher d'abord le fichier téléchargé
+
+ - Ajout du suivi de location
 
 ## 🧰 Technologies Utilisées
 
