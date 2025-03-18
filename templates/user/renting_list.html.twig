@@ -47,13 +47,7 @@ block body %}
             Rendre le livre
           </button>
         </form>
-        <form class="likes" action="{{ path('app_book_pdf', {'ref': renting.book.ref }) }}" method="POST">
-          <button type="submit" class="heart-button like-button">
-             {# TODO  icone oeil#}
-            Lire
-          </button>
-        </form>
-        <a href="{{ path('app_book_pdf', {'ref': renting.book.ref}) }}" method="POST" target="_blank">Lire v2</a>
+        <a href="{{ path('app_book_pdf', {'ref': renting.book.ref}) }}" method="POST" target="_blank">Lire</a>
       </div>
     </div>
     {% else %}
