@@ -316,7 +316,7 @@ class BookController extends AbstractController
     }
 
     #[IsGranted('ROLE_VERIFIED')]
-    #[Route('/uploads/pdf/{file}', 'pdf', methods: ['GET'])]
+    #[Route('/{ref}/pdf', 'pdf', methods: ['GET'])]
     public function viewPdf(string $ref): Response
     {
         //TODO faire template pour vérification
@@ -358,7 +358,7 @@ class BookController extends AbstractController
             ->getOneOrNullResult();
 
         if ($existingRental) {
-            // TODO : A tester
+            // TODO : A tester Pb marche pas
             // TODO : bloquer clic droit et menu pr ddl et ouvir dans un nouvel onglet
             $pdfPath = $this->getParameter('kernel.project_dir') . '/public/uploads/pdf' . $book->getFile();
             return new BinaryFileResponse($pdfPath);

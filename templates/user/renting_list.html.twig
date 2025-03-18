@@ -53,6 +53,7 @@ block body %}
             Lire
           </button>
         </form>
+        <a href="{{ path('app_book_pdf', {'file': renting.book.getFile()}) }}" method="POST" target="_blank">Lire v2</a>
       </div>
     </div>
     {% else %}
