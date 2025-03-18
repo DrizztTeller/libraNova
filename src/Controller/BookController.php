@@ -16,12 +16,12 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 
-#[Route('/livres', name: 'app_book_')]
+#[Route(name: 'app_book_')]
 class BookController extends AbstractController
 {
     public function __construct(private EntityManagerInterface $em, private BookRepository $br, private RentingHistoryRepository $rhr) {}
 
-    #[Route('/', name: 'index', methods: ['GET'])]
+    #[Route('/livres/', name: 'index', methods: ['GET'])]
     public function index(Request $request): Response
     {
         $user = $this->getUser();
@@ -76,7 +76,7 @@ class BookController extends AbstractController
         ]);
     }
 
-    #[Route('/{ref}', name: 'show', methods: ['GET'])]
+    #[Route('/livres/{ref}', name: 'show', methods: ['GET'])]
     public function show(string $ref): Response
     {
         $book = $this->br->findOneBy(['ref' => $ref]);
@@ -133,7 +133,7 @@ class BookController extends AbstractController
     }
 
     #[IsGranted('ROLE_VERIFIED')]
-    #[Route('/{ref}/borrow', 'borrow', methods: ['POST'])]
+    #[Route('/livres/{ref}/borrow', 'borrow', methods: ['POST'])]
     public function borrow(string $ref, Request $request): Response
     {
         $book = $this->br->findOneBy(['ref' => $ref]);
@@ -188,7 +188,7 @@ class BookController extends AbstractController
     }
 
     #[IsGranted('ROLE_VERIFIED')]
-    #[Route('/{ref}/return', 'return', methods: ['POST'])]
+    #[Route('/livres/{ref}/return', 'return', methods: ['POST'])]
     public function return(string $ref, Request $request): Response
     {
         $book = $this->br->findOneBy(['ref' => $ref]);
@@ -242,7 +242,7 @@ class BookController extends AbstractController
     }
 
     #[IsGranted('ROLE_VERIFIED')]
-    #[Route('/{ref}/like', 'like', methods: ['POST'])]
+    #[Route('/livres/{ref}/like', 'like', methods: ['POST'])]
     public function like(string $ref, Request $request): Response
     {
         $book = $this->br->findOneBy(['ref' => $ref]);
@@ -283,7 +283,7 @@ class BookController extends AbstractController
     }
 
     #[IsGranted('ROLE_VERIFIED')]
-    #[Route('/{ref}/unlike', 'unlike', methods: ['POST'])]
+    #[Route('/livres/{ref}/unlike', 'unlike', methods: ['POST'])]
     public function unlike(string $ref, Request $request): Response
     {
         $book = $this->br->findOneBy(['ref' => $ref]);
@@ -359,7 +359,8 @@ class BookController extends AbstractController
 
         if ($existingRental) {
             // TODO : A tester
-            $pdfPath = $this->getParameter('kernel.project_dir') . '/public/' . $book->getFile();
+            // TODO : bloquer clic droit et menu pr ddl et ouvir dans un nouvel onglet
+            $pdfPath = $this->getParameter('kernel.project_dir') . '/public/uploads/pdf' . $book->getFile();
             return new BinaryFileResponse($pdfPath);
         } else {
             $this->addFlash('danger', "Vous n'avez pas emprunter ce livre ou votre emprunt n'est plus valide !");

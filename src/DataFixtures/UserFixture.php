@@ -59,6 +59,7 @@ class UserFixture extends Fixture
             } else {
                 $user->setRoles(['ROLE_USER']);
             }
+            // TODO si isVerfified true là seulement mettre des emprunts
 
             // Hasher le mot de passe
             $hashedPassword = $this->passwordHasher->hashPassword($user, 'password');
