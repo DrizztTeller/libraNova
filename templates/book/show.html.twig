@@ -3,15 +3,48 @@
 {% block title %}{{ book.title }}{% endblock %}
 
 {% block body %}
-<h1>{{ book.title }}</h1>
-{% if isLiked %}
-est liké
+<div class="max-w-md mx-auto p-6 bg-white rounded-xl shadow-md space-y-4 font-sans">
+  <h1 class="text-2xl font-bold text-gray-800">{{ book.title }}</h1>
+  <a href="{{ path('app_book_index') }}" class='a' aria-label='Go to {{element.type|capitalize}} index'>back to list</a>
+
+  {% if not isLiked %}
+  <form class="likes" action="{{ path('app_book_like', {'ref': book.getRef()}) }}" method="POST">
+    <button type="submit" class="heart-button like-button">
+      {# TODO icone pour liké un livre : coeur rouge sombre qui bat#}
+    </button>
+  </form>
 {% else %}
-non liké 
+  <form class="likes" action="{{ path('app__unlike', {'ref': book.getRef()}) }}" method="POST">
+    <button type="submit" class="heart-button unlike-button">
+      {# TODO icone pour unliké un livre : coeur rouge vif qui bat#}
+    </button>
+  </form>
 {% endif %}
-{% if isRented %}
-est emprunté
-{% else %}
-non emprunté 
+
+{# TODO suite des infos du livre #}
+
+
+  {% if not isRented %}
+  <form class="likes" action="{{ path('app_book_borrow', {'ref': book.getRef()}) }}" method="POST">
+    <button type="submit" class="heart-button like-button">
+      {# TODO icone pour emprunter un livre #}
+      Emprunter le livre
+    </button>
+  </form>
+  {% else %}
+  <form class="likes" action="{{ path('app__return', {'ref': book.getRef()}) }}" method="POST">
+    <button type="submit" class="heart-button unlike-button">
+      {# TODO icone pour retourner un livre #}
+      Rendre le livre
+    </button>
+  </form>
+  <form class="likes" action="{{ path('app_book_pdf', {'file': book.getFile()}) }}" method="POST">
+    <button type="submit" class="heart-button like-button">
+       {# TODO  icone oeil#}
+      Lire
+    </button>
+  </form>
 {% endif %}
+
+</div>
 {% endblock %}
