@@ -52,7 +52,7 @@ class BookFixture extends Fixture implements DependentFixtureInterface
             'Jeunesse' => 'Les Aventures de ',
             'Technique' => 'Guide de ',
             'Manga' => 'One Piece - ',
-            'Adulte' => '50 shades of'
+            'Adulte' => '50 shades of '
         ];
 
         $allTags = [];
