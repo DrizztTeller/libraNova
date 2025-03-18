@@ -8,3 +8,11 @@ controllers:
 admin_dashboard:
     path: '/admin'
     controller: 'App\Controller\Admin\DashboardController::index'
+
+# Pour avoir une route public en http/https pour la récupération du fichier pdf dans le navigateur sinon il sera bloqué
+public_pdf:
+    path: /uploads/pdf/{fileName}
+    controller: Symfony\Component\HttpFoundation\Response::class
+    methods: [GET]
+    defaults:
+        filePath: '%kernel.project_dir%/public/uploads/pdf/{fileName}'
