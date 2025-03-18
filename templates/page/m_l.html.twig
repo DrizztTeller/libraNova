@@ -1,7 +1,51 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}LibraNova | Mentions Légales {% endblock %}
+{% block title %}Mentions Légales{% endblock %}
 
 {% block body %}
+<div class="container mx-auto p-6">
+    <h1 class="text-2xl font-bold text-gray-800 mb-4">📜 Mentions Légales</h1>
 
+    <section class="mb-6">
+        <h2 class="text-xl font-semibold text-gray-700">1. Éditeur du site</h2>
+        <p>Ce site est édité par <strong>LibraNova</strong>, ayant son siège social à <strong>[Adresse]</strong>.</p>
+        <p>Email : <a href="mailto:contact@example.com" class="text-blue-500">contact@example.com</a></p>
+        <p>Numéro SIRET : [Numéro SIRET]</p>
+    </section>
+
+    <section class="mb-6">
+        <h2 class="text-xl font-semibold text-gray-700">2. Hébergement</h2>
+        <p>Le site est hébergé par <strong>Hostinger</strong>, situé à <strong>[Adresse de l'hébergeur]</strong>.</p>
+        <p>Site Web : <a href="[Lien hébergeur]" class="text-blue-500">[Lien vers le site de l’hébergeur]</a></p>
+    </section>
+
+    <section class="mb-6">
+        <h2 class="text-xl font-semibold text-gray-700">3. Propriété intellectuelle</h2>
+        <p>Tous les contenus présents sur ce site (textes, images, logos, etc.) sont protégés par le droit d’auteur et appartiennent à <strong>[Nom de l'entreprise ou du développeur]</strong>, sauf mention contraire.</p>
+        <p>Toute reproduction, distribution ou modification sans autorisation préalable est interdite.</p>
+    </section>
+
+    <section class="mb-6">
+        <h2 class="text-xl font-semibold text-gray-700">4. Données personnelles</h2>
+        <p>Conformément au RGPD, les données collectées sur ce site sont utilisées uniquement dans le cadre du service proposé.</p>
+        <p>Vous avez le droit d’accéder, de modifier et de supprimer vos données personnelles en contactant <a href="mailto:contact@example.com" class="text-blue-500">contact@example.com</a>.</p>
+    </section>
+
+    <section class="mb-6">
+        <h2 class="text-xl font-semibold text-gray-700">5. Responsabilité</h2>
+        <p>Nous nous efforçons de fournir des informations à jour, mais nous ne garantissons pas l'exactitude de tous les contenus. L’utilisation du site se fait sous votre responsabilité.</p>
+    </section>
+
+    <section class="mb-6">
+        <h2 class="text-xl font-semibold text-gray-700">6. Cookies</h2>
+        <p>Ce site utilise des cookies pour améliorer l'expérience utilisateur. Vous pouvez configurer votre navigateur pour bloquer ou supprimer ces cookies.</p>
+    </section>
+
+    <section class="mb-6">
+        <h2 class="text-xl font-semibold text-gray-700">7. Contact</h2>
+        <p>Pour toute question ou réclamation, vous pouvez nous contacter à <a href="mailto:contact@example.com" class="text-blue-500">contact@example.com</a>.</p>
+    </section>
+
+    <p class="text-gray-600 text-sm mt-4">Dernière mise à jour : {{ "now"|date("d/m/Y") }}</p>
+</div>
 {% endblock %}
