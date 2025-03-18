@@ -6,6 +6,7 @@ use App\Entity\Novel;
 use Vich\UploaderBundle\Form\Type\VichFileType;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
+use Vich\UploaderBundle\Form\Type\VichImageType;
 use Symfony\Component\Validator\Constraints\File;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
@@ -50,8 +51,7 @@ class NovelCrudController extends AbstractCrudController
         yield TextField::new('title', 'Titre'); // Afficher le titre
         yield TextField::new('author', 'Auteur'); // Afficher l'auteur
         yield TextEditorField::new('abstract', 'Résumé')
-            ->hideOnIndex()
-            ->setFormTypeOption('attr', ['id' => 'novel_abstract', 'name' => 'novel_abstract']); //
+            ->hideOnIndex();
         yield TextField::new('isbn', 'ISBN'); // Afficher l'isbn
         
         // ---------------------Configuration des ajouts de fichiers
@@ -59,24 +59,27 @@ class NovelCrudController extends AbstractCrudController
         
         // ------------------------------Pour l'image (champ de formulaire uniquement)
         if (in_array($pageName, $formFieldsOnly)) {
-            yield ImageField::new('pic', 'Image de couverture') // Nom du champ
-                ->setBasePath('uploads/images') // Chemin de base des images en readonly
-                ->setUploadDir('public/uploads/images') // Chemin physique d'upload des images
-                ->setUploadedFileNamePattern('[randomhash].[extension]') // Nom de fichier personnalisé
+            yield TextField::new('picFile', 'Image de couverture') // Nom du champ
+                ->setFormType(VichImageType::class)  // Type de formulaire de VichUploader
                 ->setFormTypeOption('required', false) // Pour dire que c'est un champ facultatif 
                 ->setFormTypeOption('constraints', [
-                    new Image([
+                    new File([
                         'maxSize' => '5M',
-                        'mimeTypes' => ['image/jpeg', 'image/png'],
-                        'mimeTypesMessage' => 'Veuillez télécharger une image valide (JPG ou PNG)'
+                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp'],
+                        'mimeTypesMessage' => 'Veuillez télécharger une image valide (JPG , PNG ou WebP)'
                     ])
                 ])      //------------------------------- Contraintes de validation
-                ->setFormTypeOption('attr', [
-                    'id' => 'novel_pic',
-                    'name' => 'novel_pic'
-                ])
+                // ->setFormTypeOption('attr', [
+                //     'id' => 'novel_pic',
+                //     'name' => 'novel_pic'
+                // ])
                 ->setHelp('Format recommandé: JPG, PNG - Max 5MB'); // Message d'information
-            
+
+                 // Champ affichant l'image existante
+                yield ImageField::new('picName') // Nom de la propriété persistée
+                ->setBasePath('/uploads/images') // Chemin pour afficher l'image en lecture seule
+                ->onlyOnIndex(); // Facultatif, afficher uniquement sur certaines pages
+
                 // ------------------------------Pour le pdf (champ de formulaire uniquement)
                 yield Field::new('fileObject', 'Fichier PDF') // Nom du champ
                 ->setFormType(VichFileType::class) // Type de champ
@@ -98,15 +101,21 @@ class NovelCrudController extends AbstractCrudController
         
         // -----------------------Condition pour l'affichage des images (uniquement sur les vues)
         if (in_array($pageName, $viewFieldsOnly)) {
-            yield TextField::new('pic', 'Image de couverture')
+            yield TextField::new('picName', 'Image de couverture')
                 ->formatValue(function ($value, $entity) {
                     if (!$value) {
                         return 'Aucune image';
                     }
                      // ------------------------Vérifier si $value est déjà une URL complète
-                    return sprintf('<img src="%s" height="70" />',
-                        filter_var($value, FILTER_VALIDATE_URL) ? $value : '/uploads/images/'.$value
-                    );
+                $imagePath = filter_var($value, FILTER_VALIDATE_URL) 
+                ? $value // Si c'est déjà une URL, utilise-la directement
+                : '/uploads/images/' . ltrim((string) $value, '/'); // Sinon, construit l'URL
+                 // Vérifie si le fichier physique existe (IMPORTANT : utile seulement en dev, limite en prod pour gain de perf)
+                    if (!file_exists($_SERVER['DOCUMENT_ROOT'] . parse_url($imagePath, PHP_URL_PATH))) {
+                    return '<span style="color: red;">Image introuvable</span>'; // Message d’erreur si l’image n’existe pas physiquement
+            }
+
+        return sprintf('<img src="%s" target="_blank" height="70" />', $imagePath);
                 })
                 ->setVirtual(true);
 
@@ -117,7 +126,9 @@ class NovelCrudController extends AbstractCrudController
                     if (!$value) {
                         return 'Aucun fichier';
                     }
-                    return sprintf('<a href="%s" target="_blank" class="btn btn-sm btn-info"><i class="fa fa-file-pdf"></i> Voir PDF</a>', $value);
+                    // Générer une URL complète vers le PDF
+                $url = sprintf('/uploads/pdf/%s', $value); // Assurez-vous que $value contient uniquement le nom de fichier
+                return sprintf('<a href="%s" target="_blank" class="btn btn-sm btn-info"><i class="fa fa-file-pdf"></i> Voir PDF</a>', $url);
                 })
                 ->setVirtual(true);
         }
@@ -128,7 +139,7 @@ class NovelCrudController extends AbstractCrudController
             ->setFormTypeOption('attr', ['id' => 'novel_is_published', 'name' => 'novel_is_published']);
         yield BooleanField::new('is_for_adult', 'Contenu adulte')
             ->setFormTypeOption('attr', ['id' => 'novel_is_for_adult', 'name' => 'novel_is_for_adult']);
-        yield DateField::new('released_at', 'Date de sortie')
+        yield DateField::new('released_at', 'Date de retour')
             ->setFormTypeOption('attr', ['id' => 'novel_released_at', 'name' => 'novel_released_at']);
         
         if (in_array($pageName, $viewFieldsOnly)) {
