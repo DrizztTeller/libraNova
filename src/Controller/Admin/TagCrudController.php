@@ -20,7 +20,8 @@ class TagCrudController extends AbstractCrudController
         yield IdField::new('id')->hideOnForm();
         yield TextField::new('name', 'Nom');
         // Optionnel: afficher les romans associés
-        yield AssociationField::new('novels', 'Romans')->onlyOnDetail();
+        // yield AssociationField::new('novels', 'Romans')->onlyOnDetail();
+        //!!!!!!!!!!!!!!!!SI CA NE FONCTIONNE PLUS DECOMMENTER LA LIGNE AU DESSUS!!!!!!!!!!!!!!
     }
     /*
     public function configureFields(string $pageName): iterable
