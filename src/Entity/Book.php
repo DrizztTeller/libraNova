@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\File\File;
 #[ORM\Entity(repositoryClass: BookRepository::class)]
 #[UniqueEntity(fields: ['ref'], message: 'Cette référence est déjà utilisée.')]
 #[ORM\HasLifecycleCallbacks]
+#[Vich\Uploadable]
 class Book
 {
     #[ORM\Id]
