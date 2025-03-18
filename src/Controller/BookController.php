@@ -169,6 +169,7 @@ class BookController extends AbstractController
             ->getQuery()
             ->getOneOrNullResult();
 
+            // TODO si user a déjà emprunté ce livre mais que l'emprunt s'est terminé, quand il remprunte le livre, si le last_page est différent de terminé, on le set dans le nouvel emprunt
             if (!$existingRental) {
                 if ($user->getRentedBooksCount() < 5) {
                     $rental = new RentingHistory();
@@ -249,7 +250,6 @@ class BookController extends AbstractController
         $existingRental->setUpdatedAt(new \DateTimeImmutable());
         $user->setRentedBooksCount($user->getRentedBooksCount() - 1);
 
-        // TODO : Rajouter un form pour que l'utilisateur ajoute à quelle page il s'est arrête quand il retourne le livre
         $this->em->flush();
 
         $this->addFlash('success', 'Livre retourné avec succès !');
