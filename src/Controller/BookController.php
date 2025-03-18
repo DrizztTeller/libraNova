@@ -316,7 +316,7 @@ class BookController extends AbstractController
     }
 
     #[IsGranted('ROLE_VERIFIED')]
-    #[Route('/{file}', 'pdf', methods: ['GET'])]
+    #[Route('/uploads/pdf/{file}', 'pdf', methods: ['GET'])]
     public function viewPdf(string $ref): Response
     {
         //TODO faire template pour vérification
@@ -362,7 +362,7 @@ class BookController extends AbstractController
             $pdfPath = $this->getParameter('kernel.project_dir') . '/public/' . $book->getFile();
             return new BinaryFileResponse($pdfPath);
         } else {
-            $this->addFlash('danger', "Vous n'avez pas emprunter ce livre !");
+            $this->addFlash('danger', "Vous n'avez pas emprunter ce livre ou votre emprunt n'est plus valide !");
             return $this->redirectToRoute('app_book_show', ['ref' => $book->getRef()], Response::HTTP_SEE_OTHER);
         }
     }
