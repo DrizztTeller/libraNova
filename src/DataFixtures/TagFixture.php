@@ -32,18 +32,8 @@ class TagFixture extends Fixture
 
                 // Définir une référence pour pouvoir l'utiliser dans d'autres fixtures
                 $this->addReference('tag_' . $index, $tag);
-
+                dump('Reference added: tag_' . $index); // Debug
             }
-            // for ($i = 0; $i < count($categories); $i++) {
-            //     $category = new Category();
-            //     $category
-            //         ->setName($categories[$i])
-            //         ->setImage('https://picsum.photos/300/300?random=' . $i)
-            //     ;
-            //     $this->addReference('category_' . $i, $category); // Ajoute une référence
-            //     $manager->persist($category); // Ajoute à la BDD
-            // }
-
         $manager->flush();
     }
 }
