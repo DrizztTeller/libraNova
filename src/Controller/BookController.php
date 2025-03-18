@@ -100,7 +100,7 @@ class BookController extends AbstractController
             $existingRental = $this->rhr->createQueryBuilder('r')
                 ->where('r.book = :book')
                 ->andWhere('r.user = :user')
-                ->andWhere('r.end >= :now')
+                ->andWhere('r.end > :now')
                 ->setParameter('book', $book)
                 ->setParameter('user', $user)
                 ->setParameter('now', new \DateTimeImmutable())
@@ -158,33 +158,56 @@ class BookController extends AbstractController
             }
         }
 
-        if ($user->getRentedBooksCount() < 5) {
-            $rental = new RentingHistory();
-            $rental->setUser($user);
-            $rental->setBook($book);
-            $this->em->persist($rental);
-            $this->em->flush();
+        $existingRental = $this->rhr->createQueryBuilder('r')
+            ->where('r.book = :book')
+            ->andWhere('r.user = :user')
+            ->andWhere('r.end > :now')
+            ->setParameter('book', $book)
+            ->setParameter('user', $user)
+            ->setParameter('now', new \DateTimeImmutable())
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
 
-            $this->addFlash('success', 'Livre emprunté avec succès !');
-
-            // Récupérer l'URL précédente pour rediriger correctement
-            $referer = $request->headers->get('referer');
-            // Si l'URL du référent est disponible, rediriger l'utilisateur vers cette page
-            if ($referer) {
-                return $this->redirect($referer);
+            if (!$existingRental) {
+                if ($user->getRentedBooksCount() < 5) {
+                    $rental = new RentingHistory();
+                    $rental->setUser($user);
+                    $rental->setBook($book);
+                    $this->em->persist($rental);
+                    $this->em->flush();
+        
+                    $this->addFlash('success', 'Livre emprunté avec succès !');
+        
+                    // Récupérer l'URL précédente pour rediriger correctement
+                    $referer = $request->headers->get('referer');
+                    // Si l'URL du référent est disponible, rediriger l'utilisateur vers cette page
+                    if ($referer) {
+                        return $this->redirect($referer);
+                    } else {
+                        return $this->redirectToRoute('app_book_show', ['ref' => $book->getRef()], Response::HTTP_SEE_OTHER);
+                    }
+                } else {
+                    $this->addFlash('danger', "Vous avez déjà 5 livres d'empruntés");
+                    $referer = $request->headers->get('referer');
+                    // Si l'URL du référent est disponible, rediriger l'utilisateur vers cette page
+                    if ($referer) {
+                        return $this->redirect($referer);
+                    } else {
+                        return $this->redirectToRoute('app_book_show', ['ref' => $book->getRef()], Response::HTTP_SEE_OTHER);
+                    }
+                }
             } else {
-                return $this->redirectToRoute('app_book_show', ['ref' => $book->getRef()], Response::HTTP_SEE_OTHER);
+                $this->addFlash('warning', 'Ce livre fait déjà parti de vos emprunts');
+                $referer = $request->headers->get('referer');
+                // Si l'URL du référent est disponible, rediriger l'utilisateur vers cette page
+                if ($referer) {
+                    return $this->redirect($referer);
+                } else {
+                    return $this->redirectToRoute('app_book_show', ['ref' => $book->getRef()], Response::HTTP_SEE_OTHER);
+                }
             }
-        } else {
-            $this->addFlash('danger', "Vous avez déjà 5 livres d'empruntés");
-            $referer = $request->headers->get('referer');
-            // Si l'URL du référent est disponible, rediriger l'utilisateur vers cette page
-            if ($referer) {
-                return $this->redirect($referer);
-            } else {
-                return $this->redirectToRoute('app_book_show', ['ref' => $book->getRef()], Response::HTTP_SEE_OTHER);
-            }
-        }
+      
     }
 
     #[IsGranted('ROLE_VERIFIED')]
@@ -200,31 +223,29 @@ class BookController extends AbstractController
 
         $user = $this->getUser();
 
-        if (!$book) {
-            $this->addFlash('danger', 'Livre non trouvé.');
-            return $this->redirectToRoute('app_book_index');
-        }
-
         if (!$user) {
             $this->addFlash('danger', 'Vous devez être connecté.');
             return $this->redirectToRoute('app_book_show', ['ref' => $book->getRef()], Response::HTTP_SEE_OTHER);
         }
 
-        $rental = $this->rhr->findOneBy([
-            'book' => $book,
-            'user' => $user,
-        ]);
+        $existingRental = $this->rhr->createQueryBuilder('r')
+        ->where('r.book = :book')
+        ->andWhere('r.user = :user')
+        ->andWhere('r.end > :now')
+        ->setParameter('book', $book)
+        ->setParameter('user', $user)
+        ->setParameter('now', new \DateTimeImmutable())
+        ->setMaxResults(1)
+        ->getQuery()
+        ->getOneOrNullResult();
 
-        if (!$rental) {
+        if (!$existingRental) {
             $this->addFlash('danger', 'Emprunt non trouvé.');
             return $this->redirectToRoute('app_book_show', ['ref' => $book->getRef()], Response::HTTP_SEE_OTHER);
         }
 
-        $rental->setEnd(new \DateTimeImmutable());
-        $rental->setUpdatedAt(new \DateTimeImmutable());
-        // $rentedBookCount = $user->getRentedBooksCount();
-        // $newRentedBookCount = $rentedBookCount - 1;
-        // $user->setRentedBooksCount($newRentedBookCount);
+        $existingRental->setEnd(new \DateTimeImmutable());
+        $existingRental->setUpdatedAt(new \DateTimeImmutable());
         $user->setRentedBooksCount($user->getRentedBooksCount() - 1);
 
         // TODO : Rajouter un form pour que l'utilisateur ajoute à quelle page il s'est arrête quand il retourne le livre
@@ -343,7 +364,7 @@ class BookController extends AbstractController
         $existingRental = $this->rhr->createQueryBuilder('r')
             ->where('r.book = :book')
             ->andWhere('r.user = :user')
-            ->andWhere('r.end >= :now')
+            ->andWhere('r.end > :now')
             ->setParameter('book', $book)
             ->setParameter('user', $user)
             ->setParameter('now', new \DateTimeImmutable())
@@ -354,9 +375,9 @@ class BookController extends AbstractController
         if ($existingRental) {
             $form = $this->createForm(RentingHistoryType::class);
             $form->handleRequest($request);
-            if ($form->isSubmitted() && $form->isValid()) { 
+            if ($form->isSubmitted() && $form->isValid()) {
                 $lastPage = $form->get('last_page')->getData();
-                
+
                 $existingRental->setLastPage($lastPage);
                 $existingRental->setUpdatedAt(new \DateTimeImmutable());
                 $this->em->flush();
