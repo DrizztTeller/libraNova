@@ -1,17 +1,22 @@
-<div style="font-family: Arial, Helvetica, sans-serif; max-width: 600px; margin: auto; padding: 20px;">
-    <h1 style="color: #333;">📧 Please confirm your email!</h1>
+<div class="font-sans max-w-lg mx-auto p-6 bg-white shadow-md rounded-lg">
+    <h1 class="text-2xl font-bold text-gray-800">📧 Please confirm your email!</h1>
 
-    <p style="font-size: 16px; color: #555;">
+    <p class="text-gray-600 mt-2">
         Please confirm your email address by clicking the button below:
     </p>
 
-    <p style="margin: 20px 0;">
-        <a href="{{ signedUrl|raw }}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Confirm my Email</a>
+    <div class="mt-4">
+        <a href="{{ signedUrl|raw }}" class="bg-blue-500 text-white font-medium px-6 py-2 rounded-lg shadow-md hover:bg-blue-600 transition">
+            Confirm my Email
+        </a>
+    </div>
+
+    <p class="text-gray-500 mt-4 text-sm">
+        ⚠️ This link will expire in 
+        <strong>{{ expiresAtMessageKey|trans(expiresAtMessageData, 'messages') }}</strong>.
     </p>
 
-    <p style="color: #555;">
-        ⚠️ This link will expire in <strong>{{ expiresAtMessageKey|trans(expiresAtMessageData, 'messages') }}</strong>.
+    <p class="text-gray-400 text-xs mt-2">
+        If you didn't request this email, please ignore it.
     </p>
-
-    <p style="color: #777; font-size: 14px;">If you didn't request this email, please ignore it.</p>
 </div>

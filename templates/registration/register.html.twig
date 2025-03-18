@@ -24,38 +24,38 @@
 
     <div>
         {{ form_label(registrationForm.email, 'Adresse Email', {'label_attr': {'class': 'block text-gray-700 font-medium'}}) }}
-        {{ form_widget(registrationForm.email, {'attr': {'class': 'block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500'}}) }}
+        {{ form_widget(registrationForm.email, {'attr': {'class': 'block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'}}) }}
     </div>
 
     <div>
         {{ form_label(registrationForm.plainPassword, 'Mot de passe', {'label_attr': {'class': 'block text-gray-700'}}) }}
-        {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500'}}) }}
+        {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'}}) }}
     </div>
 
     <div class="space-y-2">
         <div class="flex items-center">
-            {{ form_widget(registrationForm.isMajor, {'attr': {'class': 'h-4 w-4 text-indigo-600 border-gray-300 rounded'}}) }}
+            {{ form_widget(registrationForm.isMajor, {'attr': {'class': 'h-4 w-4 text-blue-500 border-gray-300 rounded'}}) }}
             <label for="{{ registrationForm.isMajor.vars.id }}" class="ml-2 text-sm text-gray-700">Je confirme être majeur.</label>
         </div>
 
         <div class="flex items-center">
-            {{ form_widget(registrationForm.isTerms, {'attr': {'class': 'h-4 w-4 text-indigo-600 border-gray-300 rounded'}}) }}
+            {{ form_widget(registrationForm.isTerms, {'attr': {'class': 'h-4 w-4 text-blue-500 border-gray-300 rounded'}}) }}
             <label for="{{ registrationForm.isTerms.vars.id }}" class="ml-2 text-sm text-gray-700">J'accepte les conditions d'utilisation</label>
         </div>
 
         <div class="flex items-center">
-            {{ form_widget(registrationForm.isGpdr, {'attr': {'class': 'h-4 w-4 text-indigo-600 border-gray-300 rounded'}}) }}
+            {{ form_widget(registrationForm.isGpdr, {'attr': {'class': 'h-4 w-4 text-blue-500 border-gray-300 rounded'}}) }}
             <label for="{{ registrationForm.isGpdr.vars.id }}" class="ml-2 text-sm text-gray-700">J'accepte la politique RGPD de LivraNova</label>
         </div>
 
         <div class="flex items-center">
-            {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'h-4 w-4 text-indigo-600 border-gray-300 rounded'}}) }}
+            {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'h-4 w-4 text-blue-500 border-gray-300 rounded'}}) }}
             <label for="{{ registrationForm.agreeTerms.vars.id }}" class="ml-2 text-sm text-gray-700">J'accepte les CGU et mentions légales</label>
         </div>
     </div>
 
     <button type="submit"
-            class="mt-6 w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition">
+            class="mt-6 w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition">
         Créer un compte
     </button>
 
@@ -63,7 +63,7 @@
 
     <p class="mt-4 text-center text-gray-600 text-sm">
         Vous avez déjà un compte ?
-        <a href="{{ path('app_login') }}" class="text-indigo-600 hover:underline">Connectez-vous ici</a>
+        <a href="{{ path('app_login') }}" class="text-blue-500 hover:underline">Connectez-vous ici</a>
     </p>
 
 </div>
