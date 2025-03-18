@@ -578,7 +578,7 @@ Modification du fichier vich_uploader.yaml pour créer le mapping
 
 - Cloner le projet sur github : 
 ```bash
-git clone https://github.com/Jensone/todoz-sf.git
+git clone https://github.com/DrizztTeller/libraNova.git
 ```
 - ouvrir le dossier dans un vscode
 - Supprimer le dépôt distant
@@ -653,3 +653,68 @@ composer install --no-dev --optimize-autoloader
 - Dans le cas où une erreur se produit, voici les précautions :
   - Erreur ^500 : Réactiver le mode dev afin de voir l'erreur et la corriger ou consultez les logs
   - Erreur ^400 : Votre application ne pointe pas sur le bon dossier, vérifier que la racine de l'application est bien le dossier /public
+&nbsp;  
+&nbsp;  
+&nbsp;
+&nbsp;  
+&nbsp;  
+&nbsp;
+
+---
+
+# Documentation du Processus Git
+
+## Introduction
+
+Ce document explique le processus Git utilisé pour le développement de ce projet. Il décrit les pratiques à suivre pour assurer une gestion de version efficace, ainsi que les bonnes pratiques pour la collaboration entre les membres de l'équipe.
+
+## 1. Configuration Initiale
+
+Avant de commencer à travailler avec Git, chaque développeur doit s'assurer que son environnement Git est correctement configuré.
+
+### 1.1 Configurer le nom et l'adresse e-mail
+
+Avant de commencer à utiliser Git, configuration du nom et de l'adresse e-mail afin que tous nos commits soient associés à notre identité.
+
+```bash
+git config --global user.name "Le Nom"
+git config --global user.email "notre.email@example.com"
+```
+
+### 1.2 Cloner le dépôt
+
+```bash
+git clone https://github.com/DrizztTeller/libraNova.git
+```
+
+## 2. Flux de Travail
+
+### 2.1 Branches
+Le projet suit un flux de travail basé sur des branches. Voici les principales branches utilisées :
+
+- main : Branche principale contenant le code stable et prêt pour la production.
+- dev : Branche de développement où les nouvelles fonctionnalités sont intégrées.
+- finale : branche de fin avant déploiement
+- 'branches' : nommées selon la tâche réalisé par le codeur
+
+### 2.2 Utilisation de l'extension Git Graph 
+Installation et utilisation de l'extension Git Graph dans VSCode afin de faciliter les actions git : 
+- pull,
+- commit,
+- push,
+- clone,
+- branch,
+- etc
+
+#### 2.2.1 Utilisation de l'IA
+Utilisation de l'IA Copilot pour écrire les messages de commit dans la plupart des cas. Recommandation dans le cas contraire d'écrire des messages de commit clairs.
+
+### 2.3 Utilisation du site web GitHub 
+Utilisation de GitHub par le chef de projet 'DrizztTeller' pour réaliser les **Pull Request** afin de vérifier et résoudre les conflits simples.
+Il est le seul authorisé à réaliser ces requests.
+
+### 2.4 Résolutions des conflits compliqués
+Dans le cas des conflits non résolvables par l'application gitHub, comparaison manuelle des fichiers pour copier-coller dans la branche qui devait recevoir le merge.
+
+
+
