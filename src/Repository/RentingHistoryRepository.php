@@ -23,7 +23,7 @@ class RentingHistoryRepository extends ServiceEntityRepository
 
         return $this->createQueryBuilder('rh')
             ->andWhere('rh.user = :user')
-            ->andWhere('rh.end > :currentDate')
+            ->andWhere('rh.end > :currentDate OR rh.end IS NULL')
             ->setParameter('user', $user)
             ->setParameter('currentDate', $currentDate)
             ->getQuery()
