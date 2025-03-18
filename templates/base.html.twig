@@ -12,7 +12,7 @@
         {% endblock %}
     </head>
     <body>
-        {# TODO création template header et import de celui-ci ici #}
+         {% include 'components/_partials/header.html.twig' %}
         {% for label, messages in app.flashes %}
             {% for message in messages %}
                 {{ include('components/_partials/toast.html.twig', {

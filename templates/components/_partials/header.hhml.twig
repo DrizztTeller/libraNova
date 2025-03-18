@@ -1,0 +1,26 @@
+<header class="bg-white dark:bg-gray-900 shadow-md py-4">
+    <div class="container mx-auto px-6 flex justify-between items-center">
+        <!-- Logo -->
+        <div>
+            <a href="{{ path('homepage') }}">
+                <img src="{{ asset('assets/images/logo.png') }}" alt="LibraNova Logo" class="h-12">
+            </a>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="hidden md:flex gap-6">
+            <a href="{{ path('homepage') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
+                Accueil
+            </a>
+            <a href="{{ path('app_login') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
+                Connexion
+            </a>
+            <a href="{{ path('app_register') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
+                Inscription
+            </a>
+            <a href="{{ path('contact') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
+                Contact
+            </a>
+        </nav>
+    </div>
+</header>
