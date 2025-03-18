@@ -7,6 +7,7 @@ use App\Repository\BookRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 
 final class PageController extends AbstractController
 {
@@ -19,7 +20,7 @@ final class PageController extends AbstractController
     }
 
     #[Route('/', name: 'home', methods: ['GET'])]
-    public function index(BookRepository $br): Response
+    public function index(BookRepository $br, Request $request): Response
     {
         $user = $this->getUser();
 
@@ -67,39 +68,45 @@ final class PageController extends AbstractController
                 'limit' => 10
             ]);
         }
-        
-        return $this->render('page/index.html.twig', [
-            'booksNewest' => $booksNewest,
-            'booksLatest' => $booksLatest,
-            'booksTop' => $booksTop,
-        ]);
+
+        $referer = $request->headers->get('referer');
+        // Si l'URL du référent est disponible, rediriger l'utilisateur vers cette page
+        if (strpos($referer, '/login') !== false) {
+            if (in_array('ROLE_ADMIN', $user->getRoles())) {
+                return $this->redirect('/admin');
+            } else {
+                return $this->redirectToRoute('app_user_profile', [], Response::HTTP_SEE_OTHER);
+            }
+        } else {
+            return $this->render('page/index.html.twig', [
+                'booksNewest' => $booksNewest,
+                'booksLatest' => $booksLatest,
+                'booksTop' => $booksTop,
+            ]);
+        }
     }
 
     #[Route('/contact', name: 'contact', methods: ['GET'])]
     public function contact(): Response
     {
-        // TODO template à faire
         return $this->render('page/contact.html.twig', []);
     }
 
     #[Route('/cgu', name: 'cgu', methods: ['GET'])]
     public function cgu(): Response
     {
-        // TODO template à faire
         return $this->render('page/cgu.html.twig', []);
     }
 
     #[Route('/rgpd', name: 'rgpd', methods: ['GET'])]
     public function rgpd(): Response
     {
-        // TODO template à faire
         return $this->render('page/rgpd.html.twig', []);
     }
 
     #[Route('/mentions-legales', name: 'm_l', methods: ['GET'])]
     public function m_l(): Response
     {
-        // TODO template à faire
         return $this->render('page/m_l.html.twig', []);
     }
 }
