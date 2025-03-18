@@ -316,7 +316,7 @@ class BookController extends AbstractController
     }
 
     #[IsGranted('ROLE_VERIFIED')]
-    #[Route('/{ref}/pdf', 'pdf', methods: ['GET'])]
+    #[Route('/{file}', 'pdf', methods: ['GET'])]
     public function viewPdf(string $ref): Response
     {
         //TODO faire template pour vérification
