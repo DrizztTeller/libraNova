@@ -175,6 +175,7 @@ class BookController extends AbstractController
                     $rental->setUser($user);
                     $rental->setBook($book);
                     $this->em->persist($rental);
+                    $user->setRentedBooksCount($user->getRentedBooksCount() + 1);
                     $this->em->flush();
         
                     $this->addFlash('success', 'Livre emprunté avec succès !');
