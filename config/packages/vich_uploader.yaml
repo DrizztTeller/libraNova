@@ -1,12 +1,19 @@
 vich_uploader:
-    db_driver: orm
+    db_driver: orm # Utilisé pour Doctrine
     mappings:
+
+        # Mapping pour les fichiers PDF (novel_files)
         novel_files:
-            uri_prefix: /uploads/pdf  # Dossier public pour accéder au fichier
-            upload_destination: '%kernel.project_dir%/public/uploads/pdf'
-            namer: Vich\UploaderBundle\Naming\OrignameNamer # Optionnel : conserve le nom d'origine
-    #mappings:
-    #    products:
-    #        uri_prefix: /images/products
-    #        upload_destination: '%kernel.project_dir%/public/images/products'
-    #        namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+            uri_prefix: /uploads/pdf # Chemin public pour servir les fichiers PDF.
+            upload_destination: '%kernel.project_dir%/public/uploads/pdf' # Dossier physique pour l'upload
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer # Utiliser le namer SmartUniqueNamer
+            delete_on_remove: true # Supprime le fichier du répertoire si l'entité correspondante est supprimée
+            delete_on_update: true # Supprime l'ancien fichier quand l'utilisateur charge un nouveau
+
+        # Mapping pour les images (pics)
+        pics:
+            uri_prefix: /uploads/images # Chemin public pour servir les images
+            upload_destination: '%kernel.project_dir%/public/uploads/images' # Répertoire physique des images
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+            delete_on_remove: true # Supprime les fichiers obsolètes en cas de suppression.
+            delete_on_update: true # Supprime le fichier précédent lors d'une modification.
