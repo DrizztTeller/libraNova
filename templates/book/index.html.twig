@@ -33,13 +33,15 @@
                             </span>
                             <a href="#" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">Voir plus</a>
                         </div>
-                        <form class="likes" action="{{ path('app_book_pdf', {'ref': item.getRef()}) }}" method="POST">
-                            <button type="submit" class="heart-button like-button">
+                        {# <form class="likes" action="{{ path('app_book_pdf', {'ref': item.getRef()}) }}" method="POST">
+                            <button type="submit" class="heart-button like-button"> #}
                                 {# TODO  icone oeil#}
-                                Lire
+                                {# Lire
                             </button>
-                        </form>
+                        </form>  #}
+                        
                         {# <a href="{{ path('app_book_pdf', {'file': item.getFile()}) }}" method="POST" target="_blank">Lire v2</a> #}
+                        <a href="{{ path('app_book_pdf', {'ref': item.ref}) }}" method="POST" target="_blank">Lire v2</a>
                     </div>
                 </div>
             {% else %}
