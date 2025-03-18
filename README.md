@@ -1,4 +1,4 @@
-# Cahier des charges  
+# 📜 Cahier des charges  
 
 ## Projet : Site de Gestion des Bibliothèques Numériques  
 
@@ -99,11 +99,14 @@ Les administrateurs auront un tableau de bord pour :
 &nbsp;  
 &nbsp;  
 &nbsp;
+&nbsp;  
+&nbsp;  
+&nbsp;
 
 
 ---
 
-# Conception du projet
+# 🛠️ Conception du projet
 
 - Choix du nom : LibraNova
 
@@ -146,17 +149,21 @@ Les administrateurs auront un tableau de bord pour :
 | rented_books_count| int (0-5)           |
 | is_adult           | boolean             |
 | ref                | varchar(255)        |
-| is_verified        | boolean (à ne pas créer)         |
+| isVerified        | boolean (à ne pas créer)         |
 | is_terms           | boolean             |
 | is_gpdr            | boolean             |
+| created_at            | datetime_immutable             |
+| updated_at            | datetime_immutable             |
 | books             | collection (ManyToMany avec Book)              |
+| rentings             | collection (OneToMany avec RentingHistory)              |
+| loginHistories             | collection (OneToMany avec LoginHistories)              |
 
 
 ### Book
 | Champ             | Type                |
 |-------------------|---------------------|
 | id                | int (PK)            |
-| name              | varchar(255)        |
+| title             | varchar(255)        |
 | author            | varchar(255)        |
 | abstract          | text                |
 | is_published      | boolean             |
@@ -164,12 +171,19 @@ Les administrateurs auront un tableau de bord pour :
 | created_at        | datetime immutable  |
 | updated_at        | datetime immutable, nullable |
 | likes             | collection (ManyToMany avec User)                 |
-| pic               | varchar(255)        |
+| picName               | varchar(255)        |
+| picFile               | UploadableField        |
+| picUrl               | varchar(255)        |
+| fileObject               | UploadableField        |
 | file              | varchar(255)        |
 | slug              | varchar(255)        |
 | ref               | varchar(255)        |
 | isbn              | varchar(255)        |
 | is_for_adult      | boolean             |
+| tags             | collection (ManyToMany avec Tag)              |
+| likes             | collection (ManyToMany avec User)              |
+| rentings             | collection (OneToMany avec RentingHistory)              |
+
 
 ### Tag
 | Champ           | Type               |
@@ -177,6 +191,8 @@ Les administrateurs auront un tableau de bord pour :
 | id              | int (PK)           |
 | name            | varchar(100)       |
 | description     | text               |
+| books             | collection (ManyToMany avec Book)              |
+
 
 ### Renting_History
 | Champ           | Type               |
@@ -251,9 +267,16 @@ Les administrateurs auront un tableau de bord pour :
 - /rgpd 
 - /cgu 
 - /mentions-legales 
+&nbsp;  
+&nbsp;  
+&nbsp;
+&nbsp;  
+&nbsp;  
+&nbsp;
 
+---
 
-# Réalisation du projet : 
+# 💻 Réalisation du projet : 
 
 ## Créer l'architecture
 ```bash
@@ -545,10 +568,13 @@ Modification du fichier vich_uploader.yaml pour créer le mapping
 &nbsp;  
 &nbsp;  
 &nbsp;
+&nbsp;  
+&nbsp;  
+&nbsp;
 
 ---
 
-# 🚀 Installation
+# ⚙️ Installation
 
 - Cloner le projet sur github : 
 ```bash
@@ -561,3 +587,69 @@ git clone https://github.com/Jensone/todoz-sf.git
 composer install
 symfony serve -d
 ```
+&nbsp;  
+&nbsp;  
+&nbsp;
+&nbsp;  
+&nbsp;  
+&nbsp;
+
+---
+
+# 🚀 Deploiement
+
+## Pre-requis
+- Acheter un nom de domaine
+- Aller sur un hébergeur et acheter un offre avec accès SSH
+
+## Préparation 
+- Rattacher un nom de domaine au serveur
+- Créer une base de données correspondante
+- Vérifier la version PHP correspondante
+- Vérifier la version de composer
+- Identifiants de connexion SSH 
+
+## Préparation du projet en local
+
+- Réinitialiser les migrations avec un seul fichier de version, afin de les migrer en une seule fois sur le serveur de production
+- Compilez les éléments nécessaires à la production (tailwindcss, assets, webpack, etc.)
+- Renseignez les informations du serveur de base de données, MAILER_DSN, API_KEY dans le fichier .env (Attention à ne pas mettre le .env à jour pour un dépôt de code publique sur Github)
+- Mettez en place le fichier .htaccess du dossier public avec le contenu suivant public/.htaccess
+- Dans le cas où vous devez aussi redirger la racine du nom de domaine vers le dossier public en passant par le serveur web, il faut mettre en place le fichier .htaccess du dossier public avec le contenu suivant /.htaccess
+- Commit et push de l'ensemble du projet sur GitHub. Veillez à ce que la branche principale soit celle de production. Cela permettra de cloner le projet sur le serveur de production avec la commande git clone.
+
+## Déploiement du projet sur le serveur de production
+- Vérifier la version de composer et la commande pour utiliser celui-ci 'composer2'
+
+### Etapes 
+
+- Cloner le projet sur le serveur de production avec la commande git clone : 
+```bash
+git clone https://github.com/DrizztTeller/libraNova.git
+```
+- Renommer le dossier du projet si nécessaire.
+- Modifier le fichier .env avec l'environnement de production dans le cas où votre dépôt GitHub est public.
+- Rendez-vous dans le terminal du serveur de production et se rendre dans le dossier du projet et réaliser les commandes suivantes :
+```bash
+composer install
+```
+ou 
+```bash
+composer2 install
+```
+- Si vous n'avez pas de fichier de migration :
+```bash
+php bin/console make:migration
+php bin/console d:m:m 
+```
+si besoin (lancez les fixtures)
+- Passer l'environnement en production dans le fichier .env
+```bash
+php bin/console cache:clear  
+php bin/console cache:warmup
+composer install --no-dev --optimize-autoloader
+```
+- Vérifier que l'application est bien en ligne
+- Dans le cas où une erreur se produit, voici les précautions :
+  - Erreur ^500 : Réactiver le mode dev afin de voir l'erreur et la corriger ou consultez les logs
+  - Erreur ^400 : Votre application ne pointe pas sur le bon dossier, vérifier que la racine de l'application est bien le dossier /public
