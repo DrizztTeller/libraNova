@@ -10,6 +10,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
+use Symfony\Component\HttpFoundation\File\File;
 
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
@@ -88,8 +91,18 @@ class Book
     )]
     private ?\DateTimeImmutable $updated_at = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $pic = null;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $picName = null; // Nom du fichier image (BDD)
+
+     // Propriété liée à l'upload (non persistée)
+    #[Vich\UploadableField(mapping: 'pics', fileNameProperty: 'picName')]
+    private ?File $picFile = null; // Fichier temporaire pour l'upload
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $picUrl = null; // URL externe éventuelle lors des fixtures (non stockée en BDD)
+
+    #[UploadableField(mapping: 'novel_files', fileNameProperty: 'file')] //gere les uploads depuis un formulaire
+    private ?File $fileObject = null;
 
     #[ORM\Column(length: 255)]
     private string $file = "default.pdf";
@@ -238,17 +251,86 @@ class Book
         return $this;
     }
 
-    public function getPic(): ?string
+    public function getPicFile(): ?File
     {
-        return $this->pic;
+        return $this->picFile;
     }
 
-    public function setPic(string $pic): static
+    public function setPicFile(?File $picFile = null): void
     {
-        $this->pic = $pic;
+        $this->picFile = $picFile;
+        
+        // Important : Lorsque le fichier change, mettre à jour 'updated_at' pour indiquer une modification
+        if ($picFile) {
+            $this->updated_at = new \DateTimeImmutable();
+        }
+
+    }
+    
+
+    public function getPicName(): ?string
+    {
+        return $this->picName;
+    }
+
+    public function setPicName(?string $picName): static
+    {
+        $this->picName = $picName;
 
         return $this;
     }
+
+    public function setPicUrl(?string $picUrl): self
+    {
+        // Utilisé uniquement dans les fixtures pour Picsum
+        $this->picUrl = $picUrl;
+
+        // Remplir également `picName` au cas où
+        // (Si l'URL d'un fixture est utilisée, on veut pouvoir montrer ça aussi dans les templates)
+        // if ($this->picName === null) {
+        //     $this->picName = basename($picUrl); // Juste le nom depuis l'URL
+        // }
+
+        return $this;
+    }
+
+    public function getPicUrl(): ?string
+    {
+        return $this->picUrl;
+    }
+
+    public function getImageUrl(): string
+    {
+        // Si une image locale est configurée, on la retourne
+        if ($this->picName) {
+            return '/uploads/images/' . $this->picName;
+        }
+
+        // Sinon, retourne une URL Picsum si elle existe (fixtures)
+        if ($this->picUrl) {
+            return $this->picUrl;
+        }
+
+        // Image par défaut si rien n’est défini
+        return '/images/default-book-cover.jpg';
+    }
+
+    public function getFileObject(): ?File
+    {
+        return $this->fileObject;
+    }
+    
+    // Propriété pour la gestion de l'upload (non sauvegardée en base)
+    public function setFileObject(?File $fileObject = null): void
+    {
+        $this->fileObject = $fileObject;
+
+           // Si l'on modifie le fichier, on force la mise à jour de l'objet
+        if ($fileObject) {
+            $this->updated_at = new \DateTimeImmutable();
+        }
+    }
+
 
     public function getFile(): ?string
     {
