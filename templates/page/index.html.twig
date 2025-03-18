@@ -57,7 +57,7 @@
                             <div class="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col">
                                 <div class="h-40 bg-gray-300 relative">
                                     {% if book.pic %}
-                                        <img src="{{ book.pic }}" alt="{{ book.title }}" class="w-full h-full object-cover">
+                                        <img src="{{ attribute(book, 'getImageUrl') is defined ? book.getImageUrl() : book.pic }}" alt="{{ book.title }}" class="w-full h-full object-cover">
                                     {% else %}
                                         <div class="w-full h-full flex items-center justify-center bg-gray-200">
                                             <span class="text-gray-500">Pas d'image</span>
@@ -118,7 +118,7 @@
                             <div class="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col">
                                 <div class="h-40 bg-gray-300 relative">
                                     {% if book.pic %}
-                                        <img src="{{ book.pic }}" alt="{{ book.title }}" class="w-full h-full object-cover">
+                                        <img src="{{ attribute(book, 'getImageUrl') is defined ? book.getImageUrl() : book.pic }}" alt="{{ book.title }}" class="w-full h-full object-cover">
                                     {% else %}
                                         <div class="w-full h-full flex items-center justify-center bg-gray-200">
                                             <span class="text-gray-500">Pas d'image</span>
@@ -179,7 +179,7 @@
                             <div class="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col">
                                 <div class="h-40 bg-gray-300 relative">
                                     {% if book.pic %}
-                                        <img src="{{ book.pic }}" alt="{{ book.title }}" class="w-full h-full object-cover">
+                                        <img src="{{ attribute(book, 'getImageUrl') is defined ? book.getImageUrl() : book.pic }}" alt="{{ book.title }}" class="w-full h-full object-cover">
                                     {% else %}
                                         <div class="w-full h-full flex items-center justify-center bg-gray-200">
                                             <span class="text-gray-500">Pas d'image</span>
