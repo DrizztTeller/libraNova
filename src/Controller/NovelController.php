@@ -43,13 +43,13 @@ class NovelController extends AbstractController
         $novel = $this->nr->findOneBy(['ref' => $ref]);
 
         if (!$novel) {
-            $this->addFlash('danger', 'Roman non trouvé.');
+            $this->addFlash('danger', 'Livre non trouvé.');
             return $this->redirectToRoute('app_novel_index');
         }
 
 
         if (!$novel) {
-            $this->addFlash('danger', 'Roman non trouvé.');
+            $this->addFlash('danger', 'Livre non trouvé.');
             return $this->redirectToRoute('app_novel_index');
         }
 
