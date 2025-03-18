@@ -103,19 +103,25 @@ class NovelCrudController extends AbstractCrudController
         if (in_array($pageName, $viewFieldsOnly)) {
             yield TextField::new('picName', 'Image de couverture')
                 ->formatValue(function ($value, $entity) {
-                    if (!$value) {
-                        return 'Aucune image';
+                    if ($value) {
+                        $imagePath = '/uploads/images/' . ltrim((string) $value, '/');
+                        
+                        // Vérifier si le fichier existe (uniquement en dev)
+                        if (file_exists($_SERVER['DOCUMENT_ROOT'] . parse_url($imagePath, PHP_URL_PATH))) {
+                            return sprintf('<img src="%s" target="_blank" height="70" />', $imagePath);
+                        }
+                        
+                        // Si l'image téléchargée est introuvable mais qu'on a son nom, afficher un avertissement
+                        return '<span style="color: orange;">Image téléchargée introuvable</span>';
                     }
-                     // ------------------------Vérifier si $value est déjà une URL complète
-                $imagePath = filter_var($value, FILTER_VALIDATE_URL) 
-                ? $value // Si c'est déjà une URL, utilise-la directement
-                : '/uploads/images/' . ltrim((string) $value, '/'); // Sinon, construit l'URL
-                 // Vérifie si le fichier physique existe (IMPORTANT : utile seulement en dev, limite en prod pour gain de perf)
-                    if (!file_exists($_SERVER['DOCUMENT_ROOT'] . parse_url($imagePath, PHP_URL_PATH))) {
-                    return '<span style="color: red;">Image introuvable</span>'; // Message d’erreur si l’image n’existe pas physiquement
-            }
-
-        return sprintf('<img src="%s" target="_blank" height="70" />', $imagePath);
+                    
+                    // Si pas d'image téléchargée, utiliser l'URL Picsum si disponible
+                    if ($entity->getPicUrl()) {
+                        return sprintf('<img src="%s" target="_blank" height="70" />', $entity->getPicUrl());
+                    }
+                    
+                    // Si aucune image n'est disponible
+                    return 'Aucune image';
                 })
                 ->setVirtual(true);
 
