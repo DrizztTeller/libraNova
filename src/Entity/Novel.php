@@ -14,6 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
+
 #[ORM\Entity(repositoryClass: NovelRepository::class)]
 #[UniqueEntity(fields: ['ref'], message: 'Cette référence est déjà utilisée.')]
 #[ORM\HasLifecycleCallbacks]
@@ -77,19 +78,22 @@ class Novel
     private ?\DateTimeInterface $released_at = null;
 
     #[ORM\Column(nullable: true)]
-    #[Assert\Type(
-        type: \DateTimeImmutable::class,
-        message: 'La date de mise à jour doit être une date valide.'
-    )]
     private ?\DateTimeImmutable $updated_at = null;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $picName = null; // Nom du fichier image (BDD)
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $pic = null;
+
+     // Propriété liée à l'upload (non persistée)
+    #[Vich\UploadableField(mapping: 'pics', fileNameProperty: 'picName')]
+    private ?File $picFile = null; // Fichier temporaire pour l'upload
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $picUrl = null; // URL externe éventuelle lors des fixtures (non stockée en BDD)
 
     #[UploadableField(mapping: 'novel_files', fileNameProperty: 'file')] //gere les uploads depuis un formulaire
     private ?File $fileObject = null;
-  
+
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $file = null;
@@ -237,27 +241,81 @@ class Novel
         return $this->updated_at;
     }
 
-    public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
+    public function setUpdatedAt(?\DateTimeImmutable $updated_at): void
     {
         $this->updated_at = $updated_at;
+    }
+    
+    public function getPicFile(): ?File
+    {
+        return $this->picFile;
+    }
+
+    public function setPicFile(?File $picFile = null): void
+    {
+        $this->picFile = $picFile;
+        
+        // Important : Lorsque le fichier change, mettre à jour 'updated_at' pour indiquer une modification
+        if ($picFile) {
+            $this->updated_at = new \DateTimeImmutable();
+        }
+
+    }
+    
+
+    public function getPicName(): ?string
+    {
+        return $this->picName;
+    }
+
+    public function setPicName(?string $picName): static
+    {
+        $this->picName = $picName;
 
         return $this;
     }
 
-    public function getPic(): ?string
+    public function setPicUrl(?string $picUrl): self
     {
-        return $this->pic;
-    }
+        // Utilisé uniquement dans les fixtures pour Picsum
+        $this->picUrl = $picUrl;
 
-    public function setPic(?string $pic): static
-    {
-        $this->pic = $pic;
+        // Remplir également `picName` au cas où
+        // (Si l'URL d'un fixture est utilisée, on veut pouvoir montrer ça aussi dans les templates)
+        // if ($this->picName === null) {
+        //     $this->picName = basename($picUrl); // Juste le nom depuis l'URL
+        // }
 
         return $this;
     }
 
-      // Propriété pour la gestion de l'upload (non sauvegardée en base)
+    public function getPicUrl(): ?string
+    {
+        return $this->picUrl;
+    }
 
+    public function getImageUrl(): string
+    {
+        // Si une image locale est configurée, on la retourne
+        if ($this->picName) {
+            return '/uploads/images/' . $this->picName;
+        }
+
+        // Sinon, retourne une URL Picsum si elle existe (fixtures)
+        if ($this->picUrl) {
+            return $this->picUrl;
+        }
+
+        // Image par défaut si rien n’est défini
+        return '/images/default-book-cover.jpg';
+    }
+
+    public function getFileObject(): ?File
+    {
+        return $this->fileObject;
+    }
+    
+    // Propriété pour la gestion de l'upload (non sauvegardée en base)
     public function setFileObject(?File $fileObject = null): void
     {
         $this->fileObject = $fileObject;
@@ -268,10 +326,6 @@ class Novel
         }
     }
 
-    public function getFileObject(): ?File
-    {
-        return $this->fileObject;
-    }
     public function getFile(): ?string
     {
         return $this->file;
@@ -331,10 +385,12 @@ class Novel
     public function addTag(Tag $tag): static
     {
         if (!$this->tags->contains($tag)) {
-            $this->tags->add($tag);
+        $this->tags->add($tag);
+        // Évite les références circulaires potentielles
+        if (!$tag->getNovels()->contains($this)) {
             $tag->addNovel($this);
         }
-
+    }
         return $this;
     }
 
