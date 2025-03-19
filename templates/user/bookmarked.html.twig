@@ -53,22 +53,81 @@
         <div class="w-full md:w-2/3">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {% for item in books %}
-                    <div class="bg-white shadow-md rounded-lg overflow-hidden">
-                        <img src="{{ item.imageUrl }}" alt="{{ item.title }}" class="w-full h-48 object-cover">
-                        <div class="p-4">
-                            <a href="{{ path('app_book_show', {'ref': item.ref}) }}" class="text-lg font-semibold text-indigo-600 hover:text-indigo-800">
-                                <h3 class="text-lg font-semibold mb-2">{{ item.title }}</h3>  
-                            </a>
-                            <p class="text-sm text-gray-600 mb-2">{{ item.author }}</p>
-                            <p class="text-xs text-gray-500">Publié le {{ item.releasedAt|date('d/m/Y') }}</p>
-                            <div class="mt-4 flex justify-between items-center">
-                                <span class="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full">
-                                    {{ item.isPublished ? 'Disponible' : 'Non disponible' }}
-                                </span>
-                                <a href="#" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">Voir plus</a>
-                            </div>
-                        </div>
-                    </div>
+                <div
+                class="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col"
+              >
+                <div class="h-40 bg-gray-300 relative">
+                  {% if item.getImageUrl() %}
+                  <img
+                    src="{{ item.getImageUrl() }}"
+                    alt="{{ item.title }}"
+                    class="w-full h-full object-cover"
+                  />
+                  {% else %}
+                  <div
+                    class="w-full h-full flex items-center justify-center bg-gray-200"
+                  >
+                    <span class="text-gray-500">Pas d'image</span>
+                  </div>
+                  {% endif %} {% if item.isForAdult %}
+                  <div
+                    class="absolute top-1 left-1 bg-red-500 text-white text-xs px-2 py-1 rounded"
+                  >
+                    18+
+                  </div>
+                  {% endif %}
+                  <span class="flex items-center text-sm absolute top-1 right-1">
+                      {% if not item.likes.contains(app.user) %}
+                      <form
+                        class="likes"
+                        action="{{ path('app_book_like', { ref: item.getRef() }) }}"
+                        method="POST"
+                      >
+                        <button
+                          type="submit"
+                          class="flex items-center space-x-2 text-white rounded"
+                        >
+                        {{
+                          ux_icon("mdi:heart-broken", {
+                            class: "h-2 heart-broken-icon"
+                          })
+                        }}
+                        </button>
+                      </form>
+                      {% else %}
+                      <form
+                        class="likes"
+                        action="{{
+                          path('app_book_unlike', { ref: item.getRef() })
+                        }}"
+                        method="POST"
+                      >
+                        <button
+                          type="submit"
+                          class="flex items-center space-x-2 text-white rounded"
+                        >
+                          {{ ux_icon("mdi:heart", { class: "h-2 heart-icon" }) }}
+                        </button>
+                      </form>
+                      {% endif %}
+                    </span>
+                </div>
+                <div class="p-4 flex-grow flex flex-col">
+                  <a href="{{ path('app_book_show', {'ref': item.ref })}}"> <h3 class="font-semibold text-lg mb-1 line-clamp-1">
+                    {{ item.title }}
+                  </h3></a>
+                  <p class="text-sm text-gray-500 mb-2">Par {{ item.author }}</p>
+                  <p class="text-sm text-gray-600 mb-3 line-clamp-2">
+                    {{ item.abstract|default('Aucun résumé disponible.') }}
+                  </p>
+                  <div class="mt-auto flex items-center justify-between">
+                    <span
+                      class="text-sm text-gray-500"
+                      >{{ item.createdAt|date('d/m/Y') }}</span
+                    >
+                  </div>
+                </div>
+              </div>
                 {% else %}
                     <div class="col-span-full text-center py-8">
                         <p class="text-gray-500">Aucun favori trouvé.</p>
