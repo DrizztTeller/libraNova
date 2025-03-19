@@ -7,6 +7,7 @@ use App\Form\UserType;
 use App\Security\EmailVerifier;
 use App\Form\BookmarkedFilterType;
 use App\Repository\BookRepository;
+use App\Repository\UserRepository;
 use Symfony\Component\Mime\Address;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\LoginHistoryRepository;
@@ -94,9 +95,26 @@ final class UserController extends AbstractController
         ]);
     }
 
+    // #[Route('/{ref}', name: 'delete', methods: ['POST'])]
+    // public function delete(Request $request, User $user): Response
+    // {
+    //     if ($this->isCsrfTokenValid('delete' . $user->getRef(), $request->getPayload()->getString('_token'))) {
+    //         $this->em->remove($user);
+    //         $this->em->flush();
+    //     }
+    //     $this->addFlash('success', 'Votre compte a bien été supprimé !');
+    //     return $this->redirectToRoute('app_user_profile', [], Response::HTTP_SEE_OTHER);
+    // }
+
     #[Route('/{ref}', name: 'delete', methods: ['POST'])]
-    public function delete(Request $request, User $user): Response
+    public function delete(Request $request, UserRepository $userRepository, string $ref): Response
     {
+        $user = $userRepository->findOneBy(['ref' => $ref]);
+
+        if (!$user) {
+            throw $this->createNotFoundException('Utilisateur non trouvé');
+        }
+
         if ($this->isCsrfTokenValid('delete' . $user->getRef(), $request->getPayload()->getString('_token'))) {
             $this->em->remove($user);
             $this->em->flush();
