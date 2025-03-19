@@ -115,6 +115,7 @@ e-bibliothèque de France{% endblock %} {% block stylesheets %}
                 18+
               </div>
               {% endif %}
+               {% if is_granted('ROLE_VERIFIED') %}
               <span class="flex items-center text-sm absolute top-1 right-1">
                   {% if not book.likes.contains(app.user) %}
                   <form
@@ -150,6 +151,7 @@ e-bibliothèque de France{% endblock %} {% block stylesheets %}
                   </form>
                   {% endif %}
                 </span>
+                {% endif %}
             </div>
             <div class="p-4 flex-grow flex flex-col">
               <a href="{{ path('app_book_show', {'ref': book.ref })}}"> <h3 class="font-semibold text-lg mb-1 line-clamp-1">
@@ -254,6 +256,7 @@ e-bibliothèque de France{% endblock %} {% block stylesheets %}
                 18+
               </div>
               {% endif %}
+               {% if is_granted('ROLE_VERIFIED') %}
               <span class="flex items-center text-sm absolute top-1 right-1">
                   {% if not book.likes.contains(app.user) %}
                   <form
@@ -289,6 +292,7 @@ e-bibliothèque de France{% endblock %} {% block stylesheets %}
                   </form>
                   {% endif %}
                 </span>
+                {% endif %}
             </div>
             <div class="p-4 flex-grow flex flex-col">
               <a href="{{ path('app_book_show', {'ref': book.ref })}}"> <h3 class="font-semibold text-lg mb-1 line-clamp-1">
@@ -392,6 +396,7 @@ e-bibliothèque de France{% endblock %} {% block stylesheets %}
                 18+
               </div>
               {% endif %}
+               {% if is_granted('ROLE_VERIFIED') %}
               <span class="flex items-center text-sm absolute top-1 right-1">
                   {% if not book.likes.contains(app.user) %}
                   <form
@@ -427,6 +432,7 @@ e-bibliothèque de France{% endblock %} {% block stylesheets %}
                   </form>
                   {% endif %}
                 </span>
+                {% endif %}
             </div>
             <div class="p-4 flex-grow flex flex-col">
               <a href="{{ path('app_book_show', {'ref': book.ref })}}"> <h3 class="font-semibold text-lg mb-1 line-clamp-1">

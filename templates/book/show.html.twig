@@ -26,6 +26,7 @@
             {% endif %}
 
             <!-- Formulaire de like/unlike en haut à droite -->
+            {% if is_granted('ROLE_VERIFIED') %}
             <div class="absolute top-2 right-2">
                 {% if not book.likes.contains(app.user) %}
                     <form class="likes" action="{{ path('app_book_like', { ref: book.getRef() }) }}" method="POST">
@@ -41,6 +42,7 @@
                     </form>
                 {% endif %}
             </div>
+            {% endif %}
         </div>
 
         <div class="p-6">

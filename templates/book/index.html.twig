@@ -42,6 +42,7 @@ LibraNova{% endblock %} {% block body %}
           </div>
           {% endif %}
           <span class="flex items-center text-sm absolute top-1 right-1">
+            {% if is_granted('ROLE_VERIFIED') %}
               {% if not item.likes.contains(app.user) %}
               <form
                 class="likes"
@@ -75,6 +76,7 @@ LibraNova{% endblock %} {% block body %}
                 </button>
               </form>
               {% endif %}
+            {% endif %}
             </span>
         </div>
         <div class="p-4 flex-grow flex flex-col">
