@@ -1,0 +1,49 @@
+<header class="bg-white dark:bg-gray-900 shadow-md py-4">
+  <div class="container mx-auto px-6 flex justify-between items-center">
+      <!-- Logo + Nom du site -->
+      <div class="flex items-center">
+          <a href="{{ path('home') }}" class="flex items-center">
+              <img src="{{ asset('images/logo.svg') }}" alt="LivraNova Logo" class="h-12">
+              <span class="ml-3 text-2xl font-bold text-gray-900 dark:text-white">LibraNova</span>
+          </a>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="hidden md:flex gap-6">
+          <a href="{{ path('app_book_index') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
+            Catalogue de livres
+          </a>
+          <a href="{{ path('contact') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
+            Contact
+          </a>
+
+          {% if app.user %}
+          <a href="{{ path('app_user_profile') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
+            Profil
+        </a>
+          <a href="{{ path('app_user_bookmarked') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
+            Mes favoris
+        </a>
+          <a href="{{ path('app_user_rented') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
+            Mes emprunts
+        </a>
+          <a href="{{ path('app_user_renting_history') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
+            Mon historique d'emprunts
+        </a>
+          <a href="{{ path('app_user_login_history') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
+            Mon historique de connexion 
+        </a>
+        <a href="{{ path('app_logout') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
+            Déconnexion
+        </a>
+          {% else %}
+          <a href="{{ path('app_login') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
+              Connexion
+          </a>
+          <a href="{{ path('app_register') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
+              Inscription
+          </a>
+          {% endif %}
+      </nav>
+  </div>
+</header>

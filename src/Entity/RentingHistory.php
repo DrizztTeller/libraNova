@@ -4,8 +4,10 @@ namespace App\Entity;
 
 use App\Repository\RentingHistoryRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: RentingHistoryRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class RentingHistory
 {
     #[ORM\Id]
@@ -15,23 +17,43 @@ class RentingHistory
 
     #[ORM\ManyToOne(inversedBy: 'rentings')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: "L'utilisateur est obligatoire.")]
     private ?User $user = null;
 
     #[ORM\ManyToOne(inversedBy: 'rentings')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Novel $novel = null;
+    #[Assert\NotNull(message: "Le livre est obligatoire.")]
+    private ?Book $book = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: "La date de début est obligatoire.")]
+    #[Assert\Type(\DateTimeImmutable::class, message: "La date de début doit être une date valide.")]
     private ?\DateTimeImmutable $start = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: "La date de fin est obligatoire.")]
+    #[Assert\Type(\DateTimeImmutable::class, message: "La date de fin doit être une date valide.")]
     private ?\DateTimeImmutable $end = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $last_page = null;
+    #[Assert\Regex(
+        pattern: '/^\d+$|^terminé$/',
+        message: 'Le numéro de la page où vous vous êtes arrêté dans votre lecture, si le livre est terminé, écrire "terminé"'
+    )]
+    private string $last_page = '0';
 
     #[ORM\Column(nullable: true)]
+    #[Assert\Type(\DateTimeImmutable::class, message: "La date de mise à jour doit être une date valide.")]
     private ?\DateTimeImmutable $updated_at = null;
+
+    #[ORM\PrePersist]
+    public function setDatesValue(): void
+    {
+        $this->start = new \DateTimeImmutable();
+        $this->end = new \DateTimeImmutable("+5 days");
+    }
+
+    // Getters et setters...
 
     public function getId(): ?int
     {
@@ -46,19 +68,17 @@ class RentingHistory
     public function setUser(?User $user): static
     {
         $this->user = $user;
-
         return $this;
     }
 
-    public function getNovel(): ?Novel
+    public function getBook(): ?Book
     {
-        return $this->novel;
+        return $this->book;
     }
 
-    public function setNovel(?Novel $novel): static
+    public function setBook(?Book $book): static
     {
-        $this->novel = $novel;
-
+        $this->book = $book;
         return $this;
     }
 
@@ -70,7 +90,6 @@ class RentingHistory
     public function setStart(\DateTimeImmutable $start): static
     {
         $this->start = $start;
-
         return $this;
     }
 
@@ -82,19 +101,17 @@ class RentingHistory
     public function setEnd(\DateTimeImmutable $end): static
     {
         $this->end = $end;
-
         return $this;
     }
 
-    public function getLastPage(): ?int
+    public function getLastPage(): ?string
     {
         return $this->last_page;
     }
 
-    public function setLastPage(?int $last_page): static
+    public function setLastPage(?string $last_page): static
     {
         $this->last_page = $last_page;
-
         return $this;
     }
 
@@ -106,7 +123,13 @@ class RentingHistory
     public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
-
         return $this;
+    }
+
+    //Fonction ajouté pour calculer la date actuelle concernant l'emprunt
+    public function isCurrentlyActive(): bool
+    {
+        $now = new \DateTimeImmutable();
+        return $now >= $this->start && $now <= $this->end;
     }
 }

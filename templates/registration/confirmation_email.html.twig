@@ -1,11 +1,17 @@
-<h1>Bonjour, Merci de confirmer votre email</h1>
+<div style="font-family: Arial, Helvetica, sans-serif; max-width: 600px; margin: auto; padding: 20px;">
+    <h1 style="color: #333;">📧 Bonjour, Merci de confirmer votre email</h1>
 
-<p>
-    Merci de confirmer votre email en cliquant sur le lien suivant : <br><br>
-    <a href="{{ signedUrl|raw }}">Confirmer mon Email</a>.
-    Ce lien expire dans {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.
-</p>
+    <p style="font-size: 16px; color: #555;">
+        Merci de confirmer votre email en cliquant sur le lien suivant :
+    </p>
 
-<p>
-    Bonne journée !
-</p>
+    <p style="margin: 20px 0;">
+        <a href="{{ signedUrl|raw }}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Confirmer mon Email</a>
+    </p>
+
+    <p style="color: #555;">
+        ⚠️ Ce lien expire dans <strong>{{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}</strong>.
+    </p>
+
+    <p style="color: #777; font-size: 14px;">Si vous n'êtes pas à l'origine de votre inscription chez LibraNova, merci d'ignorer cet email et de changer le mot de passe de votre compte mail.</p>
+</div>

@@ -22,3 +22,22 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    App\Service\SearchService:
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'
+
+    App\Repository\BookRepository:
+        arguments:
+            $searchService: '@App\Service\SearchService'
+
+    App\Controller\PageController:
+        arguments:
+            $searchService: '@App\Service\SearchService'
+
+    # App\Controller\BookController:
+    #     arguments:
+    #         $searchService: '@App\Service\SearchService'
+
+    App\EventListener\LoginSuccessListener:
+        tags:
+            - { name: kernel.event_listener, event: security.authentication.success, method: onLoginSuccess }

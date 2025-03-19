@@ -1,4 +1,4 @@
-# Cahier des charges  
+# 📜 Cahier des charges  
 
 ## Projet : Site de Gestion des Bibliothèques Numériques  
 
@@ -99,11 +99,14 @@ Les administrateurs auront un tableau de bord pour :
 &nbsp;  
 &nbsp;  
 &nbsp;
+&nbsp;  
+&nbsp;  
+&nbsp;
 
 
 ---
 
-# Conception du projet
+# 🛠️ Conception du projet
 
 - Choix du nom : LibraNova
 
@@ -143,20 +146,24 @@ Les administrateurs auront un tableau de bord pour :
 | email              | varchar(255) (à ne pas créer)         |
 | password           | varchar(255) (à ne pas créer)         |
 | roles              | array (ROLE_USER, ROLE_ADMIN) (à ne pas créer)             |
-| rented_novels_count| int (0-5)           |
+| rented_books_count| int (0-5)           |
 | is_adult           | boolean             |
 | ref                | varchar(255)        |
-| is_verified        | boolean (à ne pas créer)         |
+| isVerified        | boolean (à ne pas créer)         |
 | is_terms           | boolean             |
 | is_gpdr            | boolean             |
-| novels             | collection (ManyToMany avec Novel)              |
+| created_at            | datetime_immutable             |
+| updated_at            | datetime_immutable             |
+| books             | collection (ManyToMany avec Book)              |
+| rentings             | collection (OneToMany avec RentingHistory)              |
+| loginHistories             | collection (OneToMany avec LoginHistories)              |
 
 
-### Novel
+### Book
 | Champ             | Type                |
 |-------------------|---------------------|
 | id                | int (PK)            |
-| name              | varchar(255)        |
+| title             | varchar(255)        |
 | author            | varchar(255)        |
 | abstract          | text                |
 | is_published      | boolean             |
@@ -164,12 +171,19 @@ Les administrateurs auront un tableau de bord pour :
 | created_at        | datetime immutable  |
 | updated_at        | datetime immutable, nullable |
 | likes             | collection (ManyToMany avec User)                 |
-| pic               | varchar(255)        |
+| picName               | varchar(255)        |
+| picFile               | UploadableField        |
+| picUrl               | varchar(255)        |
+| fileObject               | UploadableField        |
 | file              | varchar(255)        |
 | slug              | varchar(255)        |
 | ref               | varchar(255)        |
 | isbn              | varchar(255)        |
 | is_for_adult      | boolean             |
+| tags             | collection (ManyToMany avec Tag)              |
+| likes             | collection (ManyToMany avec User)              |
+| rentings             | collection (OneToMany avec RentingHistory)              |
+
 
 ### Tag
 | Champ           | Type               |
@@ -177,17 +191,18 @@ Les administrateurs auront un tableau de bord pour :
 | id              | int (PK)           |
 | name            | varchar(100)       |
 | description     | text               |
-| is_for_adult    | boolean            |
+| books             | collection (ManyToMany avec Book)              |
+
 
 ### Renting_History
 | Champ           | Type               |
 |-----------------|--------------------|
 | id              | int (PK)           |
 | user_id         | int (FK -> User, ManyToOne)   |
-| novel_id        | int (FK -> Novel, ManyToOne)  |
+| book_id        | int (FK -> Book, ManyToOne)  |
 | start           | datetime immutable |
 | end             | datetime immutable |
-| last_page       | int, nullable        |
+| last_page       | string, nullable        |
 | updated_at      | datetime immutable, nullable |
 
 ### Login_History
@@ -201,32 +216,37 @@ Les administrateurs auront un tableau de bord pour :
 | os           | varchar(255)          |
 | browser      | varchar(255)          |
 
-### Novel_Tag (Table de Jointure)
+### Book_Tag (Table de Jointure)
 | Champ       | Type                  |
 |-------------|-----------------------|
-| id_novel    | int (FK -> Novel)     |
+| id_book    | int (FK -> Book)     |
 | id_tag      | int (FK -> Tag)       |
 
-### User_Likes_Novel (Table de Jointure)
+### User_Likes_Book (Table de Jointure)
 | Champ     | Type                  |
 |-----------|-----------------------|
 | id_user   | int (FK -> User)      |
-| id_novel  | int (FK -> Novel)     |
+| id_book  | int (FK -> Book)     |
 
 #### Relations
-- **User** peut emprunter plusieurs **Novel** (relation avec `Renting_History`).
-- **User** peut aimer plusieurs **Novel** (relation `User_Likes_Novel`).
+- **User** peut emprunter plusieurs **Book** (relation avec `Renting_History`).
+- **User** peut aimer plusieurs **Book** (relation `User_Likes_Book`).
 - **User** a un historique de connexion (**Login_History**).
-- **Novel** peut avoir plusieurs **Tags** (relation `Novel_Tag`).
-- **Novel** peut être emprunté par plusieurs **User** (relation avec `Renting_History`).
+- **Book** peut avoir plusieurs **Tags** (relation `Book_Tag`).
+- **Book** peut être emprunté par plusieurs **User** (relation avec `Renting_History`).
 
+### Roles des utilisateurs 
+- ROLE_USER : rôle de base d'un utilisateur connecté
+- ROLE_VERIFIED : rôle obtenu si email vérifié
+- ROLE_ADULT : rôle si utilisateur a déclaré être majeur
+- ROLE_ADMIN : rôle de l'administrateur
 
 ## Controllers
+- BookController
+- PageController
 - RegistrationController
 - SecurityController
 - UserController
-- NovelController
-- PageController
 
 
 ## URLS
@@ -241,13 +261,22 @@ Les administrateurs auront un tableau de bord pour :
   - permettant de supprimer le compte
   - de se rediriger vers les fonctionnalités liées à l'utilisateur (favoris)
 - /profil/favoris : pour voir tous les favoris avec un filtre pour n'afficher que ceux qui sont dispo ou inversement
+- /profil/emprunts : pour voir tous les livres empruntés en cours
+- /profil/historique-emprunts : pour voir tous les livres empruntés depuis l'inscription
 - /contact : page avec formulaire de contact
 - /rgpd 
 - /cgu 
 - /mentions-legales 
+&nbsp;  
+&nbsp;  
+&nbsp;
+&nbsp;  
+&nbsp;  
+&nbsp;
 
+---
 
-# Réalisation du projet : 
+# 💻 Réalisation du projet : 
 
 ## Créer l'architecture
 ```bash
@@ -394,10 +423,139 @@ symfony server:ca:install
 ```bash
  symfony console make:controller PageController 
 ```
-
 Puis dans le dossier templates/page, créer les fichiers twig pour la page contact, rgpd, cgu et mentions légales. Fichier twig pour la vue de la page d'acceuil est créée avec la commande. 
 
+### Création service de recherche
+- Créer un dossier Service dans le dossier src, puis un fichier SearchService.php
+- Activer le service dans le fichier services.yaml : 
+   ```bash
+    App\Service\SearchService:
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'
+
+    App\Repository\BookRepository:
+        arguments:
+            $searchService: '@App\Service\SearchService'
+
+    App\Controller\PageController:
+        arguments:
+            $searchService: '@App\Service\SearchService'
+   ```
+- Importer le service dans le BookRepository
+
+### Création Controller et template pour les livres
+```bash
+ symfony console make:crud 
+```
+- Supprimer les éléments inutiles (templates, form, et routes create, delete, update). 
+- Modifier les routes index et show (pour afficher tous les livres avec fonctionnalité de recherche).
+- Créer les routes pour :
+  - emprunter un livre,
+  - rendre un livre,
+  - mettre en favoris un livre,
+  - retirer le favoris d'un livre, 
+  - afficher le pdf d'un livre : 
+    - Il faut posséder une route public pour que le navigateur accepte de récupérer le fichier pdf local donc dans le routes.yaml rajouter : 
+  ```bash
+  public_pdf:
+    path: /uploads/pdf/{fileName}
+    controller: Symfony\Component\HttpFoundation\Response::class
+    methods: [GET]
+    defaults:
+        filePath: '%kernel.project_dir%/public/uploads/pdf/{fileName}'
+  ```
+
+### Création Controller et template pour les users
+```bash
+ symfony console make:crud 
+```
+- Supprimer les éléments inutiles (templates, form, et routes index, create et update). 
+- Modifier la route show pour afficher les infos et permettre la modification des informations de l'utilisateur.
+- Créer une route pour voir les favoris avec filtres pour ne voir que ceux qui sont disponibles, ceux qui viennent d'être disponibles.
+- Dans le BookRepository, créer une fonction pour récupérer les favoris avec possibilité de filtrage (donc création d'un formulaire en plus)
+- Créer les routes pour voir les emprunts actuels, l'historique de tous les emprunts et l'historique de connexion
+- Dans le RentingHistoryRepository, créer une fonction pour pouvoir récupérer que les emprunts en cours
+  
 ---
+
+## Sécuriser les entités et les formulaires
+Ajouter les contraintes pour chaques propriétés des entités et pour les champs des formulaires
+
+---
+
+## Enregistrement des connexions
+Création d'un dossier EventListener dans src, puis d'un fichier LoginSuccessListener.php
+Ajout de l'écouteur dans services.yaml : 
+```bash
+    App\EventListener\LoginSuccessListener:
+        tags:
+            - { name: kernel.event_listener, event: security.authentication.success, method: onLoginSuccess }
+```
+
+---
+
+## Créer et lancer les fixtures
+- Modifier le fichier AppFixtures et créer si besoin d'autres fichiers fixtures selon les entités voulues.
+- Lancer les fixtures avec la commande : 
+```bash
+ symfony console d:f:l -n  
+```
+
+---
+
+## Installation de easyAdmin
+
+ - Installation du bundle
+```bash
+ composer require easycorp/easyadmin-bundle
+ ```
+ - Création du DashboardController
+```bash
+ symfony console make:admin:dashboard
+```
+Où l'on personnalise le chemin
+
+On créer un dossier templates/admin où l'on met le dashboard.html.twig,
+on y met l'extend @EasyAdmin/page/content.html.twig
+
+ - Création des CRUD controllers de la page admin
+```bash
+symfony console make:admin:crud
+```
+A partir du terminal on créer User
+                              Book
+                              LoginHistory
+                              RentingHistory
+                              Tag
+
+ - On va sur routes.yaml
+on y ajoute le admin_dashboard avec son chemin et son controller : 
+```bash
+admin_dashboard:
+    path: '/admin'
+    controller: 'App\Controller\Admin\DashboardController::index'
+```
+
+ - On nettoi le cache après ça
+```bash
+symfony console cache:clear
+```
+Puis on rappel les entité lié au CRUD Controller en les appelant grâce au " MenuItem::LinkToDashboard "
+
+- Personalisation de Entité affiché
+Personnalisation de chaque edit grâce au CrudController et aux Entités
+  Dans le CrudController on personnalise grâce a:
+    .function configureCrud(Crud $crud): Crud  ---> Personnalise l'affichage
+    .function configureFields(string $pageName): iterable  ---> Configure la structure et les fonctionnements
+    .function configureActions(Actions $actions): Actions  ---> Represente le petit menu au bout de la ligen qui permet l'edit
+
+ - Ajout de VichUploader pour la gestion des pdf
+Modification du fichier vich_uploader.yaml pour créer le mapping
+
+ - Création de la possibilité d'ajouter des images
+ Il a fallu créer une une gestion pour afficher d'abord le fichier téléchargé
+
+ - Ajout du suivi de location
 
 ## 🧰 Technologies Utilisées
 
@@ -410,14 +568,17 @@ Puis dans le dossier templates/page, créer les fichiers twig pour la page conta
 &nbsp;  
 &nbsp;  
 &nbsp;
+&nbsp;  
+&nbsp;  
+&nbsp;
 
 ---
 
-# 🚀 Installation
+# ⚙️ Installation
 
 - Cloner le projet sur github : 
 ```bash
-git clone https://github.com/Jensone/todoz-sf.git
+git clone https://github.com/DrizztTeller/libraNova.git
 ```
 - ouvrir le dossier dans un vscode
 - Supprimer le dépôt distant
@@ -426,3 +587,134 @@ git clone https://github.com/Jensone/todoz-sf.git
 composer install
 symfony serve -d
 ```
+&nbsp;  
+&nbsp;  
+&nbsp;
+&nbsp;  
+&nbsp;  
+&nbsp;
+
+---
+
+# 🚀 Deploiement
+
+## Pre-requis
+- Acheter un nom de domaine
+- Aller sur un hébergeur et acheter un offre avec accès SSH
+
+## Préparation 
+- Rattacher un nom de domaine au serveur
+- Créer une base de données correspondante
+- Vérifier la version PHP correspondante
+- Vérifier la version de composer
+- Identifiants de connexion SSH 
+
+## Préparation du projet en local
+
+- Réinitialiser les migrations avec un seul fichier de version, afin de les migrer en une seule fois sur le serveur de production
+- Compilez les éléments nécessaires à la production (tailwindcss, assets, webpack, etc.)
+- Renseignez les informations du serveur de base de données, MAILER_DSN, API_KEY dans le fichier .env (Attention à ne pas mettre le .env à jour pour un dépôt de code publique sur Github)
+- Mettez en place le fichier .htaccess du dossier public avec le contenu suivant public/.htaccess
+- Dans le cas où vous devez aussi redirger la racine du nom de domaine vers le dossier public en passant par le serveur web, il faut mettre en place le fichier .htaccess du dossier public avec le contenu suivant /.htaccess
+- Commit et push de l'ensemble du projet sur GitHub. Veillez à ce que la branche principale soit celle de production. Cela permettra de cloner le projet sur le serveur de production avec la commande git clone.
+
+## Déploiement du projet sur le serveur de production
+- Vérifier la version de composer et la commande pour utiliser celui-ci 'composer2'
+
+### Etapes 
+
+- Cloner le projet sur le serveur de production avec la commande git clone : 
+```bash
+git clone https://github.com/DrizztTeller/libraNova.git
+```
+- Renommer le dossier du projet si nécessaire.
+- Modifier le fichier .env avec l'environnement de production dans le cas où votre dépôt GitHub est public.
+- Rendez-vous dans le terminal du serveur de production et se rendre dans le dossier du projet et réaliser les commandes suivantes :
+```bash
+composer install
+```
+ou 
+```bash
+composer2 install
+```
+- Si vous n'avez pas de fichier de migration :
+```bash
+php bin/console make:migration
+php bin/console d:m:m 
+```
+si besoin (lancez les fixtures)
+- Passer l'environnement en production dans le fichier .env
+```bash
+php bin/console cache:clear  
+php bin/console cache:warmup
+composer install --no-dev --optimize-autoloader
+```
+- Vérifier que l'application est bien en ligne
+- Dans le cas où une erreur se produit, voici les précautions :
+  - Erreur ^500 : Réactiver le mode dev afin de voir l'erreur et la corriger ou consultez les logs
+  - Erreur ^400 : Votre application ne pointe pas sur le bon dossier, vérifier que la racine de l'application est bien le dossier /public
+&nbsp;  
+&nbsp;  
+&nbsp;
+&nbsp;  
+&nbsp;  
+&nbsp;
+
+---
+
+# Documentation du Processus Git
+
+## Introduction
+
+Ce document explique le processus Git utilisé pour le développement de ce projet. Il décrit les pratiques à suivre pour assurer une gestion de version efficace, ainsi que les bonnes pratiques pour la collaboration entre les membres de l'équipe.
+
+## 1. Configuration Initiale
+
+Avant de commencer à travailler avec Git, chaque développeur doit s'assurer que son environnement Git est correctement configuré.
+
+### 1.1 Configurer le nom et l'adresse e-mail
+
+Avant de commencer à utiliser Git, configuration du nom et de l'adresse e-mail afin que tous nos commits soient associés à notre identité.
+
+```bash
+git config --global user.name "Le Nom"
+git config --global user.email "notre.email@example.com"
+```
+
+### 1.2 Cloner le dépôt
+
+```bash
+git clone https://github.com/DrizztTeller/libraNova.git
+```
+
+## 2. Flux de Travail
+
+### 2.1 Branches
+Le projet suit un flux de travail basé sur des branches. Voici les principales branches utilisées :
+
+- main : Branche principale contenant le code stable et prêt pour la production.
+- dev : Branche de développement où les nouvelles fonctionnalités sont intégrées.
+- finale : branche de fin avant déploiement
+- 'branches' : nommées selon la tâche réalisé par le codeur
+
+### 2.2 Utilisation de l'extension Git Graph 
+Installation et utilisation de l'extension Git Graph dans VSCode afin de faciliter les actions git : 
+- pull,
+- commit,
+- push,
+- clone,
+- branch,
+- etc
+
+#### 2.2.1 Utilisation de l'IA
+Utilisation de l'IA Copilot pour écrire les messages de commit dans la plupart des cas. Recommandation dans le cas contraire d'écrire des messages de commit clairs.
+
+### 2.3 Utilisation du site web GitHub 
+Utilisation de GitHub par le chef de projet 'DrizztTeller' pour réaliser les **Pull Request** afin de vérifier et résoudre les conflits simples.
+Il est le seul authorisé à réaliser ces requests.
+
+### 2.4 Résolutions des conflits compliqués
+Dans le cas des conflits non résolvables par l'application gitHub, comparaison manuelle des fichiers pour copier-coller dans la branche qui devait recevoir le merge.
+
+
+

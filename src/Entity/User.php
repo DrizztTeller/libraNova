@@ -2,18 +2,22 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\UserRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
+
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
+#[UniqueEntity(fields: ['email'], message: 'Il existe déjà un compte avec cet email.')]
+#[HasLifecycleCallbacks]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -22,11 +26,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Assert\NotBlank(message: "L'email est obligatoire.")]
+    #[Assert\Email(message: "Veuillez entrer un email valide.")]
+    #[Assert\Regex(
+        pattern: '/^[A-Za-z0-9._%+-]+(?!\..)[A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+(?<!\.\.)\.[A-Za-z]{2,}$/',
+        message: "Votre email ne peut contenir que des lettres sans accents, des chiffres, des points, underscores, traits d'union et les symboles % et +"
+    )]
     private ?string $email = null;
 
-    /**
-     * @var list<string> The user roles
-     */
     #[ORM\Column]
     private array $roles = [];
 
@@ -34,35 +41,52 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      */
     #[ORM\Column]
+    // #[Assert\NotBlank(message: "Le mot de passe est obligatoire.")] // Ne pas le mettre car cré des erreurs
+    #[Assert\Length(
+        min: 12,
+        minMessage: "Le mot de passe doit contenir au moins 12 caractères."
+    )]
+    #[Assert\Regex(
+        pattern: '/^(?=.*[!@#$%^*-])(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])\S{12,}$/',
+        message: "Le mot de passe doit être composé d'au moins 12 caractères consécutifs, sans espace, et doit contenir au moins une lettre Majuscule, une lettre minuscule, un chiffre et un caractère spécial parmis ! @ # $ % ^ * -"
+    )]
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Le nom d'utilisateur est obligatoire.")]
+    #[Assert\Length(
+        min: 2,
+        max: 50,
+        minMessage: "Le nom d'utilisateur doit contenir au moins 2 caractères.",
+        maxMessage: "Le nom d'utilisateur ne peut avoir que 50 caractères au maximum."
+    )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z0-9_\s\-éèêëàâäîïôöùûüçñÑ&\'"]{2,50}$/',
+        message: "Le nom d'utilisateur ne peut contenir que des lettres, des chiffres, des espaces, des traits d'union, des underscores et les apostrophes. Il doit avoir entre 2 et 50 caractères"
+    )]
     private ?string $username = null;
 
     #[ORM\Column(type: Types::SMALLINT)]
-    private ?int $rented_novels_count = null;
+    #[Assert\PositiveOrZero(message: "Le nombre de livres empruntés ne peut pas être négatif.")]
+    private int $rented_books_count = 0;
 
     #[ORM\Column]
-    private ?bool $is_adult = null;
+    #[Assert\NotNull(message: "L'information sur la majorité est requise.")]
+    private bool $is_adult = false;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "La référence est obligatoire.")]
     private ?string $ref = null;
 
     /**
-     * @var Collection<int, Novel>
+     * @var Collection<int, Book>
      */
-    #[ORM\ManyToMany(targetEntity: Novel::class, inversedBy: 'likes')]
-    private Collection $novels;
+    #[ORM\ManyToMany(targetEntity: Book::class, mappedBy: 'likes')]
+    private Collection $books;
 
-    /**
-     * @var Collection<int, RentingHistory>
-     */
     #[ORM\OneToMany(targetEntity: RentingHistory::class, mappedBy: 'user')]
     private Collection $rentings;
 
-    /**
-     * @var Collection<int, LoginHistory>
-     */
     #[ORM\OneToMany(targetEntity: LoginHistory::class, mappedBy: 'user')]
     private Collection $loginHistories;
 
@@ -70,18 +94,71 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private bool $isVerified = false;
 
     #[ORM\Column]
-    private ?bool $is_terms = null;
+    #[Assert\NotNull(message: "L'acceptation des conditions générales est requise.")]
+    private bool $is_terms = false;
 
     #[ORM\Column]
-    private ?bool $is_gpdr = null;
+    #[Assert\NotNull(message: "L'acceptation de la politique de confidentialité est requise.")]
+    private bool $is_gpdr = false;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $created_at = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $updated_at = null;
 
     public function __construct()
     {
-        $this->novels = new ArrayCollection();
+        $this->books = new ArrayCollection();
         $this->rentings = new ArrayCollection();
         $this->loginHistories = new ArrayCollection();
+        $this->ref = 'USER-' . uniqid();
     }
 
+    #[ORM\PrePersist]
+    public function setCreatedAtValue()
+    {
+        $this->created_at = new \DateTimeImmutable();
+        $this->updated_at = new \DateTimeImmutable;
+    }
+
+    #[ORM\PrePersist]
+    public function setUpdatedAtValue()
+    {
+        $this->updated_at = new \DateTimeImmutable;
+    }
+
+    #[ORM\PrePersist]
+    public function addDefaultRolesOnCreation(): void
+    {
+        // Ajouter le rôle de base ROLE_USER lors de la création
+        $this->roles[] = 'ROLE_USER';
+
+        //Si l'user est majeur, Role supplémentaire ajouté pour plus d'options
+        if ($this->is_adult) {
+            $this->roles[] = 'ROLE_ADULT';
+        }
+
+        // Assurer l'unicité des rôles (pas de doublons)
+        $this->roles = array_unique($this->roles);
+    }
+
+    #[ORM\PreUpdate]
+    public function updateRolesOnModification(): void
+    {
+        // Si l'user est vérifié, role supp pour pouvoir avoir et voir ses bookmarked
+        if ($this->isVerified && !in_array('ROLE_VERIFIED', $this->roles)) {
+            $this->roles[] = 'ROLE_VERIFIED';
+        }
+
+        //Si l'user est majeur, Role supplémentaire ajouté pour plus d'options
+        if ($this->is_adult && !in_array('ROLE_ADULT', $this->roles)) {
+            $this->roles[] = 'ROLE_ADULT';
+        }
+
+        // Assurer l'unicité des rôles (pas de doublons)
+        $this->roles = array_unique($this->roles);
+    }
     public function getId(): ?int
     {
         return $this->id;
@@ -99,33 +176,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
 
-    /**
-     * @see UserInterface
-     *
-     * @return list<string>
-     */
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
     }
 
-    /**
-     * @param list<string> $roles
-     */
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
@@ -133,9 +196,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
     public function getPassword(): ?string
     {
         return $this->password;
@@ -148,14 +208,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @see UserInterface
-     */
-    public function eraseCredentials(): void
-    {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
-    }
+    public function eraseCredentials(): void {}
 
     public function getUsername(): ?string
     {
@@ -169,14 +222,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getRentedNovelsCount(): ?int
+    public function getRentedBooksCount(): ?int
     {
-        return $this->rented_novels_count;
+        return $this->rented_books_count;
     }
 
-    public function setRentedNovelsCount(int $rented_novels_count): static
+    public function setRentedBooksCount(int $rented_books_count): static
     {
-        $this->rented_novels_count = $rented_novels_count;
+        $this->rented_books_count = $rented_books_count;
 
         return $this;
     }
@@ -205,33 +258,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, Novel>
-     */
-    public function getNovels(): Collection
+    public function getBooks(): Collection
     {
-        return $this->novels;
+        return $this->books;
     }
 
-    public function addNovel(Novel $novel): static
+    public function addBook(Book $book): static
     {
-        if (!$this->novels->contains($novel)) {
-            $this->novels->add($novel);
+        if (!$this->books->contains($book)) {
+            $this->books->add($book);
         }
 
         return $this;
     }
 
-    public function removeNovel(Novel $novel): static
+    public function removeBook(Book $book): static
     {
-        $this->novels->removeElement($novel);
+        $this->books->removeElement($book);
 
         return $this;
     }
 
-    /**
-     * @return Collection<int, RentingHistory>
-     */
     public function getRentings(): Collection
     {
         return $this->rentings;
@@ -250,7 +297,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeRenting(RentingHistory $renting): static
     {
         if ($this->rentings->removeElement($renting)) {
-            // set the owning side to null (unless already changed)
             if ($renting->getUser() === $this) {
                 $renting->setUser(null);
             }
@@ -259,9 +305,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, LoginHistory>
-     */
     public function getLoginHistories(): Collection
     {
         return $this->loginHistories;
@@ -280,7 +323,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeLoginHistory(LoginHistory $loginHistory): static
     {
         if ($this->loginHistories->removeElement($loginHistory)) {
-            // set the owning side to null (unless already changed)
             if ($loginHistory->getUser() === $this) {
                 $loginHistory->setUser(null);
             }
@@ -321,6 +363,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsGpdr(bool $is_gpdr): static
     {
         $this->is_gpdr = $is_gpdr;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->created_at;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $created_at): static
+    {
+        $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updated_at;
+    }
+
+    public function setUpdatedAt(\DateTimeImmutable $updated_at): static
+    {
+        $this->updated_at = $updated_at;
 
         return $this;
     }

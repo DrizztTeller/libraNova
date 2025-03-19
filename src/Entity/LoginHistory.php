@@ -4,8 +4,10 @@ namespace App\Entity;
 
 use App\Repository\LoginHistoryRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: LoginHistoryRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class LoginHistory
 {
     #[ORM\Id]
@@ -15,21 +17,25 @@ class LoginHistory
 
     #[ORM\ManyToOne(inversedBy: 'loginHistories')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: "L'utilisateur est obligatoire.")]
     private ?User $user = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: "La date de connexion est obligatoire.")]
+    #[Assert\Type("\DateTimeImmutable", message: "La date de connexion doit être une date valide.")]
     private ?\DateTimeImmutable $login_date = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $ip_address = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $device = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $os = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Le navigateur est obligatoire.")]
     private ?string $browser = null;
 
     public function getId(): ?int
@@ -45,7 +51,6 @@ class LoginHistory
     public function setUser(?User $user): static
     {
         $this->user = $user;
-
         return $this;
     }
 
@@ -57,7 +62,6 @@ class LoginHistory
     public function setLoginDate(\DateTimeImmutable $login_date): static
     {
         $this->login_date = $login_date;
-
         return $this;
     }
 
@@ -66,10 +70,9 @@ class LoginHistory
         return $this->ip_address;
     }
 
-    public function setIpAddress(string $ip_address): static
+    public function setIpAddress(?string $ip_address): static
     {
         $this->ip_address = $ip_address;
-
         return $this;
     }
 
@@ -78,10 +81,9 @@ class LoginHistory
         return $this->device;
     }
 
-    public function setDevice(string $device): static
+    public function setDevice(?string $device): static
     {
         $this->device = $device;
-
         return $this;
     }
 
@@ -90,10 +92,9 @@ class LoginHistory
         return $this->os;
     }
 
-    public function setOs(string $os): static
+    public function setOs(?string $os): static
     {
         $this->os = $os;
-
         return $this;
     }
 
@@ -105,7 +106,6 @@ class LoginHistory
     public function setBrowser(string $browser): static
     {
         $this->browser = $browser;
-
         return $this;
     }
 }

@@ -1,0 +1,76 @@
+<?php
+
+
+namespace App\DataFixtures;
+
+use App\Entity\User;
+use Doctrine\Persistence\ObjectManager;
+use Doctrine\Bundle\FixturesBundle\Fixture;
+use Faker\Factory;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+
+class UserFixture extends Fixture
+{
+
+    private UserPasswordHasherInterface $passwordHasher;
+
+    public function __construct(UserPasswordHasherInterface $passwordHasher)
+    {
+        $this->passwordHasher = $passwordHasher;
+    }
+
+    public function load(ObjectManager $manager): void
+    {
+        $faker = Factory::create('fr_FR'); // Chargement de Faker
+
+        // Créer un admin
+        $admin = new User();
+        $admin->setEmail('admin@admin.com'); // TODO à changer en mode prod
+        $admin->setRoles(['ROLE_ADMIN', 'ROLE_VERIFIED', 'ROLE_ADULT']);
+        $admin->setPassword($this->passwordHasher->hashPassword($admin, 'admin123'));
+        $admin->setUsername('MFT');
+        $admin->setIsTerms(true);
+        $admin->setIsGpdr(true);
+        $admin->setIsVerified(true);
+        $admin->setIsAdult(true);
+        $admin->setRentedBooksCount(0);
+        $admin->setRef('ADMIN-' . $faker->unique()->numerify('######'));
+
+
+        $manager->persist($admin);
+        //création de 10 users
+        for ($i = 0; $i < 10; $i++) {
+            $user = new User();
+            $user->setEmail($faker->email());
+            $user->setUsername($faker->username);
+            $user->setIsAdult($faker->boolean(70)); // 70% sont adultes
+            $user->setRentedBooksCount($faker->numberBetween(1, 5)); // Nombre aléatoire entre 1 et 5 de livre loué
+            $user->setRef('USER-' . $faker->unique()->numerify('######')); //création d'un numéro pour chaque user
+            $user->setIsVerified( $faker->boolean(70));
+            $user->setIsTerms(true);
+            $user->setIsGpdr(true);
+
+            if ($user->isAdult() && $user->isVerified()) {
+                $user->setRoles(['ROLE_USER', 'ROLE_ADULT', 'ROLE_VERIFIED']);
+            } elseif (!$user->isAdult() && $user->isVerified()) {
+                $user->setRoles(['ROLE_USER', 'ROLE_VERIFIED']);
+            } elseif ($user->isAdult() && !$user->isVerified()) {
+                $user->setRoles(['ROLE_USER', 'ROLE_ADULT']);
+            } else {
+                $user->setRoles(['ROLE_USER']);
+            }
+            // TODO si isVerfified true là seulement mettre des emprunts
+
+            // Hasher le mot de passe
+            $hashedPassword = $this->passwordHasher->hashPassword($user, 'password');
+            $user->setPassword($hashedPassword);
+
+            $manager->persist($user);
+
+            // Ajouter une référence
+            $this->addReference('user_' . $i, $user);
+        }
+
+        $manager->flush();
+    }
+}

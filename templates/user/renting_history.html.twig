@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Historique des emprunts{% endblock %}
+
+{% block body %}
+<div class="container mx-auto p-6">
+    <h1 class="text-2xl font-semibold text-gray-800 mb-4">Historique de vos emprunts</h1>
+    
+    {% for message in app.flashes('danger') %}
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+            <thead>
+                <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                    <th class="py-3 px-6 text-left">Titre du livre</th>
+                    <th class="py-3 px-6 text-left">Date d'emprunt</th>
+                    <th class="py-3 px-6 text-left">Date de retour</th>
+                    <th class="py-3 px-6 text-left">Dernière page lue</th>
+                    <th class="py-3 px-6 text-left">Mis à jour le</th>
+                </tr>
+            </thead>
+            <tbody class="text-gray-600 text-sm font-light">
+                {% for renting in allRenting %}
+                    <tr class="border-b border-gray-200 hover:bg-gray-100">
+                        <td class="py-3 px-6">
+                            <a href="{{ path('app_book_show', {'ref': renting.book.ref}) }}" class="text-blue-500 hover:underline">
+                                {{ renting.book.title }}
+                            </a>
+                        </td>
+                        <td class="py-3 px-6">{{ renting.start|date_modify('+1 hour')|date('d/m/Y H:i') }}</td>
+                        <td class="py-3 px-6">{{ renting.end|date('d/m/Y H:i') }}</td>
+                        <td class="py-3 px-6">{{ renting.lastPage ?: 'Non renseigné' }}</td>
+                        <td class="py-3 px-6">{{ renting.getUpdatedAt() ? renting.getUpdatedAt()|date('d/m/Y H:i') : 'Jamais' }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="py-3 px-6 text-center text-gray-500">Aucun emprunt trouvé.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

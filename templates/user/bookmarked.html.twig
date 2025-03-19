@@ -1,0 +1,140 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Favoris{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Mes Favoris</h1>
+
+    <div class="flex flex-col md:flex-row gap-8">
+        {# Formulaire de tri à gauche #}
+        <div class="bg-white shadow-md rounded-lg p-6">
+          <h2 class="text-xl font-semibold mb-6">Filtres et Tri</h2>
+          {{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
+              <div class="">
+                <div class="flex flex-col space-y-2">
+                    {{ form_label(form.publication_status, 'Statut de publication', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                    <div class="space-y-2">
+                        {% for choice in form.publication_status %}
+                            <div class="flex items-center">
+                                {{ form_widget(choice, {'attr': {'class': 'h-2 w-2 text-indigo-600 focus:ring-indigo-500 border-gray-300'}}) }}
+                                {{ form_label(choice, null, {'label_attr': {'class': 'ml-2 block text-sm text-gray-900'}}) }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+              </div>
+              <div>
+                  {{ form_label(form.tags, 'Tags', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-2'}}) }}
+                  <div class="grid grid-cols-2 gap-2">
+                      {% for tag in form.tags %}
+                          <div class="flex items-center">
+                              {{ form_widget(tag, {'attr': {'class': 'h-2 w-2 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded'}}) }}
+                              {{ form_label(tag, null, {'label_attr': {'class': 'ml-2 block text-sm text-gray-900'}}) }}
+                          </div>
+                      {% endfor %}
+                  </div>
+              </div>
+              <div>
+                  {{ form_label(form.sort_by, 'Trier par', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                  {{ form_widget(form.sort_by, {'attr': {'class': 'mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md'}}) }}
+              </div>
+              <div>
+                  {{ form_label(form.sort_order, 'Ordre', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                  {{ form_widget(form.sort_order, {'attr': {'class': 'mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md'}}) }}
+              </div>
+              <div>
+                  {{ form_widget(form.submit, {'attr': {'class': 'w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'}}) }}
+              </div>
+          {{ form_end(form) }}
+      </div>
+      
+        {# Liste des favoris à droite #}
+        <div class="w-full md:w-2/3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for item in books %}
+                <div
+                class="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col"
+              >
+                <div class="h-40 bg-gray-300 relative">
+                  {% if item.getImageUrl() %}
+                  <img
+                    src="{{ item.getImageUrl() }}"
+                    alt="{{ item.title }}"
+                    class="w-full h-full object-cover"
+                  />
+                  {% else %}
+                  <div
+                    class="w-full h-full flex items-center justify-center bg-gray-200"
+                  >
+                    <span class="text-gray-500">Pas d'image</span>
+                  </div>
+                  {% endif %} {% if item.isForAdult %}
+                  <div
+                    class="absolute top-1 left-1 bg-red-500 text-white text-xs px-2 py-1 rounded"
+                  >
+                    18+
+                  </div>
+                  {% endif %}
+                  <span class="flex items-center text-sm absolute top-1 right-1">
+                      {% if not item.likes.contains(app.user) %}
+                      <form
+                        class="likes"
+                        action="{{ path('app_book_like', { ref: item.getRef() }) }}"
+                        method="POST"
+                      >
+                        <button
+                          type="submit"
+                          class="flex items-center space-x-2 text-white rounded"
+                        >
+                        {{
+                          ux_icon("mdi:heart-broken", {
+                            class: "h-2 heart-broken-icon"
+                          })
+                        }}
+                        </button>
+                      </form>
+                      {% else %}
+                      <form
+                        class="likes"
+                        action="{{
+                          path('app_book_unlike', { ref: item.getRef() })
+                        }}"
+                        method="POST"
+                      >
+                        <button
+                          type="submit"
+                          class="flex items-center space-x-2 text-white rounded"
+                        >
+                          {{ ux_icon("mdi:heart", { class: "h-2 heart-icon" }) }}
+                        </button>
+                      </form>
+                      {% endif %}
+                    </span>
+                </div>
+                <div class="p-4 flex-grow flex flex-col">
+                  <a href="{{ path('app_book_show', {'ref': item.ref })}}"> <h3 class="font-semibold text-lg mb-1 line-clamp-1">
+                    {{ item.title }}
+                  </h3></a>
+                  <p class="text-sm text-gray-500 mb-2">Par {{ item.author }}</p>
+                  <p class="text-sm text-gray-600 mb-3 line-clamp-2">
+                    {{ item.abstract|default('Aucun résumé disponible.') }}
+                  </p>
+                  <div class="mt-auto flex items-center justify-between">
+                    <span
+                      class="text-sm text-gray-500"
+                      >{{ item.createdAt|date('d/m/Y') }}</span
+                    >
+                  </div>
+                </div>
+              </div>
+                {% else %}
+                    <div class="col-span-full text-center py-8">
+                        <p class="text-gray-500">Aucun favori trouvé.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

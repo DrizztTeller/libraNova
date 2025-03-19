@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: TagRepository::class)]
 class Tag
@@ -16,24 +17,46 @@ class Tag
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
+    #[Assert\NotBlank(message: "Le nom du tag est obligatoire.")]
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: "Le nom du tag doit contenir au moins 2 caractères.",
+        maxMessage: "Le nom du tag ne peut pas dépasser 255 caractères."
+    )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z0-9\-\'\"\s]+$/',
+        message: 'Le nom du tag ne doit contenir que des lettres alphabétiques.'
+    )]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: "La description du tag est obligatoire.")]
+    #[Assert\Length(
+        min: 12,
+        minMessage: "La description doit contenir au moins 12 caractères."
+    )]
+    #[Assert\Regex(
+        pattern: '/^[\p{L}\p{N}\p{P}\p{Zs}_\-]+$/u',
+        message: 'La description ne peut contenir que des lettres, des chiffres, des espaces et des signes de ponctuation.'
+    )]
     private ?string $description = null;
 
-    #[ORM\Column]
-    private ?bool $is_for_adult = null;
-
     /**
-     * @var Collection<int, Novel>
+     * @var Collection<int, Book>
      */
-    #[ORM\ManyToMany(targetEntity: Novel::class, inversedBy: 'tags')]
-    private Collection $novels;
+    #[ORM\ManyToMany(targetEntity: Book::class, inversedBy: 'tags')]
+    private Collection $books;
 
     public function __construct()
     {
-        $this->novels = new ArrayCollection();
+        $this->books = new ArrayCollection();
+    }
+
+    public function __toString(): string
+    {
+        return $this->getName() ?? 'Tag';
     }
 
     public function getId(): ?int
@@ -49,7 +72,6 @@ class Tag
     public function setName(string $name): static
     {
         $this->name = $name;
-
         return $this;
     }
 
@@ -61,43 +83,28 @@ class Tag
     public function setDescription(string $description): static
     {
         $this->description = $description;
-
-        return $this;
-    }
-
-    public function isForAdult(): ?bool
-    {
-        return $this->is_for_adult;
-    }
-
-    public function setIsForAdult(bool $is_for_adult): static
-    {
-        $this->is_for_adult = $is_for_adult;
-
         return $this;
     }
 
     /**
-     * @return Collection<int, Novel>
+     * @return Collection<int, Book>
      */
-    public function getNovels(): Collection
+    public function getBooks(): Collection
     {
-        return $this->novels;
+        return $this->books;
     }
 
-    public function addNovel(Novel $novel): static
+    public function addBook(Book $book): static
     {
-        if (!$this->novels->contains($novel)) {
-            $this->novels->add($novel);
+        if (!$this->books->contains($book)) {
+            $this->books->add($book);
         }
-
         return $this;
     }
 
-    public function removeNovel(Novel $novel): static
+    public function removeBook(Book $book): static
     {
-        $this->novels->removeElement($novel);
-
+        $this->books->removeElement($book);
         return $this;
     }
 }
