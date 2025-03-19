@@ -175,7 +175,7 @@ final class UserController extends AbstractController
         );
 
         return $this->render('user/bookmarked.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'books' => $books
         ]);
     }
