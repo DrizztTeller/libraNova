@@ -55,22 +55,26 @@
                     <span class="text-sm px-2 py-1 bg-gray-200 rounded-full">{{tag.name}}</span>
                     {% endfor %}
                 </div>
-                
-                    {% if isRented %}
-                        <form action="{{ path('app_book_return', {'ref': book.getRef()}) }}" method="POST">
-                            <button type="submit" 
-                                class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-md transition duration-300">
-                                📖 Rendre le livre
-                            </button>
-                        </form>
-                    {% else %}
-                        <form action="{{ path('app_book_borrow', {'ref': book.getRef()}) }}" method="POST">
-                            <button type="submit" 
-                                class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition duration-300">
-                                📚 Emprunter le livre
-                            </button>
-                        </form>
-                    {% endif %}
+                {% if book.isPublished %}
+                    
+                {% if isRented %}
+                <form action="{{ path('app_book_return', {'ref': book.getRef()}) }}" method="POST">
+                    <button type="submit" 
+                    class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-md transition duration-300">
+                    📖 Rendre le livre
+                </button>
+            </form>
+            {% else %}
+            <form action="{{ path('app_book_borrow', {'ref': book.getRef()}) }}" method="POST">
+                <button type="submit" 
+                class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition duration-300">
+                📚 Emprunter le livre
+            </button>
+        </form>
+        {% endif %}
+        {% else %}
+        <p>Livre indisponible pour le moment.</p>
+        {% endif %}
                 
             </div>
         </div>
