@@ -126,8 +126,10 @@ class BookController extends AbstractController
                 return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
             }
 
+            $isRented = false;
             return $this->render('book/show.html.twig', [
                 'book' => $book,
+                'isRented' => $isRented
             ]);
         }
     }
