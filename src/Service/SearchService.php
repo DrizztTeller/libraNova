@@ -141,7 +141,7 @@ class SearchService
         $queryBuilder->leftJoin('e.likes', 'u')
           ->groupBy('e.id')
           ->having('COALESCE(COUNT(u.id), 0) >= :likes')
-          ->setParameter('likes', 10);
+          ->setParameter('likes', 1);
       }
       // Si 'likes' est égal à false, on filtre pour les livres ayant moins de 10 likes
       elseif ($criteria['likes'] === false) {
