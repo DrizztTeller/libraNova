@@ -69,7 +69,7 @@ class BookFixture extends Fixture implements DependentFixtureInterface
         }
 
         // Créer 50 livres
-        for ($i = 0; $i < 20; $i++) {
+        for ($i = 0; $i < 50; $i++) {
             $book = new Book($this->slugger);
 
             //Selection de tags
@@ -105,6 +105,12 @@ class BookFixture extends Fixture implements DependentFixtureInterface
             // Ajouter les tags au livre
             foreach ($selectedTags as $tag) {
                 $book->addTag($tag);
+                if ($book->isForAdult()) {
+                    $book->addTag($adultTag);
+                }
+                if ($tag == $adultTag) {
+                    $book->setIsForAdult(true);
+                }
             }
 
             $manager->persist($book);

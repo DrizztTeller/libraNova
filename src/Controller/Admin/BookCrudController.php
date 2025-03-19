@@ -146,7 +146,7 @@ class BookCrudController extends AbstractCrudController
             ->setFormTypeOption('attr', ['id' => 'book_is_published', 'name' => 'book_is_published']);
         yield BooleanField::new('is_for_adult', 'Contenu adulte')
             ->setFormTypeOption('attr', ['id' => 'book_is_for_adult', 'name' => 'book_is_for_adult']);
-        yield DateField::new('released_at', 'Date de retour')
+        yield DateField::new('released_at', 'Date de publication')
             ->setFormTypeOption('attr', ['id' => 'book_released_at', 'name' => 'book_released_at']);
 
         if (in_array($pageName, $viewFieldsOnly)) {
