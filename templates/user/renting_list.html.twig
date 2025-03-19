@@ -74,10 +74,10 @@ block body %}
       <p class="text-sm text-gray-600 mb-3 line-clamp-2">
         {{ item.book.abstract|default('Aucun résumé disponible.') }}
       </p>
-      <div class="mt-auto flex items-center justify-between">
+      <div class="mt-auto flex items-center justify-between mb-2">
         <span
           class="text-sm text-gray-500"
-          >{{ item.book.releasedAt|date('d/m/Y') }}</span
+          >Publié le {{ item.book.releasedAt|date('d/m/Y') }}</span
         >
       </div>
       <p class="text-gray-600 text-sm">
@@ -88,13 +88,13 @@ block body %}
         Retour prévu : {{ item.end|date('d/m/Y H:i') }}
       </p>
     </div>
-    <div class="flex space-x-4 mt-4">
-      <form class="likes" action="{{ path('app_book_return', {'ref': renting.book.getRef()}) }}" method="POST">
+    <div class="flex mx-6 mt-1 mb-6 justify-between w-75 ">
+      <form class="likes" action="{{ path('app_book_return', {'ref': item.book.getRef()}) }}" method="POST">
         <button type="submit" class="heart-button unlike-button">
           Rendre le livre
         </button>
       </form>
-      <a href="{{ path('app_book_pdf', {'ref': renting.book.ref}) }}" method="POST" target="_blank">Lire</a>
+      <a href="{{ path('app_book_pdf', {'ref': item.book.ref}) }}" method="POST" target="_blank">Lire</a>
     </div>
   </div>
     {% else %}

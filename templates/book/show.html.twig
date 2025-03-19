@@ -1,50 +1,81 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ book.title }}{% endblock %}
+{% block title %}{{ book.title }} | LibraNova{% endblock %}
 
-{% block body %}
-<div class="max-w-md mx-auto p-6 bg-white rounded-xl shadow-md space-y-4 font-sans">
-  <h1 class="text-2xl font-bold text-gray-800">{{ book.title }}</h1>
-  <a href="{{ path('app_book_index') }}" class="text-blue-500 underline">
+{% block body %}  
+
+<div class="container mx-auto mt-5 px-4 flex flex-col gap-5">
+<a href="{{ path('app_book_index') }}" class="text-blue-500 underline">
     ⬅️ Retour à la liste
-  </a>
+</a>
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="relative">
+            {% if book.getImageUrl() %}
+                <img src="{{ book.getImageUrl() }}" alt="{{ book.title }}" class="w-full h-96 object-cover">
+            {% else %}
+                <div class="w-full h-96 flex items-center justify-center bg-gray-200">
+                    <span class="text-gray-500">Pas d'image</span>
+                </div>
+            {% endif %}
 
-{% if not isLiked %}
-  <form class="likes mt-4" action="{{ path('app_book_like', {'ref': book.getRef()}) }}" method="POST">
-    <button type="submit" class="flex items-center space-x-2 px-4 py-2 bg-red-500 text-white rounded">
-      ❤️ 
-    </button>
-  </form>
-  {% else %}
-  <form class="likes mt-4" action="{{ path('app_book_unlike', {'ref': book.getRef()}) }}" method="POST">
-    <button type="submit" class="flex items-center space-x-2 px-4 py-2 bg-gray-500 text-white rounded">
-      💔 
-    </button>
-  </form>
-  {% endif %}
+            <!-- Indicateur 18+ en haut à gauche -->
+            {% if book.isForAdult %}
+                <div class="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+                    18+
+                </div>
+            {% endif %}
 
-  {# Infos sur le livre #}
-  <div class="border-t border-gray-300 pt-4">
-    <p><strong>Auteur :</strong> {{ book.author }}</p>
-    <p><strong>Date de publication :</strong> {{ book.releasedAt|date("d/m/Y") }}</p>
-    <p><strong>Résumé :</strong> {{ book.abstract }}</p>
-  </div>
+            <!-- Formulaire de like/unlike en haut à droite -->
+            <div class="absolute top-2 right-2">
+                {% if not book.likes.contains(app.user) %}
+                    <form class="likes" action="{{ path('app_book_like', { ref: book.getRef() }) }}" method="POST">
+                        <button type="submit" class="flex items-center space-x-2 text-white rounded p-2">
+                            {{ ux_icon("mdi:heart-broken", { class: "h-4 w-4 heart-broken-icon" }) }}
+                        </button>
+                    </form>
+                {% else %}
+                    <form class="likes" action="{{ path('app_book_unlike', { ref: book.getRef() }) }}" method="POST">
+                        <button type="submit" class="flex items-center space-x-2 text-white rounded p-2">
+                            {{ ux_icon("mdi:heart", { class: "h-4 w-4 heart-icon" }) }}
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
 
+        <div class="p-6">
+            <h1 class="text-2xl font-bold mb-2">{{ book.title }}</h1>
+            <p class="text-gray-500 mb-4">Par {{ book.author }}</p>
+            <p class="text-gray-700 mb-6">{{ book.abstract|default('Aucun résumé disponible.') }}</p>
 
-  {# Section Emprunt #}
-  {% if not isRented %}
-  <form class="likes mt-4" action="{{ path('app_book_borrow', {'ref': book.getRef()}) }}" method="POST">
-    <button type="submit" class="flex items-center space-x-2 px-4 py-2 bg-green-500 text-white rounded">
-      📖 <span>Emprunter le livre</span>
-    </button>
-  </form>
-  {% else %}
-  <form class="likes mt-4" action="{{ path('app_book_return', {'ref': book.getRef()}) }}" method="POST">
-    <button type="submit" class="flex items-center space-x-2 px-4 py-2 bg-red-500 text-white rounded">
-      🔄 <span>Rendre le livre</span>
-    </button>
-  </form>
-  <a href="{{ path('app_book_pdf', {'ref': book.ref}) }}" target="_blank" class="text-blue-500">👁️ <span>Lire</span></a>
-  {% endif %}
+            <div class="flex items-center justify-between">
+                <div class="flex gap-5 items-center">
+                    <span class="text-sm text-gray-500">{{ book.releasedAt|date('d/m/Y') }}</span>
+                    {% for tag in book.tags %}
+                    <span class="text-sm px-2 py-1 bg-gray-200 rounded-full">{{tag.name}}</span>
+                    {% endfor %}
+                </div>
+                
+                    {% if isRented %}
+                        <form action="{{ path('app_book_return', {'ref': book.getRef()}) }}" method="POST">
+                            <button type="submit" 
+                                class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-md transition duration-300">
+                                📖 Rendre le livre
+                            </button>
+                        </form>
+                    {% else %}
+                        <form action="{{ path('app_book_borrow', {'ref': book.getRef()}) }}" method="POST">
+                            <button type="submit" 
+                                class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition duration-300">
+                                📚 Emprunter le livre
+                            </button>
+                        </form>
+                    {% endif %}
+                
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
+
+
