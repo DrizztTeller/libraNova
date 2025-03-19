@@ -484,7 +484,7 @@ e-bibliothèque de France{% endblock %} {% block stylesheets %}
 {% block javascripts %}
 {{ parent() }}
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("turbo:load", function () {
     // Function to handle carousel scrolling
     function setupCarousel(carouselId, prevId, nextId) {
       const carousel = document.getElementById(carouselId);
